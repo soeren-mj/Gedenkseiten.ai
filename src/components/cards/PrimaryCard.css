@@ -1,0 +1,69 @@
+/* PrimaryCard.css */
+.primary-card {
+  width: 22.875rem;
+  height: 25.8125rem;
+  padding: 1.25rem 0.5rem 0 0.5rem;
+  border-radius: 1.5rem;
+  border: 1px solid var(--border-card, #000);
+  background: var(--background-opacity-primary, rgba(0,0,0,0.86));
+  box-shadow: 1px 1px 10px 1px rgba(210,211,217,0.20);
+  backdrop-filter: blur(30.5px);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-start;
+  overflow: hidden;
+  transition: background 0.2s, box-shadow 0.2s;
+}
+.primary-card:hover {
+  background: var(--background-bw);
+  box-shadow: 0 4px 24px 0 rgba(210,211,217,0.28);
+}
+.primary-card-header {
+  display: flex;
+  padding: 0 0.5rem;
+  align-items: flex-start;
+  gap: 1.5rem;
+  align-self: stretch;
+  width: 100%;
+}
+.primary-card-icon {
+  font-size: 2rem;
+  color: var(--foreground-interactiv-accents-orange, #E5A417);
+  margin-top: 0.125rem;
+  flex-shrink: 0;
+}
+.primary-card-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+  flex: 1 0 0;
+}
+.primary-card-headline {
+  color: var(--foreground-primary, #F0F0F2);
+  font-family: Inter;
+  font-size: 1rem;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 150%;
+  letter-spacing: -0.0025rem;
+}
+.primary-card-description {
+  color: var(--foreground-secondary, #C0C1CC);
+  font-family: Inter;
+  font-size: 0.875rem;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 165%;
+  letter-spacing: 0.01531rem;
+}
+.primary-card-image {
+  width: 100%;
+  height: 10.86256rem;
+  aspect-ratio: 350/173.8;
+  object-fit: cover;
+  align-self: stretch;
+  flex-shrink: 0;
+  background: #222;
+} 

@@ -1,0 +1,197 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
+import Image from 'next/image';
+import Button from '@/components/ui/Button';
+
+export default function Navbar() {
+  const [isVisible, setIsVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState<string>('');
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      
+      // Navbar nur verstecken, wenn wir mehr als 300px gescrollt haben
+      if (currentScrollY > 300) {
+        if (currentScrollY > lastScrollY) {
+          // Scrolling down
+          setIsVisible(false);
+        } else {
+          // Scrolling up
+          setIsVisible(true);
+        }
+      } else {
+        // Im oberen Bereich immer sichtbar
+        setIsVisible(true);
+      }
+      
+      setLastScrollY(currentScrollY);
+
+      // Aktive Section aktualisieren
+      const sections = ['so-what', 'preview', 'create', 'faq'];
+      const currentSection = sections.find(sectionId => {
+        const element = document.getElementById(sectionId);
+        if (element) {
+          const rect = element.getBoundingClientRect();
+          return rect.top <= 100 && rect.bottom >= 100;
+        }
+        return false;
+      });
+      setActiveSection(currentSection || '');
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [lastScrollY]);
+
+  const scrollToSection = (sectionId: string) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      const navHeight = 80; // Höhe der Navbar
+      const elementPosition = element.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - navHeight;
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      });
+      setIsMenuOpen(false);
+    }
+  };
+
+  const navLinkClasses = (sectionId: string) => `
+    text-foreground-primary 
+    hover:text-[#E0E1E5] 
+    active:text-[#475EEC] 
+    transition-colors 
+    font-inter 
+    text-base 
+    leading-[100%] 
+    tracking-[-0.0025em] 
+    font-medium
+    ${activeSection === sectionId ? 'text-[#475EEC]' : ''}
+  `;
+
+  return (
+    <nav
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        isVisible ? 'translate-y-0' : '-translate-y-full'
+      }`}
+    >
+      <div className="w-full max-w-[1820px] mx-auto px-5 md:px-8 lg:px-[60px]">
+        <div className="flex items-center justify-between h-20">
+          {/* Logo and Brand */}
+          <div className="flex items-center">
+            <Link href="/" className="flex items-center space-x-3">
+              <Image
+                src="/images/logo-gedenkseiten.ai-white-x4.png"
+                alt="Gedenkseiten.ai - Digitale Erinnerungsstücke für Ihre Liebsten"
+                width={40}
+                height={40}
+                className="w-10 h-10"
+              />
+              <span className="text-foreground-primary font-satoshi text-xl font-medium">
+                Gedenkseiten.ai
+              </span>
+            </Link>
+          </div>
+
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex items-center space-x-12">
+            <button 
+              onClick={() => scrollToSection('so-what')}
+              className={navLinkClasses('so-what')}
+            >
+              Inhalte
+            </button>
+            <button 
+              onClick={() => scrollToSection('preview')}
+              className={navLinkClasses('preview')}
+            >
+              Vorschau
+            </button>
+            <button 
+              onClick={() => scrollToSection('create')}
+              className={navLinkClasses('create')}
+            >
+              So Funktioniert's
+            </button>
+            <button 
+              onClick={() => scrollToSection('faq')}
+              className={navLinkClasses('faq')}
+            >
+              FAQ
+            </button>
+            <Button />
+          </div>
+
+          {/* Mobile Menu Button */}
+          <button
+            className="md:hidden p-2"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            aria-label="Toggle menu"
+          >
+            <svg
+              className="w-6 h-6 text-foreground-primary"
+              fill="none"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              {isMenuOpen ? (
+                <path d="M6 18L18 6M6 6l12 12" />
+              ) : (
+                <path d="M4 6h16M4 12h16M4 18h16" />
+              )}
+            </svg>
+          </button>
+        </div>
+
+        {/* Mobile Menu */}
+        <div
+          className={`md:hidden transition-all duration-300 ease-in-out ${
+            isMenuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+          } overflow-hidden`}
+        >
+          <div className="py-4 space-y-4">
+            <button 
+              onClick={() => scrollToSection('so-what')}
+              className={`block w-full text-left ${navLinkClasses('so-what')} px-4 py-2`}
+            >
+              Inhalte
+            </button>
+            <button 
+              onClick={() => scrollToSection('preview')}
+              className={`block w-full text-left ${navLinkClasses('preview')} px-4 py-2`}
+            >
+              Vorschau
+            </button>
+            <button 
+              onClick={() => scrollToSection('create')}
+              className={`block w-full text-left ${navLinkClasses('create')} px-4 py-2`}
+            >
+              So Funktioniert's
+            </button>
+            <button 
+              onClick={() => scrollToSection('faq')}
+              className={`block w-full text-left ${navLinkClasses('faq')} px-4 py-2`}
+            >
+              FAQ
+            </button>
+            <div className="px-4 py-2">
+              <Button />
+            </div>
+          </div>
+        </div>
+      </div>
+      {/* Blurred background */}
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-lg -z-10" />
+    </nav>
+  );
+} 
