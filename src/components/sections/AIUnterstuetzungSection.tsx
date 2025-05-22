@@ -10,7 +10,7 @@ import SparklesIcon from '@/components/icons/SparklesIcon';
 
 const AIUnterstuetzungSection: React.FC = () => {
   return (
-    <section id="ai-unterstuetzung" className="w-full flex flex-col items-center max-w-[113.75rem] mx-auto py-[3.75rem] px-[1.25rem] md:px-[2rem] lg:px-[3.75rem] relative overflow-visible">
+    <section id="ai-unterstuetzung" className="w-full flex flex-col items-center max-w-[113.75rem] mx-auto py-[3.75rem] px-[1.25rem] md:px-[2rem] lg:px-[3.75rem] relative overflow-visible overflow-x-hidden">
       {/* Dekoratives SVG-Hintergrundbild oben links */}
       <div className="pointer-events-none select-none absolute left-[-5rem] top-[-8rem] w-[48rem] max-w-[60vw] h-auto z-0" aria-hidden="true">
         <svg width="1092" height="1128" viewBox="0 0 1092 1128" fill="none" xmlns="http://www.w3.org/2000/svg">
