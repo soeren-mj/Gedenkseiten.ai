@@ -33,9 +33,9 @@ const AIUnterstuetzungSection: React.FC = () => {
         </svg>
       </div>
       {/* Grid-Layout */}
-      <div className="w-full max-w-[113.75rem] grid grid-cols-1 md:grid-cols-4 grid-rows-4 md:grid-rows-2 gap-6 auto-rows-fr relative z-10">
+      <div className="w-full max-w-[113.75rem] grid grid-cols-1 md:grid-cols-4 grid-rows-none md:grid-rows-2 gap-3 md:gap-6 relative z-10">
         {/* Headline-Box: nimmt zwei Spalten, eine Zeile */}
-        <div className="col-span-2 row-span-1 flex flex-col items-start justify-center gap-4 bg-transparent p-0 z-10">
+        <div className="flex flex-col items-start justify-center gap-4 bg-transparent p-0 z-10 md:col-span-2 md:row-span-1">
           <SparklesIcon className="w-16 h-16 text-white fill-white" />
           <div className="" style={{color: '#F2F0EB', fontFamily: 'Satoshi'}}>coming soon</div>
           <h2>
@@ -47,11 +47,13 @@ const AIUnterstuetzungSection: React.FC = () => {
             Lass dir auch bei Texten helfen und deine Bilder verbessern.
           </p>
         </div>
+        {/* Abstand unter Headline nur auf mobile */}
+        <div className="block md:hidden h-2"></div>
         {/* Leere Zellen rechts neben der Headline */}
-        <div className="col-span-1 row-span-1" />
-        <div className="col-span-1 row-span-1" />
+        <div className="hidden md:block md:col-span-1 md:row-span-1" />
+        <div className="hidden md:block md:col-span-1 md:row-span-1" />
         {/* PrimaryCard 1 */}
-        <div className="row-span-1">
+        <div className="mt-2 md:mt-0 md:row-span-1">
           <PrimaryCard
             icon={<BildverbesserungIcon className="w-8 h-8" />}
             headline="KI-Bildverbesserung"
@@ -61,7 +63,7 @@ const AIUnterstuetzungSection: React.FC = () => {
           />
         </div>
         {/* PrimaryCard 2 */}
-        <div className="row-span-1">
+        <div className="mt-2 md:mt-0 md:row-span-1">
           <PrimaryCard
             icon={<ChatIcon className="w-8 h-8" />}
             headline="KI-Textunterstützung"
@@ -71,7 +73,7 @@ const AIUnterstuetzungSection: React.FC = () => {
           />
         </div>
         {/* Großes Chat-Element (nimmt zwei Zeilen ein) */}
-        <div className="md:row-span-2 col-span-2 flex flex-col p-5 justify-center gap-6 bg-black/40 rounded-2xl border border-black shadow-[1px_1px_10px_1px_rgba(210,211,217,0.20)] backdrop-blur-[61px] min-h-[300px]">
+        <div className="flex flex-col p-5 justify-center gap-6 bg-black/40 rounded-2xl border border-black shadow-[1px_1px_10px_1px_rgba(210,211,217,0.20)] backdrop-blur-[61px] min-h-[300px] md:row-span-2 md:col-span-2">
           {/* Chat-Header */}
           <div className="p-6 bg-black/40 rounded-xl">
             <h4>Erzähl mir, für wen möchtest du eine Gedenkseite erstellen?</h4>
@@ -110,7 +112,7 @@ const AIUnterstuetzungSection: React.FC = () => {
           </div>
         </div>
         {/* Große PrimaryCard (nimmt zwei Spalten ein) */}
-        <div className="col-span-2 row-span-1">
+        <div className="md:col-span-2 md:row-span-1">
           <PrimaryCard
             icon={<AiCircleIcon className="w-8 h-8" />}
             headline="KI-gestützte Inhaltserstellung"

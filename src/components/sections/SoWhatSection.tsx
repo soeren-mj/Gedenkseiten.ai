@@ -9,7 +9,7 @@ interface SoWhatSectionProps {
 // Neue Komponente für die Zahlen-Box
 function SoWhatNumberBox({ number, text }: { number: string; text: string }) {
   return (
-    <div className="flex w-full items-center justify-center gap-2">
+    <div className="flex w-full items-center justify-center gap-2 py-8 md:py-0">
       <span className="text-[5.25rem] font-medium leading-[100%] font-satoshi flex items-center relative">
         {number === "1" ? (
           <span 
@@ -47,7 +47,7 @@ const SoWhatSection: React.FC<SoWhatSectionProps> = ({ onStartClick }) => {
     <section id="so-what" className="w-full flex flex-col items-center gap-5 md:gap-6 lg:gap-10 mt-20">
       <div className="w-full max-w-[113.75rem] px-5 md:px-8 lg:px-[3.75rem] py-[3.75rem] flex flex-col items-center">
         <div className="flex items-center w-full lg:w-full md:w-fit p-2 md:px-2 lg:px-8 pb-5 md:pb-5 lg:pb-[3.75rem]">
-          <div className="max-w-[685px] text-foreground-secondary font-inter text-lg md:text-xl lg:text-2xl leading-[130%] md:leading-[140%] lg:leading-[140%] tracking-[-0.005rem]">
+          <div className="max-w-[685px] text-foreground-secondary font-inter text-2xl leading-[150%] md:leading-[140%] lg:leading-[140%] tracking-[-0.005rem]">
             <span className="text-foreground-bw">Moderne ansprechende Gedenkseiten</span>
             {' '}sind, im Gegensatz zu traditionellen Erinnerungsformen wie gedruckten Fotos, Alben oder Trauerkarten, jederzeit und durch fast jeden von überall zugänglich. Sie bieten einen Raum, in dem Freunde und Familie ihre Trauer ausdrücken und sich gegenseitig unterstützen können. Auch wenn Menschen nicht persönlich an der Beerdigung oder Trauerfeier teilnehmen können, haben diese die Möglichkeit, online ihr Beileid auszudrücken und Unterstützung zu zeigen. Diese gemeinschaftliche Trauerbewältigung kann sehr heilend wirken.
           </div>
