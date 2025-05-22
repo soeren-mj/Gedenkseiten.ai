@@ -309,7 +309,7 @@ const PreviewCardSlider: React.FC = () => {
               aria-selected={idx === activeTab}
               aria-controls={`tab-panel-${idx}`}
               id={`tab-${idx}`}
-              className={`px-4 py-2 rounded-full font-inter font-semibold text-base transition-colors flex items-center whitespace-nowrap flex-shrink-0 ${
+              className={`px-4 py-2 rounded-full font-inter font-medium text-base transition-colors flex items-center whitespace-nowrap flex-shrink-0 ${
                 idx === activeTab
                   ? 'bg-blue-700 text-white shadow'
                   : 'bg-transparent text-foreground-secondary hover:bg-zinc-800'

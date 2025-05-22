@@ -113,7 +113,7 @@ const MultiPreviewCard: React.FC<MultiPreviewCardProps> = ({ type = 'family' }) 
 
       {/* Callout */}
       <div
-        className="px-2 pt-0 pb-0 font-inter font-medium text-[20px] leading-[1.35] tracking-[-0.15px] text-[#636573]"
+        className="px-2 pt-0 pb-0 text-[1.5rem] leading-[1.35] tracking-[-0.15px] text-[#4D4E59]"
         style={{ letterSpacing: '-0.15px' }}
       >
         {type === 'family' 
@@ -122,10 +122,10 @@ const MultiPreviewCard: React.FC<MultiPreviewCardProps> = ({ type = 'family' }) 
       </div>
 
       {/* Content */}
-      <div className="flex flex-col gap-6 overflow-hidden">
+      <div className="flex flex-col px-4 gap-6 overflow-hidden">
         {type === 'event' ? (
           <div className="mt-4 mb-4">
-            <h3 className="font-inter font-semibold px-2 text-sm leading-[160%] text-black mb-4">
+            <h3 className="font-inter font-semibold text-sm leading-[160%] text-black mb-4">
               Gestorbene Personen
             </h3>
             <div className="grid grid-cols-2 gap-4">
@@ -165,9 +165,19 @@ const MultiPreviewCard: React.FC<MultiPreviewCardProps> = ({ type = 'family' }) 
       </div>
 
       {/* Reaktionen */}
-      <div className="border-t border-b border-[#D2D3D9] py-4 px-2 flex flex-col gap-4">
+      <div className="border-t border-b border-[#D2D3D9] py-4 px-4 flex flex-col gap-4">
         <div className="text-[14px] font-inter font-semibold text-[#1F2024] mb-2">Reaktionen</div>
-        <Reactions onReactionChange={setReactions} />
+        <Reactions
+          reactions={reactions}
+          onReactionClick={(reaction) => {
+            const idx = reactions.findIndex(r => r.key === reaction.key);
+            if (idx !== -1) {
+              const updated = reactions.map((r, i) => i === idx ? { ...r, value: r.value + 1 } : r);
+              updated.sort((a, b) => b.value - a.value);
+              setReactions(updated);
+            }
+          }}
+        />
       </div>
 
       {/* Nachruf */}

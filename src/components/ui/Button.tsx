@@ -19,13 +19,13 @@ export default function Button({
     <button
       className={`
         font-[500] inline-flex justify-center items-center
-        bg-[#475EEC] text-white
+        bg-[#213EFF] text-white
         shadow-[1px_1px_10px_1px_rgba(210,211,217,0.20)]
         backdrop-blur-[30.5px]
         transition
         focus:outline-none focus:ring-2 focus:ring-[#92A1FC] focus:ring-offset-2
         disabled:bg-[#858585] disabled:text-[#C0C1CC] disabled:cursor-not-allowed
-        hover:bg-[#3a4ecb] active:bg-[#2c3a99]
+        hover:bg-[#0928F5] active:bg-[#0822CC]
         ${sizeClasses}
       `}
       style={{ fontFamily: 'Inter', letterSpacing: size === 's' ? '0.18px' : undefined }}

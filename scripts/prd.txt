@@ -1,0 +1,156 @@
+Product Requirements Document
+SEO-optimierte Landing Page mit Waitlist-Funktion
+1. Produktübersicht
+Produktname: Gedenkseiten.aiZweck: Eine hochkonvertierte Landing Page mit Waitlist-Funktion, die hervorragende SEO-Rankings erzielt
+Technologie-Stack: Frontend-Framework + Supabase + ResendPrimäre Zielgruppe: Menschen, die jemanden verloren haben (gestorben) und eine Gedenkseite erstellen wollen.Verantwortlicher Produktmanager: Sören
+2. Geschäftsziele & Erfolgsmetriken
+Geschäftsziele
+Maximierung der organischen Sichtbarkeit durch Top-Google-Rankings
+Sammlung qualifizierter E-Mail-Adressen für die Waitlist
+Aufbau von Produktinteresse und Markenbekanntheit vor dem offiziellen Launch
+
+Erfolgsmetriken
+SEO-Performance: Top 10 Google-Ranking für [Haupt-Keywords]
+Konversionsrate: Mindestens 30% der Besucher tragen sich in die Waitlist ein
+Absprungrate: Unter 40%
+Durchschnittliche Verweildauer: Über 2 Minuten
+
+3. Benutzeranforderungen
+Benutzerreise
+Benutzer landet auf der Seite (über organische Suche oder andere Kanäle)
+Benutzer erfasst innerhalb von 5 Sekunden den Mehrwert des Produkts
+Benutzer wird durch überzeugende Inhalte zum Weiterlesen animiert
+Benutzer entscheidet sich, der Waitlist beizutreten
+Benutzer erhält eine Bestätigungsmail und klar kommunizierte Erwartungen
+
+Benutzeranforderungen
+Sofortiges Verständnis des Produktwerts
+Einfacher und schneller Anmeldeprozess für die Waitlist
+Transparente Information über die nächsten Schritte
+Vertrauensvolle Darstellung des Produkts/der Marke
+
+4. Funktionale Anforderungen
+Landing Page Komponenten
+Hero-Sektion
+Prägnante Headline, die den Hauptwert des Produkts kommuniziert
+Unterstützender Subheader, der Details liefert
+Primärer CTA-Button für die Waitlist-Anmeldung
+Visuell ansprechendes Hauptbild/Produktvisualisierung
+
+Value Proposition Sektion
+3-4 Hauptvorteile des Produkts
+Unterstützende Icons/Bilder
+Klare, prägnante Beschreibungen
+
+Details/Features Sektion
+Tiefergehende Produktinformationen
+Unterstützende Grafiken/Screenshots
+Sekundäre CTAs
+
+Social Proof Sektion (falls verfügbar)
+Testimonials oder Vorab-Bewertungen
+Logos von Partnern/Kunden/Medien
+
+FAQ Sektion
+Häufig gestellte Fragen mit klaren Antworten
+Strukturiert mit Schemas für SEO
+
+Waitlist Anmeldeformular
+E-Mail-Eingabefeld
+Opt-in für Marketing (DSGVO-konform)
+Klarer Anmelde-Button
+Bestätigungsnachricht nach Anmeldung
+
+Footer
+Rechtliche Links (Impressum, Datenschutz, AGB)
+Social Media Links
+Kontaktinformationen
+
+Waitlist-Funktionalität
+E-Mail-Sammlung über Supabase
+Automatische Bestätigungsmail über Resend
+Duplikaterkennung und -vermeidung
+Admin-Dashboard zur Einsicht der Anmeldungen
+
+5. Nicht-funktionale Anforderungen
+Performance
+Ladezeit: Unter 2 Sekunden auf Desktop, unter 3 Sekunden auf Mobile
+Core Web Vitals:
+LCP (Largest Contentful Paint): < 2,5s
+FID (First Input Delay): < 100ms
+CLS (Cumulative Layout Shift): < 0,1
+
+SEO-Optimierung
+Vollständige Meta-Tags (Title, Description)
+Semantisch korrektes HTML mit logischer Heading-Struktur
+Alt-Texte für alle Bilder
+Implementierung von strukturierten Daten (JSON-LD)
+Mobile-freundliches Design
+HTTPS-Sicherheit
+Sitemap.xml und robots.txt
+
+Sicherheit & Datenschutz
+HTTPS-Verschlüsselung
+DSGVO-konforme Datenspeicherung
+Sichere Handhabung von Benutzerinformationen
+Schutz vor XSS und CSRF-Angriffen
+
+Kompatibilität
+Browser-Unterstützung: Chrome, Firefox, Safari, Edge (aktuelle und vorherige Version)
+Geräte: Desktop, Tablet, Mobiltelefone
+Bildschirmgrößen: Responsive Design für Bildschirme von 320px bis 2560px Breite
+
+6. Design-Anforderungen
+Konsistenz mit der Markenidentität
+Klare visuelle Hierarchie
+Angemessener Weißraum
+Leserliche Typografie (mindestens 16px für Fließtext)
+Hochwertige Bilder und Grafiken
+Zugängliche Farbkontraste (WCAG AA-konform)
+
+7. Technische Anforderungen
+Frontend
+Modernes Frontend-Framework für optimale Performance
+Komponenten-basierte Architektur
+Responsive Design mit Mobile-First-Ansatz
+Optimierte Assets (Bilder, CSS, JS)
+
+Backend (Supabase)
+Effiziente Datenbankstruktur für Waitlist-Einträge
+Sichere API-Endpoints
+Validierung der E-Mail-Adressen
+Schutz vor Spam-Einträgen
+
+E-Mail (Resend)
+Professionelles E-Mail-Template
+Zuverlässige Zustellbarkeit
+Tracking von Öffnungsraten und Klicks
+
+8. Analytik & Tracking
+Google Analytics 4 Integration
+Event-Tracking für wichtige Benutzeraktionen
+Conversion-Tracking für Waitlist-Anmeldungen
+Heatmaps zur Analyse des Benutzerverhaltens
+
+9. Rechtliche Anforderungen
+DSGVO-konforme Datenschutzerklärung
+Cookie-Banner/Consent-Management
+Rechtskonforme Impressumsangaben
+Transparente Kommunikation der Datennutzung
+
+10. Launch-Checklist
+Vollständiger funktionaler Test
+SEO-Audit
+Performance-Test
+Cross-Browser-/Cross-Device-Test
+Rechtliche Überprüfung
+Analytics-Setup-Überprüfung
+Backupstrategie implementiert
+
+11. Zukunftspläne & Skalierbarkeit
+Integration von A/B-Testing
+Erweiterung um Multi-Language-Support
+Implementierung von personalisierten Waitlist-Positionen
+Referral-System für die Waitlist
+
+Änderungsprotokoll

@@ -2,6 +2,9 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { Inter } from 'next/font/google';
 import Navbar from '@/components/Navbar';
+import { CookieBanner } from '@/components/CookieBanner';
+import { MainFooter } from '@/components/layout/MainFooter';
+import { GTM } from '@/components/GTM';
 import { 
   faqSchema, 
   breadcrumbSchema, 
@@ -10,6 +13,9 @@ import {
   localBusinessSchema,
   webpageSchema 
 } from './structured-data';
+import { GA_MEASUREMENT_ID } from '@/lib/analytics';
+import Script from 'next/script';
+import { useEffect, useState } from 'react';
 // import ThemeProviderClient from './ThemeProviderClient';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
@@ -54,40 +60,71 @@ export const metadata: Metadata = {
   verification: {
     google: 'dOKxXxVN478RDsBOu9zBccg3uhRbgNuhh0WmNuF8EQU',
   },
+  authors: [{ name: 'Gedenkseiten.ai' }],
+  creator: 'Gedenkseiten.ai',
+  publisher: 'Gedenkseiten.ai',
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const [analyticsAllowed, setAnalyticsAllowed] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const consent = JSON.parse(localStorage.getItem('cookie-consent') || '{}');
+      setAnalyticsAllowed(!!consent.analytics);
+    }
+  }, []);
+
   return (
     <html lang="de" className={inter.variable}>
       <head>
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@graph": [
+                organizationSchema,
+                websiteSchema,
+                localBusinessSchema,
+                faqSchema,
+                breadcrumbSchema,
+                webpageSchema,
+              ],
+            }),
+          }}
         />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
-        />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
-        />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
-        />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessSchema) }}
-        />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(webpageSchema) }}
-        />
+        {/* Google Analytics */}
+        {GA_MEASUREMENT_ID && (
+          <>
+            <Script
+              src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
+              strategy="afterInteractive"
+            />
+            <Script id="google-analytics" strategy="afterInteractive">
+              {`
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', '${GA_MEASUREMENT_ID}', {
+                  page_path: window.location.pathname,
+                });
+              `}
+            </Script>
+          </>
+        )}
       </head>
-      <body className="bg-primary text-foreground-bw">
+      <body className="min-h-screen bg-background-primary text-foreground-primary flex flex-col">
         <Navbar />
-        {children}
+        <main className="flex-1 pt-16">{children}</main>
+        <MainFooter />
+        <CookieBanner />
+        {analyticsAllowed && <GTM gtmId="GTM-P27C3RV9" />}
       </body>
     </html>
   );

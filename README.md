@@ -1,24 +1,83 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Gedenkseiten.ai
 
-## Getting Started
+Eine moderne Plattform für digitale Gedenkseiten, entwickelt mit Next.js 14, Supabase und Tailwind CSS.
 
-First, run the development server:
+## Funktionen
 
+- 🎨 Modernes, responsives Design
+- 🔒 Sichere Authentifizierung mit Supabase
+- 📧 E-Mail-Bestätigung mit Resend
+- 📊 Analytics mit Google Analytics 4
+- 🔍 SEO-optimiert
+- 🌐 DSGVO-konform mit Cookie-Banner
+- 🚀 Optimierte Performance
+
+## Technologie-Stack
+
+- Next.js 14 (App Router)
+- TypeScript
+- Tailwind CSS
+- Supabase
+- Resend für E-Mails
+- Google Analytics 4
+
+## Erste Schritte
+
+1. Repository klonen:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/yourusername/gedenkseiten-ai.git
+cd gedenkseiten-ai
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Abhängigkeiten installieren:
+```bash
+npm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Umgebungsvariablen konfigurieren:
+Erstellen Sie eine `.env.local` Datei im Wurzelverzeichnis und fügen Sie die folgenden Variablen hinzu:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```env
+# App
+NEXT_PUBLIC_BASE_URL=http://localhost:3000
+
+# Supabase
+NEXT_PUBLIC_SUPABASE_URL=https://suskrmvlyaryiqajcuic.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN1c2tybXZseWFyeWlxYWpjdWljIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDYzMzUyNTAsImV4cCI6MjA2MTkxMTI1MH0.vFEkOPSvoHzjc_7B4XWS17AF7_MRT7kIpubIkZUbzoc
+
+# Email (Resend)
+RESEND_API_KEY=re_YZeesR6E_CrRVbyusQxvdHkTcrPb7ADqM
+
+# Analytics
+NEXT_PUBLIC_GA_ID=G-3SLHC0N8P1
+
+# Optional: Sentry Error Tracking
+NEXT_PUBLIC_SENTRY_DSN=your-sentry-dsn
+```
+
+4. Entwicklungsserver starten:
+```bash
+npm run dev
+```
+
+Die Anwendung ist nun unter [http://localhost:3000](http://localhost:3000) verfügbar.
+
+## Deployment
+
+Die Anwendung ist für das Deployment auf Vercel optimiert. Folgen Sie diesen Schritten:
+
+1. Pushen Sie Ihren Code zu GitHub
+2. Verbinden Sie das Repository mit Vercel
+3. Konfigurieren Sie die Umgebungsvariablen in Vercel
+4. Deployen Sie die Anwendung
+
+## Beitragen
+
+Wir freuen uns über Beiträge! Bitte lesen Sie unsere Beitragsrichtlinien, bevor Sie einen Pull Request erstellen.
+
+## Lizenz
+
+Dieses Projekt ist unter der MIT-Lizenz lizenziert.
 
 ## Learn More
 

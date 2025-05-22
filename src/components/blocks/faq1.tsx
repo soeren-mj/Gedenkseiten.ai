@@ -86,7 +86,7 @@ const Faq1 = ({
       <div className="container mx-auto">
         <div className="max-w-[685px] mx-auto">
           <h2 
-            className="text-[28px] font-medium leading-[130%] text-[#F0F0F2] mb-8 md:mb-12 text-center" 
+            className="mb-8 md:mb-12 text-center" 
             style={{ 
               fontFamily: 'Inter',
               letterSpacing: '-0.01em'

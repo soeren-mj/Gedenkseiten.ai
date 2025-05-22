@@ -105,7 +105,7 @@ const ProfilePreviewCard: React.FC<ProfilePreviewCardProps> = ({ type = 'human' 
                 <span>𝌀 Golden Retriever</span>
               </div>
             )}
-            <div className="flex flex-col gap-1 text-[14px] text-[#636573] font-inter font-medium">
+            <div className="flex flex-col gap-1 text-[14px] text-[#636573] font-inter">
               <div className="flex gap-2 items-center">
                 <span>*</span>
                 <span>{isAnimal ? '12.03.2011' : '01.08.1946'}</span>
@@ -119,7 +119,7 @@ const ProfilePreviewCard: React.FC<ProfilePreviewCardProps> = ({ type = 'human' 
             </div>
           </div>
           {/* Callout */}
-          <div className="mt-6 font-inter font-medium text-[20px] leading-[1.35] tracking-[-0.0375rem] text-[#4D4E59]">
+          <div className="mt-6 font-inter text-[1.25rem] leading-[1.35] tracking-[-0.0075rem] text-[#4D4E59]">
             {isAnimal 
               ? 'Treuer Begleiter, Familienmitglied und bester Freund. Wir werden dich nie vergessen.'
               : 'Liebende Mutter von drei Kindern, den wir immer in unseren Herzen tragen werden.'}
@@ -138,11 +138,11 @@ const ProfilePreviewCard: React.FC<ProfilePreviewCardProps> = ({ type = 'human' 
       </div>
       {/* Nachruf */}
       <div className="flex flex-col gap-2 px-2 pb-2">
-        <div className="text-[20px] font-inter font-medium text-[#1F2024]">Nachruf</div>
-        <div className="text-[16px] font-inter text-[#4D4E59] leading-[1.55]">
+        <div className="text-[1.25rem] text-[#1F2024]">Nachruf</div>
+        <div className="text-[1rem] text-[#4D4E59] leading-[1.55]">
           Lorem ipsum dolor sit amet consectetur. Erat malesuada nulla urna ultrices euismod vel volutpat. Sed sed porta nascetur eget ultrices sit ornare mattis. Orci suspendisse morbi lectus id mauris tortor iaculis mauris neque. Vitae diam convallis justo lacus ut vestibulum sapien elit. Adipiscing nascetur feugiat porttitor volutpat rhoncus...
         </div>
-        <button className="mt-2 text-[12px] font-inter font-medium text-[#1F2024] flex items-center gap-1 mx-auto">
+        <button className="mt-2 text-[0.75rem] text-[#1F2024] flex items-center gap-1 mx-auto">
           Mehr lesen
           <svg width="17" height="17" viewBox="0 0 17 17" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M2.07494 5.86947L2.90411 5.04297L8.51094 10.6498L14.1134 5.04297L14.9468 5.86947L8.51094 12.3053L2.07494 5.86947Z" fill="#2F2F30"/>

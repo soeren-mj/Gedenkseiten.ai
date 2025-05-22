@@ -58,31 +58,20 @@ const initialReactions: Reaction[] = [
 ];
 
 interface ReactionsProps {
-  initialReactions?: Reaction[];
-  onReactionChange?: (reactions: Reaction[]) => void;
+  reactions?: Reaction[];
+  onReactionClick: (reaction: Reaction) => void;
 }
 
 const Reactions: React.FC<ReactionsProps> = ({ 
-  initialReactions: propInitialReactions,
-  onReactionChange 
+  reactions = initialReactions,
+  onReactionClick 
 }) => {
-  const [reactions, setReactions] = useState<Reaction[]>(propInitialReactions || initialReactions);
-
-  const handleReactionClick = (reaction: Reaction) => {
-    const updated = reactions.map((r) => 
-      r.key === reaction.key ? { ...r, value: r.value + 1 } : r
-    );
-    updated.sort((a, b) => b.value - a.value);
-    setReactions(updated);
-    onReactionChange?.(updated);
-  };
-
   return (
     <div className="flex items-center justify-between">
       {reactions.map((reaction) => (
         <button
           key={reaction.key}
-          onClick={() => handleReactionClick(reaction)}
+          onClick={() => onReactionClick(reaction)}
           className={`flex flex-col items-center gap-2 p-2 rounded-lg transition-colors ${
             reaction.isSelected ? 'bg-blue-100' : 'hover:bg-gray-100'
           }`}
