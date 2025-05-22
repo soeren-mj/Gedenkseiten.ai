@@ -28,7 +28,7 @@ if (resend) {
       const domainResponse = await resend.domains.list();
       console.log('✅ Resend-Verbindung getestet, verfügbare Domains:', 
         domainResponse.data && Array.isArray(domainResponse.data) 
-          ? domainResponse.data.map((d: any) => d.name).join(', ') 
+          ? domainResponse.data.map((d: { name: string }) => d.name).join(', ') 
           : 'Keine');
     } catch (error) {
       console.error('❌ Fehler beim Testen der Resend-Verbindung:', error);

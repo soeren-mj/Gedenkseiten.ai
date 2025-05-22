@@ -1,5 +1,4 @@
 import { Footer } from "@/components/ui/footer"
-import { Instagram, Facebook, Twitter } from "lucide-react"
 import Image from "next/image";
 
 export function MainFooter() {
@@ -19,21 +18,7 @@ export function MainFooter() {
       }
       brandName="Gedenkseiten.ai"
       socialLinks={[
-        {
-          icon: <Facebook className="h-4 w-4" />,
-          href: "https://facebook.com",
-          label: "Facebook",
-        },
-        {
-          icon: <Instagram className="h-4 w-4" />,
-          href: "https://instagram.com",
-          label: "Instagram",
-        },
-        {
-          icon: <Twitter className="h-4 w-4" />,
-          href: "https://twitter.com",
-          label: "Twitter",
-        },
+        
       ]}
       mainLinks={[
         {

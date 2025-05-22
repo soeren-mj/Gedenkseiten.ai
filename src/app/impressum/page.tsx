@@ -2,7 +2,7 @@ import React from "react";
 
 export default function ImpressumPage() {
   return (
-    <section className="w-full flex flex-col gap-10 pt-40 pb-12 px-5 md:px-8 lg:px-[3.75rem] max-w-3xl mx-auto text-[var(--foreground-primary,#F0F0F2)]">
+    <section className="w-full flex flex-col gap-10 pt-40 pb-10 px-5 md:px-8 lg:px-[3.75rem] max-w-3xl mx-auto text-[var(--foreground-primary,#F0F0F2)]">
       <h1 className="mb-2">Impressum</h1>
       <div className="flex flex-col gap-6">
         <div>

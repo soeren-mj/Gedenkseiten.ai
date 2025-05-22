@@ -1,19 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect } from 'react';
-import { event } from '@/lib/analytics';
 
 export default function NotFound() {
-  useEffect(() => {
-    // Log 404 to analytics
-    event({
-      action: '404',
-      category: 'error',
-      label: window.location.pathname,
-    });
-  }, []);
-
   return (
     <div className="min-h-[70vh] flex items-center justify-center px-4">
       <div className="text-center">

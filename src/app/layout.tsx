@@ -4,7 +4,7 @@ import { Inter } from 'next/font/google';
 import Navbar from '@/components/Navbar';
 import { CookieBanner } from '@/components/CookieBanner';
 import { MainFooter } from '@/components/layout/MainFooter';
-import { GTM } from '@/components/GTM';
+import { GTMConsentClient } from '@/components/GTMConsentClient';
 import { 
   faqSchema, 
   breadcrumbSchema, 
@@ -13,9 +13,6 @@ import {
   localBusinessSchema,
   webpageSchema 
 } from './structured-data';
-import { GA_MEASUREMENT_ID } from '@/lib/analytics';
-import Script from 'next/script';
-import { useEffect, useState } from 'react';
 // import ThemeProviderClient from './ThemeProviderClient';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
@@ -71,15 +68,6 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  const [analyticsAllowed, setAnalyticsAllowed] = useState(false);
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const consent = JSON.parse(localStorage.getItem('cookie-consent') || '{}');
-      setAnalyticsAllowed(!!consent.analytics);
-    }
-  }, []);
-
   return (
     <html lang="de" className={inter.variable}>
       <head>
@@ -99,32 +87,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             }),
           }}
         />
-        {/* Google Analytics */}
-        {GA_MEASUREMENT_ID && (
-          <>
-            <Script
-              src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
-              strategy="afterInteractive"
-            />
-            <Script id="google-analytics" strategy="afterInteractive">
-              {`
-                window.dataLayer = window.dataLayer || [];
-                function gtag(){dataLayer.push(arguments);}
-                gtag('js', new Date());
-                gtag('config', '${GA_MEASUREMENT_ID}', {
-                  page_path: window.location.pathname,
-                });
-              `}
-            </Script>
-          </>
-        )}
       </head>
       <body className="min-h-screen bg-background-primary text-foreground-primary flex flex-col">
         <Navbar />
         <main className="flex-1 pt-16">{children}</main>
         <MainFooter />
         <CookieBanner />
-        {analyticsAllowed && <GTM gtmId="GTM-P27C3RV9" />}
+        <GTMConsentClient />
       </body>
     </html>
   );

@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { event } from '@/lib/analytics';
 
 interface CookieConsent {
   analytics: boolean;
@@ -17,7 +16,7 @@ const defaultConsent: CookieConsent = {
 
 declare global {
   interface Window {
-    dataLayer: Array<Record<string, any>>;
+    dataLayer: Array<Record<string, unknown>>;
   }
 }
 
@@ -48,12 +47,6 @@ export function CookieBanner() {
     if (typeof window !== 'undefined' && window.dataLayer) {
       window.dataLayer.push({ event: 'analytics_consent_granted' });
     }
-
-    event({
-      action: 'cookie_consent',
-      category: 'privacy',
-      label: 'accept_all',
-    });
   };
 
   const handleSavePreferences = () => {
@@ -64,12 +57,6 @@ export function CookieBanner() {
     if (consent.analytics && typeof window !== 'undefined' && window.dataLayer) {
       window.dataLayer.push({ event: 'analytics_consent_granted' });
     }
-
-    event({
-      action: 'cookie_consent',
-      category: 'privacy',
-      label: 'save_preferences',
-    });
   };
 
   if (!showBanner) return null;

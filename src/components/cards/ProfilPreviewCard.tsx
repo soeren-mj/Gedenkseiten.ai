@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
+import React from 'react';
 import Image from 'next/image';
-import Reactions from '../ui/Reactions';
 
 interface ProfilPreviewCardProps {
   name: string;
@@ -8,7 +7,6 @@ interface ProfilPreviewCardProps {
   deathDate: string;
   imageUrl: string;
   description: string;
-  reactions?: any[];
 }
 
 const ProfilPreviewCard: React.FC<ProfilPreviewCardProps> = ({
@@ -16,11 +14,8 @@ const ProfilPreviewCard: React.FC<ProfilPreviewCardProps> = ({
   birthDate,
   deathDate,
   imageUrl,
-  description,
-  reactions: propReactions
+  description
 }) => {
-  const [reactions, setReactions] = useState(propReactions);
-
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden">
       <div className="relative h-64">
@@ -38,7 +33,7 @@ const ProfilPreviewCard: React.FC<ProfilPreviewCardProps> = ({
         </div>
         <p className="text-gray-700 mb-6">{description}</p>
         <div className="mt-4">
-          <Reactions onReactionChange={setReactions} />
+          {/* Reactions-Komponente entfernt, da keine Reaktionen-Logik vorhanden ist */}
         </div>
       </div>
     </div>

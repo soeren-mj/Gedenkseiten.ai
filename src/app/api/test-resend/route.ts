@@ -41,25 +41,23 @@ export async function GET() {
           success: true,
           result: emailResult
         };
-      } catch (sendError: any) {
+      } catch (sendError: unknown) {
         sendTest = {
           success: false,
           error: {
-            message: sendError.message,
-            name: sendError.name,
-            stack: sendError.stack,
-            code: sendError.code
+            message: sendError instanceof Error ? sendError.message : sendError,
+            name: sendError instanceof Error ? sendError.name : undefined,
+            stack: sendError instanceof Error ? sendError.stack : undefined
           }
         };
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       connectionTest = {
         success: false,
         error: {
-          message: error.message,
-          name: error.name,
-          stack: error.stack,
-          code: error.code
+          message: error instanceof Error ? error.message : error,
+          name: error instanceof Error ? error.name : undefined,
+          stack: error instanceof Error ? error.stack : undefined
         }
       };
     }

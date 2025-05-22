@@ -1,8 +1,6 @@
 import React, { useState, useRef, useEffect, useLayoutEffect } from 'react';
-import { useSwipeable } from 'react-swipeable';
 import ProfilePreviewCard from './ProfilePreviewCard';
 import MultiPreviewCard from './MultiPreviewCard';
-import Image from 'next/image';
 
 const MenschIcon = ({ color }: { color: string }) => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-2">
@@ -45,7 +43,6 @@ const EreignisIcon = ({ color }: { color: string }) => (
   </svg>
 );
 
-const CONTAINER_MAX_WIDTH = 1320; // 82.5rem
 const MIN_GAP = 16; // 1rem
 const MAX_GAP = 32; // 2rem
 const SLIDER_MAX_WIDTH = 1400; // Maximum width for the slider container

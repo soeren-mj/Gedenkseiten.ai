@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect } from 'react';
-import { event } from '@/lib/analytics';
 
 export default function Error({
   error,
@@ -11,12 +10,7 @@ export default function Error({
   reset: () => void;
 }) {
   useEffect(() => {
-    // Log error to analytics
-    event({
-      action: 'error',
-      category: 'error_boundary',
-      label: error.message,
-    });
+    // Analytics-Event entfernt, da Tracking über GTM läuft
   }, [error]);
 
   return (

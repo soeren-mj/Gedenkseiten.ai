@@ -9,7 +9,7 @@ interface HeroSectionProps {
 const HeroSection: React.FC<HeroSectionProps> = ({ onStartClick }) => {
   return (
     <section
-      className="w-full relative flex flex-col justify-end min-h-[90vh] pb-8"
+      className="w-full relative flex flex-col justify-center py-16"
     >
       {/* Content Container */}
       <div className="w-full px-[1.25rem] md:px-[3.75rem] lg:px-[3.75rem]">
@@ -63,7 +63,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onStartClick }) => {
       </div>
 
       {/* Hero Background Image */}
-      <img
+      <Image
         src="/images/Gedenkseiten-blur-79.webp"
         alt="Hero Background"
         className="pointer-events-none select-none absolute right-[-2vw] bottom-[-10vw] w-[60vw] max-w-[900px] h-auto object-contain z-0"

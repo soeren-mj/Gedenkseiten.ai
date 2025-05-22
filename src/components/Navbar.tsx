@@ -15,11 +15,6 @@ export default function Navbar() {
   const [activeSection, setActiveSection] = useState<string>('');
   const [popoverOpen, setPopoverOpen] = useState(false);
 
-  // Don't render navbar on confirm page
-  if (pathname?.includes('/confirm')) {
-    return null;
-  }
-
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
@@ -84,6 +79,11 @@ export default function Navbar() {
     font-medium
     ${activeSection === sectionId ? 'text-[#475EEC]' : ''}
   `;
+
+  // Don't render navbar on confirm page
+  if (pathname?.includes('/confirm')) {
+    return null;
+  }
 
   return (
     <>

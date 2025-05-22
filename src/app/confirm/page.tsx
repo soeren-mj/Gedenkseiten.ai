@@ -31,7 +31,7 @@ export default function ConfirmPage() {
           setStatus('error');
           setMessage(data.error);
         }
-      } catch (error) {
+      } catch {
         setStatus('error');
         setMessage('Ein Fehler ist aufgetreten. Bitte versuche es später erneut.');
       }

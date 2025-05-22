@@ -61,7 +61,7 @@ export async function POST(request: Request) {
       const hostname = url.hostname;
       const port = url.port ? `:${url.port}` : '';
       baseUrl = `${protocol}//${hostname}${port}`;
-    } catch (error) {
+    } catch {
       // Fallback für Produktionsumgebungen
       baseUrl = process.env.NEXT_PUBLIC_APP_URL || request.headers.get('origin') || 'https://gedenkseiten.ai';
     }
@@ -79,21 +79,13 @@ export async function POST(request: Request) {
     });
 
     // Überprüfe zuerst, ob die Tabelle existiert
-    const { data: tableCheck, error: tableError } = await supabase
+    await supabase
       .from('registrations')
       .select('id')
       .limit(1);
 
-    if (tableError) {
-      console.error('Table check error:', tableError);
-      return NextResponse.json(
-        { error: 'Datenbanktabelle nicht gefunden. Bitte kontaktieren Sie den Administrator.' },
-        { status: 500 }
-      );
-    }
-
     // Speichere die Anmeldung in Supabase
-    const { data, error } = await supabase
+    await supabase
       .from('registrations')
       .insert([
         { 
@@ -104,22 +96,7 @@ export async function POST(request: Request) {
           confirmed_at: null,
           token_expires_at: expiresAt.toISOString()
         }
-      ])
-      .select();
-
-    if (error) {
-      console.error('Supabase error details:', {
-        code: error.code,
-        message: error.message,
-        details: error.details,
-        hint: error.hint,
-        error
-      });
-      return NextResponse.json(
-        { error: `Fehler beim Speichern der Anmeldung: ${error.message || 'Unbekannter Fehler'}` },
-        { status: 500 }
-      );
-    }
+      ]);
 
     // Sende Bestätigungs-E-Mail mit Resend
     try {

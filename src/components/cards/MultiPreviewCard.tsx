@@ -73,13 +73,7 @@ const DECEASED_PERSONS = [
 ];
 
 const MultiPreviewCard: React.FC<MultiPreviewCardProps> = ({ type = 'family' }) => {
-  const [reactions, setReactions] = useState(initialReactions);
-
-  const handleReactionClick = (idx: number) => {
-    const updated = reactions.map((r, i) => i === idx ? { ...r, value: r.value + 1 } : r);
-    updated.sort((a, b) => b.value - a.value);
-    setReactions(updated);
-  };
+  const [reactions] = useState(initialReactions);
 
   return (
     <div className="w-[427px] max-w-full bg-white rounded-[28px] p-2 sm:p-2 flex flex-col gap-8 shadow border border-[#D2D3D9] mx-auto">
@@ -169,14 +163,7 @@ const MultiPreviewCard: React.FC<MultiPreviewCardProps> = ({ type = 'family' }) 
         <div className="text-[14px] font-inter font-semibold text-[#1F2024] mb-2">Reaktionen</div>
         <Reactions
           reactions={reactions}
-          onReactionClick={(reaction) => {
-            const idx = reactions.findIndex(r => r.key === reaction.key);
-            if (idx !== -1) {
-              const updated = reactions.map((r, i) => i === idx ? { ...r, value: r.value + 1 } : r);
-              updated.sort((a, b) => b.value - a.value);
-              setReactions(updated);
-            }
-          }}
+          onReactionClick={() => {}}
         />
       </div>
 
