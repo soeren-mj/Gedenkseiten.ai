@@ -9,7 +9,7 @@ interface HeroSectionProps {
 const HeroSection: React.FC<HeroSectionProps> = ({ onStartClick }) => {
   return (
     <section
-      className="w-full relative flex flex-col justify-center py-16"
+      className="w-full relative flex flex-col justify-center pb-16 pt-32"
     >
       {/* Content Container */}
       <div className="w-full px-[1.25rem] md:px-[3.75rem] lg:px-[3.75rem]">

@@ -154,7 +154,7 @@ const PopoverRegister: React.FC<PopoverRegisterProps> = ({ open, onClose }) => {
                   name="privacy"
                   checked={accepted}
                   onChange={e => setAccepted(e.target.checked)}
-                  label={<span>Ich stimme den <a href="#" className="text-blue-600 underline">Datenschutzbestimmungen</a> zu.</span>}
+                  label={<span>Ich stimme den <a href="/datenschutz" className="text-blue-600 underline">Datenschutzbestimmungen</a> zu.</span>}
                   required
                   error={touched && !accepted ? 'Bitte akzeptiere die Datenschutzbestimmungen.' : ''}
                 />
