@@ -71,6 +71,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="de" className={inter.variable}>
       <head>
+        <meta name="theme-color" content="#1F2024" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
