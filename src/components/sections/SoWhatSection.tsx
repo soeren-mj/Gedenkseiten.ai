@@ -108,7 +108,7 @@ const SoWhatSection: React.FC<SoWhatSectionProps> = ({ onStartClick }) => {
               icon="modern"
               headline="Ein zeitgemäßes Gesamtbild"
               description="Die Gedenkseiten für Verstorbene sollen durch die Inhalte der Gedenkenden lebendig werden. Daher wählen wir ein schlichtes Design – Geschmäcker sind verschieden."
-              image="/images/gedenkseite-vorschau.png"
+              image="/images/Gedenkseite-vorschau.png"
               imageAlt="Moderne und würdevoll gestaltete digitale Gedenkseite - Individuelles Design für persönliche Erinnerungen"
               cardHeight="30.5rem"
             />

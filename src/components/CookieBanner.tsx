@@ -123,7 +123,7 @@ export function CookieBanner() {
         <div className="w-full pt-4 max-w-[825px] min-w-72 inline-flex justify-between items-center">
           <div>
             <div className="self-stretch justify-center text-foreground-primary text-sm font-semibold font-['Inter'] leading-[1.75rem]">Analyse Cookies</div>
-            <div className="self-stretch justify-center text-[#AAADBF] text-xs leading-[1.75rem]">Werden zur Messung der Nutzung erhoben, um das Erlebnis zu verbessern.</div>
+            <div className="self-stretch justify-center text-[#AAADBF] text-xs leading-[1.25rem]">Werden zur Messung der Nutzung erhoben, <br />um das Erlebnis zu verbessern.</div>
           </div>
           <Switch checked={consent.analytics} onChange={handleAnalyticsSwitch} />
         </div>
