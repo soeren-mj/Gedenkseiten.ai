@@ -1,17 +1,16 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Button from '@/components/ui/Button';
 
 interface CookieConsent {
   analytics: boolean;
-  marketing: boolean;
   necessary: boolean;
 }
 
 const defaultConsent: CookieConsent = {
   analytics: false,
-  marketing: false,
-  necessary: true, // Necessary cookies are always required
+  necessary: true,
 };
 
 declare global {
@@ -20,41 +19,74 @@ declare global {
   }
 }
 
+// Custom Switch Component (Figma Style)
+function Switch({ checked, onChange, disabled = false }: { checked: boolean; onChange: (v: boolean) => void; disabled?: boolean }) {
+  let baseBg = '';
+  let style = {};
+  if (disabled) {
+    baseBg = '';
+    style = { opacity: 0.4, background: '#17E562' };
+  } else if (checked) {
+    baseBg = 'bg-[#17E562]';
+  } else {
+    baseBg = 'bg-[#4B4F68]';
+  }
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      disabled={disabled}
+      tabIndex={0}
+      onClick={() => !disabled && onChange(!checked)}
+      className={`relative inline-flex h-7 w-11 items-center rounded-full transition-colors duration-200 focus:outline-none ${baseBg}`}
+      style={style}
+    >
+      <span
+        className={`inline-block h-6 w-6 transform rounded-full bg-white shadow transition-transform duration-200 ${checked ? 'translate-x-4.5' : 'translate-x-0.5'}`}
+      />
+    </button>
+  );
+}
+
 export function CookieBanner() {
   const [showBanner, setShowBanner] = useState(false);
-  const [showDetails, setShowDetails] = useState(false);
   const [consent, setConsent] = useState<CookieConsent>(defaultConsent);
 
   useEffect(() => {
-    // Check if consent was already given
     const savedConsent = localStorage.getItem('cookie-consent');
     if (!savedConsent) {
       setShowBanner(true);
     }
   }, []);
 
-  const handleAcceptAll = () => {
-    const fullConsent: CookieConsent = {
-      analytics: true,
-      marketing: true,
-      necessary: true,
-    };
+  // Analytics Switch Handler
+  const handleAnalyticsSwitch = (checked: boolean) => {
+    setConsent((prev) => {
+      const updated = { ...prev, analytics: checked };
+      localStorage.setItem('cookie-consent', JSON.stringify(updated));
+      if (checked && typeof window !== 'undefined' && window.dataLayer) {
+        window.dataLayer.push({ event: 'analytics_consent_granted' });
+      }
+      return updated;
+    });
+  };
+
+  // Weiter ohne Zustimmung
+  const handleDecline = () => {
+    const onlyNecessary: CookieConsent = { analytics: false, necessary: true };
+    setConsent(onlyNecessary);
+    localStorage.setItem('cookie-consent', JSON.stringify(onlyNecessary));
+    setShowBanner(false);
+  };
+
+  // Zustimmen
+  const handleAccept = () => {
+    const fullConsent: CookieConsent = { analytics: true, necessary: true };
     setConsent(fullConsent);
     localStorage.setItem('cookie-consent', JSON.stringify(fullConsent));
     setShowBanner(false);
-
-    // GTM Custom Event push
     if (typeof window !== 'undefined' && window.dataLayer) {
-      window.dataLayer.push({ event: 'analytics_consent_granted' });
-    }
-  };
-
-  const handleSavePreferences = () => {
-    localStorage.setItem('cookie-consent', JSON.stringify(consent));
-    setShowBanner(false);
-
-    // GTM Custom Event push, nur wenn Analytics aktiviert wurde
-    if (consent.analytics && typeof window !== 'undefined' && window.dataLayer) {
       window.dataLayer.push({ event: 'analytics_consent_granted' });
     }
   };
@@ -62,83 +94,50 @@ export function CookieBanner() {
   if (!showBanner) return null;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white shadow-lg p-4 md:p-6 z-50">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-          <div className="flex-1">
-            <h3 className="text-lg font-semibold mb-2">Cookie-Einstellungen</h3>
-            <p className="text-gray-600 text-sm">
-              Wir verwenden Cookies, um Ihre Erfahrung auf unserer Website zu verbessern.
-              Einige sind technisch notwendig, andere helfen uns, die Website zu optimieren.
-            </p>
-          </div>
-          <div className="flex flex-col sm:flex-row gap-3">
-            <button
-              onClick={() => setShowDetails(!showDetails)}
-              className="px-4 py-2 text-gray-600 hover:text-gray-900 transition-colors"
-            >
-              Einstellungen
-            </button>
-            <button
-              onClick={handleAcceptAll}
-              className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
-            >
-              Alle akzeptieren
-            </button>
-          </div>
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      <div
+        className="max-w-[611px] p-6 rounded-3xl shadow-[1px_1px_10px_1px_rgba(210,211,217,0.20)] backdrop-blur-[20px] inline-flex flex-col justify-start items-start gap-6"
+        style={{ background: 'rgba(0,0,0,0.86)' }}
+      >
+        {/* Weiter ohne Zustimmung */}
+        <button
+          onClick={handleDecline}
+          className="justify-center p-1 text-gray-400 text-xs tracking-tight hover:text-gray-200 transition-colors"
+        >
+          Weiter ohne Zustimmung
+        </button>
+        {/* Haupttext */}
+        <div className="self-stretch justify-center text-foreground-primary">
+          <h5 className="leading-[1.6rem]">Herzlich Willkommen, wir verwenden Cookies, um deine Erfahrung auf unserer Website zu verbessern. Einige sind technisch notwendig, andere helfen uns, die Website zu optimieren.</h5>
         </div>
-        
-        {showDetails && (
-          <div className="mt-4 border-t pt-4">
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h4 className="font-medium">Notwendige Cookies</h4>
-                  <p className="text-sm text-gray-600">Diese Cookies sind für die Grundfunktionen der Website erforderlich.</p>
-                </div>
-                <input
-                  type="checkbox"
-                  checked={consent.necessary}
-                  disabled
-                  className="h-4 w-4"
-                />
-              </div>
-              
-              <div className="flex items-center justify-between">
-                <div>
-                  <h4 className="font-medium">Analyse Cookies</h4>
-                  <p className="text-sm text-gray-600">Helfen uns zu verstehen, wie Besucher mit der Website interagieren.</p>
-                </div>
-                <input
-                  type="checkbox"
-                  checked={consent.analytics}
-                  onChange={(e) => setConsent({ ...consent, analytics: e.target.checked })}
-                  className="h-4 w-4"
-                />
-              </div>
-              
-              <div className="flex items-center justify-between">
-                <div>
-                  <h4 className="font-medium">Marketing Cookies</h4>
-                  <p className="text-sm text-gray-600">Werden verwendet, um Werbung relevanter für Sie zu gestalten.</p>
-                </div>
-                <input
-                  type="checkbox"
-                  checked={consent.marketing}
-                  onChange={(e) => setConsent({ ...consent, marketing: e.target.checked })}
-                  className="h-4 w-4"
-                />
-              </div>
-              
-              <button
-                onClick={handleSavePreferences}
-                className="mt-4 px-6 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors"
-              >
-                Einstellungen speichern
-              </button>
-            </div>
+        <div>
+        {/* Notwendige Cookies */}
+        <div className="w-full max-w-[825px] min-w-72 inline-flex justify-between items-center">
+          <div>
+            <div className="self-stretch justify-center text-foreground-primary text-sm font-semibold font-['Inter'] leading-[1.75rem]">Notwendige Cookies</div>
+            <div className="self-stretch justify-center text-[#AAADBF] text-xs leading-[1.75rem]">Essentiell damit die Seiten funktionieren. Immer an.</div>
           </div>
-        )}
+          <Switch checked={true} onChange={() => {}} disabled />
+        </div>
+        {/* Analyse Cookies */}
+        <div className="w-full pt-4 max-w-[825px] min-w-72 inline-flex justify-between items-center">
+          <div>
+            <div className="self-stretch justify-center text-foreground-primary text-sm font-semibold font-['Inter'] leading-[1.75rem]">Analyse Cookies</div>
+            <div className="self-stretch justify-center text-[#AAADBF] text-xs leading-[1.75rem]">Werden zur Messung der Nutzung erhoben, um das Erlebnis zu verbessern.</div>
+          </div>
+          <Switch checked={consent.analytics} onChange={handleAnalyticsSwitch} />
+        </div>
+        </div>
+        {/* Zustimmen Button */}
+        <div className="w-full flex pt-6 justify-center"> 
+        <Button
+          onClick={handleAccept}
+          size="m"
+          
+        >
+          Zustimmen
+        </Button>
+        </div>
       </div>
     </div>
   );

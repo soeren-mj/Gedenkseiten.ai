@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import PrimaryCard from '@/components/cards/PrimaryCard';
 import TagCloudChips from '@/components/ui/TagCloudChips';
 import MicrofonIcon from '@/components/icons/MicrofonIcon';
@@ -9,11 +9,38 @@ import AiCircleIcon from '@/components/icons/AiCircleIcon';
 import SparklesIcon from '@/components/icons/SparklesIcon';
 
 const AIUnterstuetzungSection: React.FC = () => {
+  const [svgX, setSvgX] = useState('-60vw');
+
+  useEffect(() => {
+    function handleScroll() {
+      // Ermittle, wie weit die Section im Viewport ist
+      const section = document.getElementById('ai-unterstuetzung');
+      if (!section) return;
+      const rect = section.getBoundingClientRect();
+      const windowHeight = window.innerHeight;
+      const sectionHeight = rect.height;
+      // Start: Section betritt Viewport (top = windowHeight), Ende: Section verlässt Viewport (bottom = 0)
+      const progress = Math.min(Math.max(1 - rect.bottom / (windowHeight + sectionHeight), 0), 1);
+      // Von -60vw (links) bis +60vw (rechts)
+      const minX = -60; // vw
+      const maxX = 60; // vw
+      const x = minX + (maxX - minX) * progress;
+      setSvgX(`${x}vw`);
+    }
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   return (
-    <section id="ai-unterstuetzung" className="w-full flex flex-col items-center max-w-[113.75rem] mx-auto py-[3.75rem] px-[1.25rem] md:px-[2rem] lg:px-[3.75rem] relative overflow-visible overflow-x-hidden">
+    <section id="ai-unterstuetzung" className="w-full flex flex-col items-center max-w-[113.75rem] mx-auto py-[3.75rem] px-[1.25rem] md:px-[2rem] lg:px-[3.75rem] relative">
       {/* Dekoratives SVG-Hintergrundbild oben links */}
-      <div className="pointer-events-none select-none absolute left-[-5rem] top-[-8rem] w-[48rem] max-w-[60vw] h-auto z-0" aria-hidden="true">
-        <svg width="1092" height="1128" viewBox="0 0 1092 1128" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <div
+        className="pointer-events-none select-none absolute left-[-5rem] top-[-8rem] w-[1092px] h-auto z-0"
+        aria-hidden="true"
+        style={{ transform: `translateX(${svgX})`, transition: 'transform 0.1s linear' }}
+      >
+        <svg width="1326.63" height="1127.86" viewBox="0 0 1326.63 1127.86" fill="none" xmlns="http://www.w3.org/2000/svg">
           <g filter="url(#filter0_f_5498_57321)">
             <path d="M878 365.999C1090.5 500.499 956.5 929.999 857 999.499C757.5 1069 323 1017 195.5 777.999C67.9999 538.998 -183.5 152.498 -127.5 107.498C-71.5004 62.4981 665.5 231.499 878 365.999Z" fill="url(#paint0_linear_5498_57321)"/>
           </g>

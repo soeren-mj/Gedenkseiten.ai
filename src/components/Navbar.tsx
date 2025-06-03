@@ -69,7 +69,7 @@ export default function Navbar() {
 
   const navLinkClasses = (sectionId: string) => `
     text-foreground-primary 
-    hover:text-[#E0E1E5] 
+    hover:text-[#7D86C1] 
     active:text-[#475EEC] 
     transition-colors 
     font-inter 
@@ -97,7 +97,7 @@ export default function Navbar() {
           <div className="flex items-center justify-between h-20">
             {/* Logo and Brand */}
             <div className="flex items-center">
-              <Link href="/" className="flex items-center space-x-3">
+              <Link href="/" className="flex items-center space-x-1">
                 <Image
                   src="/images/logo-gedenkseiten.ai-white-x4.png"
                   alt="Gedenkseiten.ai - Digitale Erinnerungsstücke für Ihre Liebsten"
@@ -202,7 +202,7 @@ export default function Navbar() {
           </div>
         </div>
         {/* Blurred background */}
-        <div className="absolute inset-0 bg-black/40 backdrop-blur-lg -z-10" />
+        <div className="absolute inset-0 bg-black/60 backdrop-blur-lg -z-10" />
       </nav>
     </>
   );

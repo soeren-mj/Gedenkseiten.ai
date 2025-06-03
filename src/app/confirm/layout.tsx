@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import '../globals.css';
 import { Inter } from 'next/font/google';
+import { GTMConsentClient } from '@/components/GTMConsentClient';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
@@ -18,6 +19,7 @@ export default function ConfirmLayout({
     <html lang="de" className={inter.variable}>
       <body className="bg-primary text-foreground-bw">
         {children}
+        <GTMConsentClient />
       </body>
     </html>
   );
