@@ -33,7 +33,7 @@ const AIUnterstuetzungSection: React.FC = () => {
   }, []);
 
   return (
-    <section id="ai-unterstuetzung" className="w-full flex flex-col items-center max-w-[113.75rem] mx-auto py-[3.75rem] px-[1.25rem] md:px-[2rem] lg:px-[3.75rem] relative">
+    <section id="ai-unterstuetzung" className="w-full flex flex-col items-center max-w-[113.75rem] mx-auto py-[3.75rem] px-[1.25rem] md:px-[2rem] lg:px-[3.75rem] relative overflow-x-hidden">
       {/* Dekoratives SVG-Hintergrundbild oben links */}
       <div
         className="pointer-events-none select-none absolute left-[-5rem] top-[-8rem] w-[1092px] h-auto z-0"
