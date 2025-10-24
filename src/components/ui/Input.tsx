@@ -1,48 +1,55 @@
 import React from 'react';
+import { cn } from '@/lib/utils';
 
-interface InputProps {
+interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
-  type?: string;
-  placeholder?: string;
-  value: string;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   error?: string;
-  name?: string;
-  required?: boolean;
-  className?: string;
 }
 
 const Input: React.FC<InputProps> = ({
   label,
-  type = 'text',
-  placeholder,
-  value,
-  onChange,
   error,
+  className,
+  id,
   name,
-  required = false,
-  className = '',
+  ...props
 }) => {
   return (
-    <div className={`w-full ${className}`}>
+    <div className={cn('w-full', className)}>
       {label && (
-        <label className="block text-sm font-medium text-gray-700 mb-1 pl-1" htmlFor={name}>
+        <label 
+          className="block text-sm font-medium text-primary dark:text-primary mb-1 pl-1" 
+          htmlFor={id || name}
+        >
           {label}
         </label>
       )}
       <input
-        id={name}
+        id={id || name}
         name={name}
-        type={type}
-        required={required}
-        placeholder={placeholder}
-        value={value}
-        onChange={onChange}
-        className="w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition disabled:bg-gray-100 disabled:cursor-not-allowed"
+        {...props}
+        className={cn(
+          "w-full rounded-xxs border px-3 py-2 transition",
+          "bg-bw dark:bg-secondary",
+          "text-primary dark:text-primary",
+          "border-main dark:border-neutral-600",
+          "placeholder-foreground-tertiary dark:placeholder-foreground-tertiary",
+          "focus:outline-none focus:ring-2",
+          "focus:ring-background-interactive-primary-default dark:focus:ring-background-interactive-primary-default",
+          "focus:border-background-interactive-primary-default dark:focus:border-background-interactive-primary-default",
+          "disabled:bg-secondary dark:disabled:bg-tertiary",
+          "disabled:text-interactive-disabled dark:disabled:text-interactive-disabled",
+          "disabled:cursor-not-allowed"
+        )}
       />
-      {error && <p className="mt-1 text-xs text-red-500">{error}</p>}
+      {error && (
+        <p className="mt-1 text-xs text-background-interactive-error-default dark:text-background-interactive-error-default">
+          {error}
+        </p>
+      )}
     </div>
   );
 };
 
+export { Input };
 export default Input; 

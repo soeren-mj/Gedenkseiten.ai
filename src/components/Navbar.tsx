@@ -6,9 +6,12 @@ import Image from 'next/image';
 import Button from '@/components/ui/Button';
 import PopoverRegister from '@/components/ui/PopoverRegister';
 import { usePathname } from 'next/navigation';
+import { useRouter } from 'next/navigation';
+import { ThemeToggle } from '@/components/ui/theme-toggle';
 
 export default function Navbar() {
   const pathname = usePathname();
+  const router = useRouter();
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -68,7 +71,7 @@ export default function Navbar() {
   };
 
   const navLinkClasses = (sectionId: string) => `
-    text-foreground-primary 
+    text-primary 
     hover:text-[#7D86C1] 
     active:text-[#475EEC] 
     transition-colors 
@@ -105,14 +108,14 @@ export default function Navbar() {
                   height={40}
                   className="w-10 h-10"
                 />
-                <span className="text-foreground-primary font-satoshi text-xl font-medium">
+                <span className="text-primary font-satoshi text-xl font-medium">
                   Gedenkseiten.ai
                 </span>
               </Link>
             </div>
 
             {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center space-x-12">
+            <div className="hidden md:flex items-center space-x-8">
               <button 
                 onClick={() => scrollToSection('so-what')}
                 className={navLinkClasses('so-what')}
@@ -137,7 +140,24 @@ export default function Navbar() {
               >
                 FAQ
               </button>
-              <Button onClick={() => setPopoverOpen(true)} />
+              <div className="flex items-center gap-2">
+              <Button 
+                variant="secondary" 
+                size="sm"
+                onClick={() => router.push('/auth/login')}
+              >
+                Einloggen
+              </Button>
+              <Button 
+                variant="primary"
+                size="sm"
+                onClick={() => setPopoverOpen(true)}
+              >
+                Jetzt starten
+              </Button>
+              </div>
+              <ThemeToggle />
+              
             </div>
 
             {/* Mobile Menu Button */}
@@ -147,7 +167,7 @@ export default function Navbar() {
               aria-label="Toggle menu"
             >
               <svg
-                className="w-6 h-6 text-foreground-primary"
+                className="w-6 h-6 text-primary"
                 fill="none"
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -195,14 +215,32 @@ export default function Navbar() {
               >
                 FAQ
               </button>
-              <div className="px-4 py-2">
-                <Button onClick={() => setPopoverOpen(true)} />
+              <div className="flex flex-col gap-2">
+                <Button 
+                  variant="secondary" 
+                  size="md"
+                  fullWidth
+                  onClick={() => router.push('/auth/login')}
+                >
+                  Einloggen
+                </Button>
+                <Button 
+                variant="primary"
+                size="md"
+                fullWidth
+                onClick={() => setPopoverOpen(true)} 
+                >
+                  Jetzt starten
+                  </Button>
+                <div className="flex justify-center pt-2">
+                  <ThemeToggle />
+                </div>
               </div>
             </div>
           </div>
         </div>
         {/* Blurred background */}
-        <div className="absolute inset-0 bg-black/60 backdrop-blur-lg -z-10" />
+        <div className="absolute inset-0 bg-primary/60 backdrop-blur-xl -z-10" />
       </nav>
     </>
   );

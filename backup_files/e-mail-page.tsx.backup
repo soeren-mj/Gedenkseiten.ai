@@ -1,0 +1,182 @@
+'use client'
+
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { createClient } from '@/lib/supabase/client'
+import { Button } from '@/components/ui/Button'
+import { Input } from '@/components/ui/Input'
+import Link from 'next/link'
+
+export default function EmailLoginPage() {
+  const [email, setEmail] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [sent, setSent] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const router = useRouter()
+  const supabase = createClient()
+
+  const handleEmailSignIn = async (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    if (!email) {
+      setError('Bitte geben Sie eine E-Mail-Adresse ein.')
+      return
+    }
+
+    try {
+      setLoading(true)
+      setError(null)
+
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
+        },
+      })
+
+      if (error) {
+        setError('Fehler beim Senden der E-Mail. Bitte versuchen Sie es erneut.')
+        return
+      }
+
+      setSent(true)
+    } catch {
+      setError('Ein unerwarteter Fehler ist aufgetreten.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  if (sent) {
+    return (
+      <div className="min-h-screen bg-background-primary flex items-center justify-center p-4">
+        <div className="w-full max-w-md">
+          <div className="bg-background-bw rounded-lg shadow-lg p-8 border border-border-subtle text-center">
+            {/* Success Icon */}
+            <div className="w-16 h-16 bg-background-interactive-positive-subtle rounded-full flex items-center justify-center mx-auto mb-6">
+              <svg className="w-8 h-8 text-foreground-interactive-positive-default" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+
+            <h1 className="text-desktop-h3 font-semibold text-foreground-primary mb-2">
+              E-Mail gesendet!
+            </h1>
+            
+            <p className="text-desktop-body-m text-foreground-secondary mb-6">
+              Wir haben Ihnen einen Anmeldelink an <strong>{email}</strong> gesendet. 
+              Klicken Sie auf den Link in der E-Mail, um sich anzumelden.
+            </p>
+
+            <div className="space-y-4">
+              <Button
+                variant="primary"
+                size="lg"
+                fullWidth
+                onClick={() => {
+                  setSent(false)
+                  setEmail('')
+                }}
+              >
+                Andere E-Mail verwenden
+              </Button>
+
+              <Button
+                variant="tertiary"
+                size="lg"
+                fullWidth
+                onClick={() => router.push('/auth/login')}
+              >
+                Zurück zur Anmeldung
+              </Button>
+            </div>
+
+            <div className="mt-6 p-4 bg-background-secondary rounded-xs">
+              <p className="text-desktop-body-xs text-foreground-tertiary">
+                <strong>Hinweis:</strong> Der Link ist 1 Stunde gültig. 
+                Überprüfen Sie auch Ihren Spam-Ordner.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="min-h-screen bg-background-primary flex items-center justify-center p-4">
+      <div className="w-full max-w-md">
+        <div className="bg-background-bw rounded-lg shadow-lg p-8 border border-border-subtle">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <h1 className="text-desktop-h2 font-semibold text-foreground-primary mb-2">
+              Mit E-Mail anmelden
+            </h1>
+            <p className="text-desktop-body-m text-foreground-secondary">
+              Geben Sie Ihre E-Mail-Adresse ein und wir senden Ihnen einen sicheren Anmeldelink.
+            </p>
+          </div>
+
+          {/* Error Message */}
+          {error && (
+            <div className="mb-6 p-4 bg-background-interactive-error-subtle border border-border-error rounded-xs">
+              <p className="text-desktop-body-s text-foreground-error">
+                {error}
+              </p>
+            </div>
+          )}
+
+          {/* Email Form */}
+          <form onSubmit={handleEmailSignIn} className="space-y-6">
+            <div>
+              <label htmlFor="email" className="block text-desktop-body-m font-medium text-foreground-primary mb-2">
+                E-Mail-Adresse
+              </label>
+              <Input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="ihre.email@beispiel.de"
+                required
+                disabled={loading}
+              />
+            </div>
+
+            <Button
+              type="submit"
+              variant="primary"
+              size="lg"
+              fullWidth
+              loading={loading}
+              disabled={!email.trim()}
+            >
+              Anmeldelink senden
+            </Button>
+          </form>
+
+          {/* Back Link */}
+          <div className="mt-6 text-center">
+            <Link 
+              href="/auth/login"
+              className="text-desktop-body-s text-background-interactive-primary-default hover:underline"
+            >
+              ← Zurück zu anderen Anmeldeoptionen
+            </Link>
+          </div>
+
+          {/* Info Box */}
+          <div className="mt-8 p-4 bg-background-secondary rounded-xs">
+            <h3 className="text-desktop-body-s font-medium text-foreground-primary mb-2">
+              Warum ein Anmeldelink?
+            </h3>
+            <p className="text-desktop-body-xs text-foreground-secondary">
+              Links sind sicherer als Passwörter und können nicht gehackt oder vergessen werden. 
+              Sie erhalten einen einmaligen, sicheren Link direkt in Ihr E-Mail-Postfach.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}

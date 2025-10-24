@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Button from '@/components/ui/Button';
+import { Switch } from '@/components/ui/switch';
 
 interface CookieConsent {
   analytics: boolean;
@@ -19,35 +20,6 @@ declare global {
   }
 }
 
-// Custom Switch Component (Figma Style)
-function Switch({ checked, onChange, disabled = false }: { checked: boolean; onChange: (v: boolean) => void; disabled?: boolean }) {
-  let baseBg = '';
-  let style = {};
-  if (disabled) {
-    baseBg = '';
-    style = { opacity: 0.4, background: '#17E562' };
-  } else if (checked) {
-    baseBg = 'bg-[#17E562]';
-  } else {
-    baseBg = 'bg-[#4B4F68]';
-  }
-  return (
-    <button
-      type="button"
-      role="switch"
-      aria-checked={checked}
-      disabled={disabled}
-      tabIndex={0}
-      onClick={() => !disabled && onChange(!checked)}
-      className={`relative inline-flex h-7 w-11 items-center rounded-full transition-colors duration-200 focus:outline-none ${baseBg}`}
-      style={style}
-    >
-      <span
-        className={`inline-block h-6 w-6 transform rounded-full bg-white shadow transition-transform duration-200 ${checked ? 'translate-x-4.5' : 'translate-x-0.5'}`}
-      />
-    </button>
-  );
-}
 
 export function CookieBanner() {
   const [showBanner, setShowBanner] = useState(false);
@@ -96,48 +68,51 @@ export function CookieBanner() {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div
-        className="max-w-[611px] p-6 rounded-3xl shadow-[1px_1px_10px_1px_rgba(210,211,217,0.20)] backdrop-blur-[20px] inline-flex flex-col justify-start items-start gap-6"
-        style={{ background: 'rgba(0,0,0,0.86)' }}
+        className="max-w-[611px] p-3 rounded-lg backdrop-blur-xl"
+        style={{ boxShadow: '0 8px 16px 0 rgba(0, 0, 0, 0.1)' }}
+      >
+        <div
+        className="rounded-[1rem] overflow-hidden p-3 bg-primary inline-flex flex-col justify-start items-start gap-6"
       >
         {/* Weiter ohne Zustimmung */}
         <button
           onClick={handleDecline}
-          className="justify-center p-1 text-gray-400 text-xs tracking-tight hover:text-gray-200 transition-colors"
+          className="justify-center p-1 text-secondary text-xs tracking-tight hover:text-primary transition-colors"
         >
           Weiter ohne Zustimmung
         </button>
         {/* Haupttext */}
-        <div className="self-stretch justify-center text-foreground-primary">
-          <h5 className="leading-[1.6rem]">Herzlich Willkommen, wir verwenden Cookies, um deine Erfahrung auf unserer Website zu verbessern. Einige sind technisch notwendig, andere helfen uns, die Website zu optimieren.</h5>
+        <div className="self-stretch justify-center text-primary">
+          <h5> Herzlich Willkommen, wir verwenden Cookies, um deine Erfahrung auf unserer Website zu verbessern. Einige sind technisch notwendig, andere helfen uns, die Website zu optimieren.</h5>
         </div>
         <div>
         {/* Notwendige Cookies */}
         <div className="w-full max-w-[825px] min-w-72 inline-flex justify-between items-center">
           <div>
-            <div className="self-stretch justify-center text-foreground-primary text-sm font-semibold font-['Inter'] leading-[1.75rem]">Notwendige Cookies</div>
-            <div className="self-stretch justify-center text-[#AAADBF] text-xs leading-[1.75rem]">Essentiell damit die Seiten funktionieren. Immer an.</div>
+            <div className="self-stretch justify-center text-primary text-sm font-semibold font-['Inter'] leading-[1.75rem]">Notwendige Cookies</div>
+            <div className="self-stretch justify-center text-secondary text-xs">Essentiell damit die Seiten funktionieren. Immer an.</div>
           </div>
-          <Switch checked={true} onChange={() => {}} disabled />
+          <Switch checked={true} onCheckedChange={() => {}} disabled variant="cookie" />
         </div>
         {/* Analyse Cookies */}
         <div className="w-full pt-4 max-w-[825px] min-w-72 inline-flex justify-between items-center">
           <div>
-            <div className="self-stretch justify-center text-foreground-primary text-sm font-semibold font-['Inter'] leading-[1.75rem]">Analyse Cookies</div>
-            <div className="self-stretch justify-center text-[#AAADBF] text-xs leading-[1.25rem]">Werden zur Messung der Nutzung erhoben, <br />um das Erlebnis zu verbessern.</div>
+            <div className="self-stretch justify-center text-primary text-sm font-semibold font-['Inter'] leading-[1.75rem]">Analyse Cookies</div>
+            <div className="self-stretch justify-center text-secondary text-xs">Werden zur Messung der Nutzung erhoben, <br />um das Erlebnis zu verbessern.</div>
           </div>
-          <Switch checked={consent.analytics} onChange={handleAnalyticsSwitch} />
+          <Switch checked={consent.analytics} onCheckedChange={handleAnalyticsSwitch} variant="cookie" />
         </div>
         </div>
         {/* Zustimmen Button */}
         <div className="w-full flex pt-6 justify-center"> 
         <Button
           onClick={handleAccept}
-          size="m"
-          
+          size="md"
         >
           Zustimmen
         </Button>
         </div>
+      </div>
       </div>
     </div>
   );

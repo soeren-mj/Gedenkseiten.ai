@@ -1,41 +1,62 @@
 import React from 'react';
+import { cn } from '@/lib/utils';
 
-interface CheckboxProps {
-  label: React.ReactNode;
-  checked: boolean;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+interface CheckboxProps extends React.InputHTMLAttributes<HTMLInputElement> {
+  label?: React.ReactNode;
   error?: string;
-  name?: string;
-  required?: boolean;
-  className?: string;
 }
 
 const Checkbox: React.FC<CheckboxProps> = ({
   label,
-  checked,
-  onChange,
   error,
+  className,
+  id,
   name,
-  required = false,
-  className = '',
+  ...props
 }) => {
   return (
-    <div className={`flex items-start pb-2 ${className}`}>
-      <input
-        id={name}
-        name={name}
-        type="checkbox"
-        checked={checked}
-        onChange={onChange}
-        required={required}
-        className="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-      />
-      <label htmlFor={name} className="ml-2 text-sm text-gray-700 select-none">
-        {label}
-      </label>
-      {error && <p className="ml-2 text-xs text-red-500">{error}</p>}
+    <div className={cn('flex items-start pb-2', className)}>
+      <div className="relative flex items-start">
+        <div className="flex h-5 items-center">
+          <input
+            id={id || name}
+            name={name}
+            type="checkbox"
+            {...props}
+            className={cn(
+              'h-4 w-4 rounded',
+              'border-main',
+              'text-primary-700 dark:text-primary-300',
+              'focus:ring-2 focus:ring-primary-700 dark:focus:ring-primary-300 focus:ring-offset-2',
+              'focus:ring-offset-background-bw dark:focus:ring-offset-background-primary',
+              'disabled:opacity-50 disabled:cursor-not-allowed',
+              'transition-colors duration-200'
+            )}
+          />
+        </div>
+        {label && (
+          <label 
+            htmlFor={id || name} 
+            className={cn(
+              'ml-2 text-sm select-none',
+              'text-primary dark:text-primary'
+            )}
+          >
+            {label}
+          </label>
+        )}
+      </div>
+      {error && (
+        <p className={cn(
+          'ml-6 mt-1 text-xs',
+          'text-background-interactive-error-default dark:text-background-interactive-error-default'
+        )}>
+          {error}
+        </p>
+      )}
     </div>
   );
 };
 
+export { Checkbox };
 export default Checkbox; 

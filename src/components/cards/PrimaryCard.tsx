@@ -1,21 +1,43 @@
-import React, { ReactNode } from 'react';
+import React from 'react';
+import Image from 'next/image';
+import { cn } from '@/lib/utils';
+
+
+// Import your icon components here
 import EncryptedIcon from '@/components/icons/EncryptedIcon';
 import SupportIcon from '@/components/icons/SupportIcon';
 import ConnectIcon from '@/components/icons/ConnectIcon';
 import CondolenceIcon from '@/components/icons/CondolenceIcon';
 import MediaIcon from '@/components/icons/MediaIcon';
 import ModernIcon from '@/components/icons/ModernIcon';
-import Image from 'next/image';
-import { cn } from '@/lib/utils';
+import ChatIcon from '@/components/icons/ChatIcon';
+import BildverbesserungIcon from '@/components/icons/BildverbesserungIcon';
+import AiCircleIcon from '@/components/icons/AiCircleIcon';
+import InitialsIcon from '@/components/icons/InitialsIcon';
+
+// Icon components mapping
+const iconComponents = {
+  encrypted: EncryptedIcon,
+  support: SupportIcon,
+  connect: ConnectIcon,
+  condolence: CondolenceIcon,
+  media: MediaIcon,
+  modern: ModernIcon,
+  chat: ChatIcon,
+  bildverbesserung: BildverbesserungIcon,
+  aiCircle: AiCircleIcon,
+  initials: InitialsIcon,
+} as const;
 
 interface PrimaryCardProps {
-  icon: string | ReactNode;
+  icon: keyof typeof iconComponents | React.ReactNode;
   headline: string;
   description: string;
   image: string;
   imageAlt?: string;
-  cardHeight?: string;
-  variant?: 'default' | 'large';
+  variant?: 'small' | 'large';
+  cardHeight?: string; // Keep for backward compatibility
+  className?: string;
 }
 
 const PrimaryCard: React.FC<PrimaryCardProps> = ({
@@ -24,87 +46,96 @@ const PrimaryCard: React.FC<PrimaryCardProps> = ({
   description,
   image,
   imageAlt = headline,
-  variant = 'default',
-  cardHeight = '30.5rem'
+  variant = 'small',
+  className
 }) => {
+  // Render icon with consistent styling
   const renderIcon = () => {
-    if (typeof icon !== 'string') {
+    // If it's already a React element (like from AIUnterstuetzungSection)
+    if (React.isValidElement(icon)) {
       return icon;
     }
-    if (icon === 'encrypted') {
-      return <EncryptedIcon className="w-8 h-8 text-[#E5A417]" />;
+    
+    // If it's a string key from our icon components
+    if (typeof icon === 'string' && icon in iconComponents) {
+      const IconComponent = iconComponents[icon as keyof typeof iconComponents];
+      return <IconComponent className="w-8 h-8" />;
     }
-    if (icon === 'support') {
-      return <SupportIcon className="w-8 h-8 text-[#E5A417]" />;
-    }
-    if (icon === 'connect') {
-      return <ConnectIcon className="w-8 h-8 text-[#E5A417]" />;
-    }
-    if (icon === 'condolence') {
-      return <CondolenceIcon className="w-8 h-8 text-[#E5A417]" />;
-    }
-    if (icon === 'media') {
-      return <MediaIcon className="w-8 h-8 text-[#E5A417]" />;
-    }
-    if (icon === 'modern') {
-      return <ModernIcon className="w-8 h-8 text-[#E5A417]" />;
-    }
-    return (
-      <span className="material-symbols-outlined text-[2rem] text-[#E5A417]">
-        {icon || 'favorite'}
-      </span>
-    );
+    
+    return null;
   };
 
   return (
-    <div className={cn(
-      "box-border rounded-[1.5rem] border border-[var(--border-card,#000)] bg-[var(--background-opacity-primary,rgba(0,0,0,0.6))] shadow-[1px_1px_10px_1px_rgba(210,211,217,0.20)] backdrop-blur-[30.5px] flex flex-col justify-between items-start overflow-hidden transition-colors transition-shadow duration-200 hover:bg-black hover:shadow-[0_4px_24px_0_rgba(210,211,217,0.28)]",
-      variant === 'default' && `min-w-[20rem] max-w-[26rem] w-auto h-[${cardHeight}] p-[1.25rem_0.5rem_0_0.5rem]`,
-      variant === 'large' && `w-full h-[${cardHeight}] p-[1.5rem_0.5rem_0_0.5rem]`
-    )}>
-      <>
-        <div className={cn(
-          "flex flex-col items-start gap-4 w-full",
-          variant === 'default' && "px-2",
-          variant === 'large' && "px-4"
-        )}>
-          {/* Icon links oben */}
-          <div className="text-[var(--foreground-interactiv-accents-orange,#E5A417)] mt-[0.125rem] flex-shrink-0">
-            {renderIcon()}
-          </div>
-          {/* Text-Container */}
-          <div className="flex flex-col items-start gap-2 flex-1">
-            <h5 className={cn(
-              "h5 text-[var(--foreground-primary,#F0F0F2)]",
-              variant === 'default' && "text-base",
-              variant === 'large' && "text-lg"
-            )}>{headline}</h5>
-            <div className={cn(
-              "text-[var(--foreground-secondary,#C0C1CC)] font-inter leading-[1.65] tracking-[0.01531rem] my-1",
-              variant === 'default' && "text-md",
-              variant === 'large' && "text-md max-w-xl"
-            )}>{description}</div>
-          </div>
+    <div 
+      className={cn(
+        // Base layout - responsive width
+        "flex flex-col",
+        "w-full", // Full width of grid cell
+        "min-h-[25rem]", // Minimum height to maintain consistency
+        
+        // For large variant, it will span 2 columns in the grid
+        variant === 'large' && "md:col-span-2",
+        
+        // Padding - adjusted for proper spacing
+        "p-2 pb-0",
+        
+        // Background and borders - using design tokens
+        "rounded-md border", // Figma shows 20px radius
+        "bg-white/60 dark:bg-black/60", // Light/dark backgrounds with opacity
+        "border-white dark:border-neutral-800",
+        
+        // Effects
+        "backdrop-blur-[20px]",
+        "shadow-[0px_0px_6px_4px_rgba(0,0,0,0.10)]",
+        "transition-all duration-200",
+        
+        // Hover state
+        "hover:bg-white dark:hover:bg-black",
+        "hover:shadow-[0_4px_24px_0_rgba(210,211,217,0.28)]",
+        
+        // Overflow hidden for image
+        "overflow-hidden",
+        
+        className
+      )}
+    >
+      {/* Content section with flex-grow to push image to bottom */}
+      <div className="flex flex-col gap-4 flex-1 p-2">
+        {/* Icon */}
+        <div>
+          {renderIcon()}
         </div>
-        <div className={cn(
-          "relative w-full mt-4",
-          variant === 'default' && "h-[10.86256rem]",
-          variant === 'large' && "h-[14rem]"
-        )}>
-          <Image
-            src={image}
-            alt={imageAlt}
-            fill
-            className={cn(
-              "object-cover",
-              variant === 'default' && "rounded-tl-[16px] rounded-tr-[16px]",
-              variant === 'large' && "rounded-[16px]"
-            )}
-          />
-        </div>
-      </>
+        
+        {/* Text content */}
+       <div className="flex flex-col gap-2">
+          {/* Headline - h3 tag with h5 styling */}
+          <h3 className="text-title-group-h5 text-foreground-primary">
+            {headline}
+         </h3>
+           {/* Description */}
+         <p className={cn(
+            "text-body-s",
+            "text-foreground-secondary",
+            variant === 'large' && "md:max-w-[600px]"
+            )}>
+           {description}
+         </p>
+       </div>
+      </div>
+      
+      {/* Image section - responsive height */}
+      <div className="relative w-full h-44 flex-shrink-0">
+        <Image
+          src={image}
+          alt={imageAlt}
+          fill
+          className="object-cover rounded-t-sm"
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          priority={false}
+        />
+      </div>
     </div>
   );
 };
 
-export default PrimaryCard; 
+export default PrimaryCard;

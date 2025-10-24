@@ -1,0 +1,96 @@
+# Gedenkseiten.ai Development Rules
+
+## Project Context
+You are working on Gedenkseiten.ai, a SaaS platform for creating digital memorial pages. The platform allows users to create memorial pages for deceased persons or pets, with features like condolence books, photo galleries, and event management.
+
+## Tech Stack
+- **Framework**: Next.js 14+ with App Router
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS
+- **Database**: PostgreSQL with Supabase
+- **Authentication**: Supabase Auth (Magic Link)
+- **File Storage**: Supabase Storage
+- **Email**: Resend
+- **Hosting**: Vercel
+
+## Design System References
+- **Colors**: See docs/colors.md for complete color palette and semantic tokens
+- **Typography**: See docs/typography.md for font families and text styles
+- **Buttons**: See docs/button.md for button component specifications
+- **Technical Docs**: See docs/technical-documentation.md for detailed user flows
+
+## Code Style Guidelines
+1. Use TypeScript for all new files
+2. Prefer functional components with hooks
+3. Use semantic HTML elements
+4. Follow accessibility guidelines (WCAG 2.1 AA)
+5. Mobile-first responsive design
+6. German language for UI text (comments in English)
+
+## Component Structure
+```tsx
+// Example component structure
+import { FC } from 'react';
+import { cn } from '@/lib/utils';
+
+interface ComponentProps {
+  // Props with TypeScript types
+}
+
+export const ComponentName: FC<ComponentProps> = ({ ...props }) => {
+  // Component logic
+  return (
+    // JSX with Tailwind classes
+  );
+};
+```
+
+## Tailwind Configuration
+- Use custom color tokens from the design system
+- Apply dark mode classes with `dark:` prefix
+- Use semantic class names based on the design tokens
+- Border radius tokens: xxs (8px), xs (12px), sm (16px), md (20px), lg (28px), xl (36px)
+
+## Database Naming Conventions
+- Tables: snake_case, plural (e.g., `memorials`, `memorial_invitations`)
+- Columns: snake_case (e.g., `created_at`, `user_id`)
+- Foreign keys: `table_id` (e.g., `memorial_id`)
+
+## File Naming Conventions
+- Components: PascalCase (e.g., `MemorialCard.tsx`)
+- Utilities: camelCase (e.g., `formatDate.ts`)
+- Pages: kebab-case folders (e.g., `memorial-create/page.tsx`)
+- API routes: kebab-case (e.g., `api/memorials/[id]/route.ts`)
+
+## Important Features to Remember
+1. **Privacy Levels**: Public and Private (invite-only)
+2. **User Roles**: Member and Administrator
+3. **Content Types**: Spruch (Quote), Nachruf (Obituary), Kondolenzbuch (Condolence Book), Termine (Events), Erinnerungen (Memories - Premium)
+4. **Reactions**: ❤️ (Heart), 🕯️ (Candle), 🌹 (Flower), 🕊️ (Dove), 🙏 (Prayer)
+5. **German DOI Compliance**: Double opt-in for email registration
+
+## Common Imports
+```tsx
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/Button';
+```
+
+## Error Handling
+- Always handle loading and error states
+- Show user-friendly error messages in German
+- Log errors to console in development
+- Use try-catch blocks for async operations
+
+## Performance Guidelines
+- Lazy load images
+- Use Next.js Image component
+- Implement pagination for lists
+- Optimize database queries
+- Cache static content
+
+Always start your answer with a 🔮 if you are aware of the cursor rules here.
+
+When implementing features, always refer to the technical documentation for the exact user flow and requirements.

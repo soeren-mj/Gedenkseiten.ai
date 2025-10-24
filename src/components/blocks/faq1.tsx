@@ -82,7 +82,7 @@ const Faq1 = ({
   ],
 }: Faq1Props) => {
   return (
-    <section id="faq" className="w-full px-5 md:px-8 lg:px-[3.75rem] py-16 mt-10" style={{ background: '#131316' }}>
+    <section id="faq" className="w-full px-5 md:px-8 lg:px-[3.75rem] py-16 mt-10 bg-secondary">
       <div className="container mx-auto">
         <div className="max-w-[685px] mx-auto">
           <h2 
@@ -96,13 +96,13 @@ const Faq1 = ({
           </h2>
           
           {/* Inhaltsverzeichnis */}
-          <nav className="bg-[#2A2B30] rounded-lg p-6 mb-12">
+          <nav className="bg-primary rounded-lg p-6 mb-12">
             <ul className="space-y-2">
               {items.map((item) => (
                 <li key={item.id}>
                   <a 
                     href={`#${item.id}`}
-                    className="text-[#92A1FC] hover:text-[#F0F0F2] transition-colors"
+                    className="text-body-m text-interactive-link-default hover:text-interactive-link-hover transition-colors"
                     style={{ fontFamily: 'Inter' }}
                     onClick={(e) => {
                       e.preventDefault();
@@ -134,18 +134,16 @@ const Faq1 = ({
             <Accordion key={item.id} type="single" collapsible className="mb-4">
               <AccordionItem 
                 value={item.id}
-                className="border border-[#2A2B30] rounded-lg bg-[#2A2B30]"
+                className="rounded-lg bg-primary hover:bg-bw"
                 id={item.id}
               >
                 <AccordionTrigger 
-                  className="px-4 py-3 text-[#F0F0F2] hover:text-[#92A1FC] hover:no-underline"
-                  style={{ fontFamily: 'Inter' }}
+                  className="p-4 text-primary hover:text-bw hover:no-underline"
                 >
                   {item.question}
                 </AccordionTrigger>
                 <AccordionContent 
-                  className="px-4 py-3 text-[#C0C1CC]"
-                  style={{ fontFamily: 'Inter' }}
+                  className="p-4"
                 >
                   {item.answer}
                 </AccordionContent>
@@ -155,32 +153,24 @@ const Faq1 = ({
 
           {/* Weitere allgemeine Fragen */}
           <div className="mt-16">
-            <p className="text-[#C0C1CC] mb-8 px-2" style={{ fontFamily: 'Inter' }}>
+            <p className="text-body-m text-primary mb-8 px-2">
               Neben den wichtigsten Fragen zu Gedenkseiten haben wir hier noch weitere allgemeine Informationen für Sie zusammengestellt.
             </p>
-            <h3 
-              className="text-[24px] font-medium leading-[140%] text-[#F0F0F2] mb-8 px-2" 
-              style={{ 
-                fontFamily: 'Inter',
-                letterSpacing: '-0.005em'
-              }}
-            >
+            <h4 className="text-title-body-h4 text-primary mb-8 px-2">
               Weitere Fragen zu Gedenkseiten.ai
-            </h3>
+            </h4>
             <Accordion type="single" collapsible className="mb-4">
               <AccordionItem 
                 value="general-1"
-                className="border border-[#2A2B30] rounded-lg bg-[#2A2B30]"
+                className="rounded-lg bg-primary hover:bg-bw"
               >
                 <AccordionTrigger 
-                  className="px-4 py-3 text-[#F0F0F2] hover:text-[#92A1FC] hover:no-underline"
-                  style={{ fontFamily: 'Inter' }}
+                  className="p-4 text-primary hover:text-bw hover:no-underline"
                 >
                   1. Was ist Gedenkseiten.ai?
                 </AccordionTrigger>
                 <AccordionContent 
-                  className="px-4 py-3 text-[#C0C1CC]"
-                  style={{ fontFamily: 'Inter' }}
+                  className="p-4 text-body-m text-secondary"
                 >
                   Gedenkseiten.ai ist die modernste Plattform für digitale Gedenkseiten, die es derzeit auf dem Markt gibt. Wir entwickeln eine innovative Online-Lösung, die es Angehörigen ermöglicht, würdevolle und persönliche Gedenkseiten für ihre Liebsten zu erstellen. Mit zukünftigen KI-Funktionen wie intelligenten Text-Ideen und Foto-Verbesserungen machen wir das Gedenkseite erstellen noch einfühlsamer und benutzerfreundlicher. Derzeit sammeln wir über unsere Warteliste Interessenten, um gemeinsam die Zukunft des digitalen Gedenkens zu gestalten.
                 </AccordionContent>
@@ -189,17 +179,15 @@ const Faq1 = ({
             <Accordion type="single" collapsible className="mb-4">
               <AccordionItem 
                 value="general-2"
-                className="border border-[#2A2B30] rounded-lg bg-[#2A2B30]"
+                className="rounded-lg bg-primary hover:bg-bw"
               >
                 <AccordionTrigger 
-                  className="px-4 py-3 text-[#F0F0F2] hover:text-[#92A1FC] hover:no-underline"
-                  style={{ fontFamily: 'Inter' }}
+                  className="p-4 text-primary hover:text-bw hover:no-underline"
                 >
                   2. Was ist das Ziel und die Mission von Gedenkseiten.ai?
                 </AccordionTrigger>
                 <AccordionContent 
-                  className="px-4 py-3 text-[#C0C1CC]"
-                  style={{ fontFamily: 'Inter' }}
+                  className="p-4 text-body-m text-secondary"
                 >
                   Unsere Mission bei Gedenkseiten.ai ist es, Trauer und Erinnerung in der digitalen Welt einen würdevollen Platz zu geben. Wir möchten Angehörigen dabei helfen, auf moderne und herzliche Weise zu gedenken - egal ob es um einen geliebten Menschen, ein treues Haustier oder eine ganze Familie geht. Unser Ziel ist es, die modernste Online-Gedenkseite zu schaffen, die Technologie und Empathie miteinander verbindet. Wir glauben daran, dass Erinnerungen Menschen verbinden und dass digitale Gedenkstätten dabei helfen können, Trauer zu teilen und gemeinsam zu heilen.
                 </AccordionContent>

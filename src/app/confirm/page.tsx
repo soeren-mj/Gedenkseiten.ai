@@ -44,18 +44,18 @@ export default function ConfirmPage() {
     <div className="min-h-screen flex flex-col bg-gray-50">
       {/* Hero Image */}
       <div className="relative w-full h-[450px]">
-        <Image 
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img 
           src="/images/dankeseite-foto.webp" 
           alt="Gruppe von Menschen, die sich umarmen" 
-          fill
-          style={{ objectFit: 'cover', objectPosition: 'center' }}
-          priority
+          style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center' }}
         />
         <Link 
           href="/" 
           className="absolute top-4 left-4 flex items-center space-x-2 h-[50px] py-2 px-4 rounded-[1.25rem] bg-black/60 backdrop-blur transition-colors hover:bg-black/70"
         >
-          <Image 
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img 
             src="/images/logo-gedenkseiten.ai-white-x4.png" 
             alt="Gedenkseiten.ai Logo" 
             width={80} 

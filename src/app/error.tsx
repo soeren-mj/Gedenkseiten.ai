@@ -19,7 +19,7 @@ export default function Error({
         <h2 className="text-2xl font-semibold mb-4">
           Entschuldigung, es ist ein Fehler aufgetreten
         </h2>
-        <p className="text-foreground-secondary mb-6 max-w-md mx-auto">
+        <p className="text-secondary mb-6 max-w-md mx-auto">
           Wir arbeiten daran, das Problem zu beheben. Bitte versuche es später noch einmal
           oder kontaktiere unseren Support, wenn der Fehler weiterhin besteht.
         </p>

@@ -10,7 +10,7 @@ export default function NotFound() {
         <h2 className="text-2xl font-semibold mb-4">
           Diese Seite wurde nicht gefunden
         </h2>
-        <p className="text-foreground-secondary mb-6 max-w-md mx-auto">
+        <p className="text-secondary mb-6 max-w-md mx-auto">
           Die von dir gesuchte Seite existiert leider nicht oder wurde möglicherweise verschoben.
         </p>
         <div className="space-x-4">

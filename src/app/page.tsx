@@ -13,18 +13,18 @@ export default function Home() {
   const onStartClick = () => setPopoverOpen(true);
 
   return (
-    <main className="min-h-screen items-center" style={{ background: '#1F2024' }}>
+    <div className="w-full">
       <PopoverRegister open={popoverOpen} onClose={() => setPopoverOpen(false)} />
       <HeroSection onStartClick={onStartClick} />
       <SoWhatSection onStartClick={onStartClick} />
       <AIUnterstuetzungSection />
       <PreviewSection />
       {/* Neue Section mit zentriertem Button */}
-      <section className="w-full px-[60px] py-6 flex justify-center items-center mt-10">
+      <section className="w-full px-4 md:px-[60px] py-6 flex justify-center items-center mt-10">
         <Button onClick={onStartClick}>Jetzt starten</Button>
       </section>
       {/* FAQ Section */}
       <Faq1 />
-    </main>
+    </div>
   );
 }

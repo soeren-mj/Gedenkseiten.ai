@@ -48,7 +48,7 @@ export function Footer({
               {socialLinks.map((link, i) => (
                 <li key={i}>
                   <Button
-                    size="s"
+                    size="sm"
                     className="h-10 w-10 rounded-full p-0 flex items-center justify-center"
                   >
                     <a href={link.href} target="_blank" aria-label={link.label} className="flex items-center justify-center w-full h-full">
@@ -69,7 +69,7 @@ export function Footer({
                 <li key={i} className="my-1 mx-2 shrink-0">
                   <a
                     href={link.href}
-                    className="text-sm text-foreground-primary underline-offset-4 hover:underline"
+                    className="text-sm text-primary underline-offset-4 hover:underline"
                   >
                     {link.label}
                   </a>
@@ -83,7 +83,7 @@ export function Footer({
                 <li key={i} className="my-1 mx-3 shrink-0">
                   <a
                     href={link.href}
-                    className="text-sm text-foreground-secondary underline-offset-4 hover:underline"
+                    className="text-sm text-secondary underline-offset-4 hover:underline"
                   >
                     {link.label}
                   </a>

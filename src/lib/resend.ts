@@ -1,41 +1,46 @@
 import { Resend } from 'resend';
 
-// Der korrekte API-Schlüssel - DIREKT VERWENDEN
-const CORRECT_API_KEY = 're_YZeesR6E_CrRVbyusQxvdHkTcrPb7ADqM';
+// API-Schlüssel aus Umgebungsvariable laden
+const apiKey = process.env.RESEND_API_KEY;
 
-// Verwende immer den hardcoded API-Schlüssel, ignoriere Umgebungsvariablen
-const apiKey = CORRECT_API_KEY;
-
-console.log('RESEND SETUP INFO:');
-console.log('- API-Schlüssel vorhanden:', !!apiKey);
-console.log('- Verwendeter API-Schlüssel Anfang:', apiKey ? apiKey.substring(0, 8) + '...' : 'N/A');
+// Debug-Info nur in Entwicklungsumgebung
+if (process.env.NODE_ENV === 'development') {
+  console.log('RESEND: API-Schlüssel vorhanden:', !!apiKey);
+}
 
 // Einfache Initialisierung
 let resend: Resend | null = null;
 
-try {
-  // Initialisiere Resend mit dem korrekten API-Schlüssel
-  resend = new Resend(apiKey);
-  console.log('✅ Resend wurde erfolgreich initialisiert');
-} catch (error) {
-  console.error('❌ Fehler bei der Initialisierung von Resend:', error);
+if (!apiKey) {
+  console.error('❌ RESEND_API_KEY Umgebungsvariable fehlt');
+} else {
+  try {
+    // Initialisiere Resend mit dem API-Schlüssel aus der Umgebungsvariable
+    resend = new Resend(apiKey);
+    // Erfolgreiche Initialisierung, keine Logs beim Import
+  } catch (error) {
+    console.error('❌ Fehler bei der Initialisierung von Resend:', error);
+  }
 }
 
-// Teste die Verbindung
-if (resend) {
-  const testConnection = async () => {
-    try {
-      const domainResponse = await resend.domains.list();
-      console.log('✅ Resend-Verbindung getestet, verfügbare Domains:', 
-        domainResponse.data && Array.isArray(domainResponse.data) 
-          ? domainResponse.data.map((d: { name: string }) => d.name).join(', ') 
-          : 'Keine');
-    } catch (error) {
-      console.error('❌ Fehler beim Testen der Resend-Verbindung:', error);
-    }
-  };
+// Verbindungstest nur on-demand ausführen, nicht beim Import
+export const testResendConnection = async () => {
+  if (!resend) {
+    console.error('❌ Resend ist nicht initialisiert');
+    return false;
+  }
   
-  testConnection();
-}
+  try {
+    const domainResponse = await resend.domains.list();
+    console.log('✅ Resend-Verbindung getestet, verfügbare Domains:', 
+      domainResponse.data && Array.isArray(domainResponse.data) 
+        ? domainResponse.data.map((d: { name: string }) => d.name).join(', ') 
+        : 'Keine');
+    return true;
+  } catch (error) {
+    console.error('❌ Fehler beim Testen der Resend-Verbindung:', error);
+    return false;
+  }
+};
 
 export default resend; 

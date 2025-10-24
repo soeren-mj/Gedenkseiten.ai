@@ -6,36 +6,22 @@ interface SoWhatSectionProps {
   onStartClick?: () => void;
 }
 
-// Neue Komponente für die Zahlen-Box
+// Updated component with WebP images
 function SoWhatNumberBox({ number, text }: { number: string; text: string }) {
   return (
-    <div className="flex w-full items-center justify-center gap-2 py-8 md:py-0">
-      <span className="text-[5.25rem] font-medium leading-[100%] font-satoshi flex items-center relative">
-        {number === "1" ? (
-          <span 
-            className="bg-[url('/images/1-gradient-hintergrund.png')] bg-no-repeat bg-center bg-cover text-transparent bg-clip-text w-[5.25rem] h-[5.25rem] flex items-center justify-center"
-          >
-            {number}
-          </span>
-        ) : number === "2" ? (
-          <span 
-            className="bg-[url('/images/2-gradient-hintergrund.png')] bg-no-repeat bg-center bg-cover text-transparent bg-clip-text w-[5.25rem] h-[5.25rem] flex items-center justify-center"
-          >
-            {number}
-          </span>
-        ) : number === "3" ? (
-          <span 
-            className="bg-[url('/images/3-gradient-hintergrund.png')] bg-no-repeat bg-center bg-cover text-transparent bg-clip-text w-[5.25rem] h-[5.25rem] flex items-center justify-center"
-          >
-            {number}
-          </span>
-        ) : (
-          <span className="text-foreground-interactiv-accents-orange">
-            {number}
-          </span>
-        )}
-      </span>
-      <h4 className="flex items-center">
+    <div className="flex w-full items-center justify-center gap-6 p-2 md:py-0">
+      <div className="flex items-center">
+        <img 
+          src={`/images/${number}-number-blur.webp`}
+          alt={`Number ${number} with progressive blur gradient effect`}
+          className="h-[8rem] w-auto"
+          width="84" 
+          height="84"
+          style={{ objectFit: 'contain' }}
+        />
+        <span className="sr-only">{number}</span>
+      </div>
+      <h4 className="w-full">
         {text}
       </h4>
     </div>
@@ -47,8 +33,8 @@ const SoWhatSection: React.FC<SoWhatSectionProps> = ({ onStartClick }) => {
     <section id="so-what" className="w-full flex flex-col items-center gap-5 md:gap-6 lg:gap-10 mt-20">
       <div className="w-full max-w-[113.75rem] px-5 md:px-8 lg:px-[3.75rem] py-[3.75rem] flex flex-col items-center">
         <div className="flex items-center w-full lg:w-full md:w-fit p-2 md:px-2 lg:px-8 pb-5 md:pb-5 lg:pb-[3.75rem]">
-          <div className="max-w-[685px] text-foreground-secondary font-inter text-2xl leading-[150%] md:leading-[140%] lg:leading-[140%] tracking-[-0.005rem]">
-            <span className="text-foreground-bw">Moderne ansprechende Gedenkseiten</span>
+          <div className="max-w-[685px] text-subsection-h3 text-tertiary">
+            <span className="text-primary">Moderne ansprechende Gedenkseiten</span>
             {' '}sind, im Gegensatz zu traditionellen Erinnerungsformen wie gedruckten Fotos, Alben oder Trauerkarten, jederzeit und durch fast jeden von überall zugänglich. Sie bieten einen Raum, in dem Freunde und Familie ihre Trauer ausdrücken und sich gegenseitig unterstützen können. Auch wenn Menschen nicht persönlich an der Beerdigung oder Trauerfeier teilnehmen können, haben diese die Möglichkeit, online ihr Beileid auszudrücken und Unterstützung zu zeigen. Diese gemeinschaftliche Trauerbewältigung kann sehr heilend wirken.
           </div>
         </div>
@@ -77,7 +63,7 @@ const SoWhatSection: React.FC<SoWhatSectionProps> = ({ onStartClick }) => {
           <div className="flex flex-col gap-5 md:gap-6 lg:gap-[2.5rem] min-w-[20rem] max-w-[22.875rem] flex-1">
             <SoWhatNumberBox number="2" text="Stärkt das Gemeinschaftsgefühl" />
             <PrimaryCard
-              icon="condolence"
+              icon="chat"
               headline="Beileid online ausdrücken"
               description="Online Gedenkseiten ermöglichen es, Beileid auszudrücken und Geschichten zu teilen, auch wenn persönliche Präsenz nicht möglich ist."
               image="/images/feed-gedenkseite.png"
@@ -115,7 +101,13 @@ const SoWhatSection: React.FC<SoWhatSectionProps> = ({ onStartClick }) => {
           </div>
         </div>
         <div className="w-[22.5rem] pt-[3.75rem] flex justify-center items-center">
-          <Button size="m" onClick={onStartClick}>Jetzt starten</Button>
+        <Button 
+                variant="primary"
+                size="md"
+                onClick={onStartClick}
+              >
+                Jetzt starten
+              </Button>
         </div>
       </div>
     </section>

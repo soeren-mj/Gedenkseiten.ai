@@ -7,7 +7,7 @@ export default function ImpressumPage() {
       <div className="flex flex-col gap-6">
         <div>
           <h2 className="mb-1">Angaben gemäß § 5 TMG:</h2>
-          <address className="not-italic whitespace-pre-line text-foreground-secondary">
+          <address className="not-italic whitespace-pre-line text-secondary">
             Sören Schönnagel<br />
             Palisadenstraße 47<br />
             10243 Berlin<br />
@@ -15,7 +15,7 @@ export default function ImpressumPage() {
           </address>
           <div className="mt-2">
             <h4>Kontakt:</h4>
-            <span className="text-foreground-secondary">E-Mail: <a href="mailto:hello@gedenkseiten.ai" className="underline">hello@gedenkseiten.ai</a></span>
+            <span className="text-secondary">E-Mail: <a href="mailto:hello@gedenkseiten.ai" className="underline">hello@gedenkseiten.ai</a></span>
           </div>
         </div>
         <hr className="border-t border-[var(--foreground-primary,#F0F0F2)] opacity-30" />
@@ -23,15 +23,15 @@ export default function ImpressumPage() {
           <h3 className="mb-2">Haftungsausschluss</h3>
           <div className="mb-3">
             <h4 className="mb-1">Haftung für Inhalte</h4>
-            <p className="text-foreground-secondary">Die Inhalte unserer Seiten wurden mit größter Sorgfalt erstellt. Für die Richtigkeit, Vollständigkeit und Aktualität der Inhalte können wir jedoch keine Gewähr übernehmen.</p>
+            <p className="text-secondary">Die Inhalte unserer Seiten wurden mit größter Sorgfalt erstellt. Für die Richtigkeit, Vollständigkeit und Aktualität der Inhalte können wir jedoch keine Gewähr übernehmen.</p>
           </div>
           <div className="mb-3">
             <h4 className="mb-1">Haftung für Links</h4>
-            <p className="text-foreground-secondary">Unser Angebot enthält Links zu externen Webseiten Dritter, auf deren Inhalte wir keinen Einfluss haben. Deshalb können wir für diese fremden Inhalte auch keine Gewähr übernehmen.</p>
+            <p className="text-secondary">Unser Angebot enthält Links zu externen Webseiten Dritter, auf deren Inhalte wir keinen Einfluss haben. Deshalb können wir für diese fremden Inhalte auch keine Gewähr übernehmen.</p>
           </div>
           <div>
             <h4 className="mb-1">Urheberrecht</h4>
-            <p className="text-foreground-secondary">Die durch die Seitenbetreiber erstellten Inhalte und Werke auf diesen Seiten unterliegen dem deutschen Urheberrecht. Die Vervielfältigung, Bearbeitung, Verbreitung und jede Art der Verwertung außerhalb der Grenzen des Urheberrechtes bedürfen der schriftlichen Zustimmung des jeweiligen Autors bzw. Erstellers.</p>
+            <p className="text-secondary">Die durch die Seitenbetreiber erstellten Inhalte und Werke auf diesen Seiten unterliegen dem deutschen Urheberrecht. Die Vervielfältigung, Bearbeitung, Verbreitung und jede Art der Verwertung außerhalb der Grenzen des Urheberrechtes bedürfen der schriftlichen Zustimmung des jeweiligen Autors bzw. Erstellers.</p>
           </div>
         </div>
         <hr className="border-t border-[var(--foreground-primary,#F0F0F2)] opacity-30" />

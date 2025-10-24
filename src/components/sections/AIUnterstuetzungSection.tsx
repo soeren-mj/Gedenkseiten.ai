@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
+import { cn } from '@/lib/utils';
 import PrimaryCard from '@/components/cards/PrimaryCard';
-import TagCloudChips from '@/components/ui/TagCloudChips';
+import { Tag } from '@/components/ui/TagComponent';
 import MicrofonIcon from '@/components/icons/MicrofonIcon';
 import HeftklammerIcon from '@/components/icons/HeftklammerIcon';
-import ChatIcon from '@/components/icons/ChatIcon';
 import BildverbesserungIcon from '@/components/icons/BildverbesserungIcon';
-import AiCircleIcon from '@/components/icons/AiCircleIcon';
 import SparklesIcon from '@/components/icons/SparklesIcon';
+import ChatIcon from '@/components/icons/ChatIcon';
 
 const AIUnterstuetzungSection: React.FC = () => {
   const [svgX, setSvgX] = useState('-60vw');
@@ -60,15 +60,15 @@ const AIUnterstuetzungSection: React.FC = () => {
         </svg>
       </div>
       {/* Grid-Layout */}
-      <div className="w-full max-w-[113.75rem] grid grid-cols-1 md:grid-cols-4 grid-rows-none md:grid-rows-2 gap-3 md:gap-6 relative z-10">
+      <div className="w-full max-w-[113.75rem] grid grid-cols-1 sm:grid-cols-responsive lg:grid-cols-4 gap-3 md:gap-6 relative z-10">
         {/* Headline-Box: nimmt zwei Spalten, eine Zeile */}
-        <div className="flex flex-col items-start justify-center gap-4 bg-transparent p-0 z-10 md:col-span-2 md:row-span-1">
-          <SparklesIcon className="w-16 h-16 text-white fill-white" />
-          <div className="" style={{color: '#F2F0EB', fontFamily: 'Satoshi'}}>coming soon</div>
+        <div className="flex flex-col items-start justify-center gap-6 px-4 py-5 z-10 md:col-span-2 md:row-span-1">
+          <SparklesIcon className="w-16 h-16" />
+          <div className="text-tag">Bald verfügbar</div>
           <h2>
             In nur einem Schritt zur digitalen Gedenkseite.
           </h2>
-          <p className="text-[1.125rem] leading-[1.4] tracking-[-0.5%] text-white">
+          <p className="text-body-l">
             Mit nur einem kleinen Chat füllst du deine Gedenkseite automatisch. 
             <br /> 
             Lass dir auch bei Texten helfen und deine Bilder verbessern.
@@ -80,32 +80,75 @@ const AIUnterstuetzungSection: React.FC = () => {
         <div className="hidden md:block md:col-span-1 md:row-span-1" />
         <div className="hidden md:block md:col-span-1 md:row-span-1" />
         {/* PrimaryCard 1 */}
-        <div className="mt-2 md:mt-0 md:row-span-1">
+        <div className="mt-2 md:mt-0">
           <PrimaryCard
             icon={<BildverbesserungIcon className="w-8 h-8" />}
             headline="KI-Bildverbesserung"
             description="Verbessere die Bildqualität deiner Fotos mit unserer KI."
             image="/images/ai-bildverbesserung-before-after.png"
-            cardHeight="20rem"
           />
         </div>
         {/* PrimaryCard 2 */}
-        <div className="mt-2 md:mt-0 md:row-span-1">
+        <div className="mt-2 md:mt-0">
           <PrimaryCard
-            icon={<ChatIcon className="w-8 h-8" />}
+            icon="initials"
             headline="KI-Textunterstützung"
             description="KI-generierte Textvorschläge für einen pietätvollen Nachruf oder Gedenksprüche."
             image="/images/ai-textunterstuetzung-ideation.png"
-            cardHeight="20rem"
           />
         </div>
         {/* Großes Chat-Element (nimmt zwei Zeilen ein) */}
-        <div className="flex flex-col p-5 justify-center gap-6 bg-black/40 rounded-2xl border border-black shadow-[1px_1px_10px_1px_rgba(210,211,217,0.20)] backdrop-blur-[61px] min-h-[300px] md:row-span-2 md:col-span-2">
+        <div className={cn(
+           // Base layout - responsive width
+        "flex flex-col",
+        "w-full", // Full width of grid cell
+           // Padding - adjusted for proper spacing
+        "p-5",
+        "md:col-span-2",
+        "md:row-span-2",
+        
+        // Background and borders - using design tokens
+        "rounded-md border", // Figma shows 20px radius
+        "bg-white/60 dark:bg-black/60", // Light/dark backgrounds with opacity
+        "border-white dark:border-neutral-800",
+        
+        // Effects
+        "backdrop-blur-[20px]",
+        "shadow-[0px_0px_6px_4px_rgba(0,0,0,0.10)]",
+        "transition-all duration-200",
+        
+        // Hover state
+        "hover:bg-white/80 dark:hover:bg-black/80",
+        "hover:shadow-[0_4px_24px_0_rgba(210,211,217,0.28)]",
+
+        )}
+        >
+        {/* Header mit Icon und Text */}
+        <div className="flex flex-col gap-4 flex-1 p-2">
+          {/* Icon */}
+         <div>
+           <ChatIcon className="w-8 h-8" />
+         </div>
+         {/* Text content */}
+         <div className="flex flex-col gap-2">
+           {/* Headline - h3 tag with h5 styling */}
+           <h3 className="text-title-group-h5 text-foreground-primary">
+             KI-Chat
+           </h3>
+           {/* Description */}
+           <p className={cn(
+             "text-body-s",
+             "text-foreground-secondary",
+             )}>
+             Erzähl was du erstellen willst und lass dir die Seite erstellen.
+           </p>
+         </div>
+        </div>
           {/* Chat-Header */}
-          <div className="p-6 bg-black/40 rounded-xl">
-            <h4>Erzähl mir, für wen möchtest du eine Gedenkseite erstellen?</h4>
+          <div className="p-6 bg-primary rounded-sm">
+            <h5>Erzähl mir, für wen möchtest du eine Gedenkseite erstellen?</h5>
               <div className="pt-4">
-               <p className="text-[1.25rem] leading-[1.5] bg-gradient-to-br from-[#FB405B] to-[#E3894E] bg-clip-text text-transparent">
+               <p className="text-title-body-h4 bg-gradient-to-br from-[#FB405B] to-[#E3894E] bg-clip-text text-transparent">
                 Ich möchte gern eine Seite für meine verstorbene Omi erstellen. Sie ist am 28.10.2023 in Recklinghausen gestorben. Ihr Name ist Jaune Pierre Mont-Dereville. Ihr Geburtsdatum war der 01.08.1946.
                </p>
                <div className="w-full flex items-center justify-end gap-2 mt-6">
@@ -115,38 +158,46 @@ const AIUnterstuetzungSection: React.FC = () => {
               </div>
            </div>
           {/* Denk-Status */}
-          <div className="flex items-center gap-3 px-4 py-2">
-            <span className="inline-block w-4 h-4 bg-gradient-to-br from-[#8FC6F5] via-[#AD9CF5] to-[#F361F5] rounded-full animate-pulse" />
-            <span className="font-inter font-semibold text-base leading-[1.6] bg-gradient-to-br from-[#8FC6F5] via-[#AD9CF5] to-[#F361F5] bg-clip-text text-transparent">Denkt nach…</span>
+          <div className="flex items-center gap-3 px-4 py-4">
+            <span className="inline-block w-4 h-4 bg-gradient-to-br from-[#996DE3] via-[#E74DC3] to-[#EDDB16] rounded-full animate-pulse" />
+            <span className="text-body-m-semibold bg-gradient-to-br from-[#996DE3] via-[#E74DC3] to-[#EDDB16] bg-clip-text text-transparent animate-pulse">Denkt nach…</span>
           </div>
           {/* TagCloud */}
           <div className="p-4">
-            <TagCloudChips
-              label="Informationen erkannt:"
-              tags={[
-                'Person',
-                'Sterbedatum: 28.10.2023',
-                'Sterbeort: Recklinghausen',
-                'Vorname: Jaune Pierre',
-                'Nachname: Mont-Dereville',
-                'Geburtsdatum: 01.08.1946',
-              ]}
-            />
+            <div className="flex flex-col gap-2">
+              <span className="text-body-s-semibold mb-1">
+                Informationen erkannt:
+              </span>
+              <div className="flex flex-wrap gap-3">
+                {[
+                  'Person',
+                  'Sterbedatum: 28.10.2023',
+                  'Sterbeort: Recklinghausen',
+                  'Vorname: Jaune Pierre',
+                  'Nachname: Mont-Dereville',
+                  'Geburtsdatum: 01.08.1946',
+                ].map((tag, idx) => (
+                  <Tag key={idx} className="text-body-s">
+                    {tag}
+                  </Tag>
+                ))}
+              </div>
+            </div>
           </div>
           {/* Ready to go */}
-          <div className="flex items-center gap-3 px-4 py-2">
-            <span className="font-inter font-semibold text-base leading-[1.6] bg-gradient-to-br from-[#8FC6F5] via-[#AD9CF5] to-[#F361F5] bg-clip-text text-transparent animate-pulse">Ich habe genügend Informationen, um eine Gedenkseite zu erstellen…</span>
+          <div className="p-6 bg-primary rounded-sm mt-4">
+            <span className="text-body-m-semibold">Ich habe genügend Informationen, um eine Gedenkseite zu erstellen…</span>
           </div>
         </div>
         {/* Große PrimaryCard (nimmt zwei Spalten ein) */}
         <div className="md:col-span-2 md:row-span-1">
           <PrimaryCard
-            icon={<AiCircleIcon className="w-8 h-8" />}
+            icon="aiCircle"
             headline="KI-gestützte Inhaltserstellung"
             description="Generiert Vorschläge basierend auf den Inhalten der Gedenkseite."
             image="/images/ai-inhaltserstellung-abstract.png"
             variant="large"
-            cardHeight="20rem"
+            
           />
         </div>
       </div>

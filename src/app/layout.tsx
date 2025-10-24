@@ -1,10 +1,12 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { Inter } from 'next/font/google';
-import Navbar from '@/components/Navbar';
+import localFont from 'next/font/local';
 import { CookieBanner } from '@/components/CookieBanner';
-import { MainFooter } from '@/components/layout/MainFooter';
 import { GTMConsentClient } from '@/components/GTMConsentClient';
+import { ThemeProvider } from '@/components/providers/ThemeProvider';
+import { AuthProvider } from '@/contexts/AuthContext';
+import { ConditionalLayout } from '@/components/layout/ConditionalLayout';
 import { 
   faqSchema, 
   breadcrumbSchema, 
@@ -13,14 +15,39 @@ import {
   localBusinessSchema,
   webpageSchema 
 } from './structured-data';
-// import ThemeProviderClient from './ThemeProviderClient';
 
-const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
+// Font configurations
+const inter = Inter({ 
+  subsets: ['latin'], 
+  variable: '--font-inter',
+  display: 'swap',
+});
+
+const satoshi = localFont({
+  src: [
+    {
+      path: '../../public/fonts/Satoshi/WEB/fonts/Satoshi-Variable.woff2',
+      weight: '400 700',
+      style: 'normal',
+    },
+  ],
+  variable: '--font-satoshi',
+  display: 'swap',
+});
 
 export const metadata: Metadata = {
   title: 'Gedenkseiten.ai - Digitale Erinnerungsstücke | Online Gedenkseiten erstellen',
-  description: 'Erstelle eine würdevolle digitale Gedenkseite für deine verstorbenen Liebsten. Egal ob Mensch oder Tier. Einfach, persönlich und online sonlange du willst.',
+  description: 'Erstelle eine würdevolle digitale Gedenkseite für deine verstorbenen Liebsten. Egal ob Mensch oder Tier. Einfach, persönlich und online solange du willst.',
   keywords: 'Gedenkseite, digitale Gedenkseite, Trauer, Erinnerung, Online Gedenkseite, Kondolenzbuch, digitale Erinnerung, death-tech, KI-Gedenkseiten',
+  
+  // Language and locale
+  alternates: {
+    languages: {
+      'de-DE': '/',
+    },
+  },
+  
+  // Open Graph metadata
   openGraph: {
     title: 'Gedenkseiten.ai - Digitale Erinnerungsstücke',
     description: 'Erstelle eine würdevolle digitale Gedenkseite für deine verstorbenen Liebsten.',
@@ -37,12 +64,16 @@ export const metadata: Metadata = {
     locale: 'de_DE',
     type: 'website',
   },
+  
+  // Twitter metadata
   twitter: {
     card: 'summary_large_image',
     title: 'Gedenkseiten.ai - Digitale Erinnerungsstücke',
     description: 'Erstelle eine würdevolle digitale Gedenkseite für deine verstorbenen Liebsten.',
     images: ['https://gedenkseiten.ai/images/x-image.jpg'],
   },
+  
+  // SEO robots
   robots: {
     index: true,
     follow: true,
@@ -54,24 +85,41 @@ export const metadata: Metadata = {
       'max-snippet': -1,
     },
   },
+  
+  // Verification and authorship
   verification: {
     google: 'dOKxXxVN478RDsBOu9zBccg3uhRbgNuhh0WmNuF8EQU',
   },
   authors: [{ name: 'Gedenkseiten.ai' }],
   creator: 'Gedenkseiten.ai',
   publisher: 'Gedenkseiten.ai',
+  
+  // Format detection
   formatDetection: {
     email: false,
     address: false,
     telephone: false,
   },
+  
+  // Other metadata
+  category: 'Technology',
+  classification: 'Memorial Platform',
+  applicationName: 'Gedenkseiten.ai',
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({ 
+  children 
+}: { 
+  children: React.ReactNode 
+}) {
   return (
-    <html lang="de" className={inter.variable}>
+    <html lang="de" className={`${inter.variable} ${satoshi.variable}`} suppressHydrationWarning>
       <head>
+        {/* Theme color for browser UI */}
         <meta name="theme-color" content="#1F2024" />
+        <meta name="color-scheme" content="light dark" />
+        
+        {/* Structured data for SEO */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -89,12 +137,25 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           }}
         />
       </head>
-      <body className="min-h-screen bg-background-primary text-foreground-primary flex flex-col">
-        <Navbar />
-        <main className="flex-1 pt-16">{children}</main>
-        <MainFooter />
-        <CookieBanner />
-        <GTMConsentClient />
+      <body 
+        className="min-h-screen bg-primary dark:bg-primary text-primary dark:text-primary flex flex-col font-inter antialiased"
+        suppressHydrationWarning
+      >
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange={false}
+          storageKey="gedenkseiten-theme"
+        >
+          <AuthProvider>
+            <ConditionalLayout>
+              {children}
+            </ConditionalLayout>
+            <CookieBanner />
+            <GTMConsentClient />
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

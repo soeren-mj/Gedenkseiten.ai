@@ -35,13 +35,13 @@ const SmallCard: React.FC<SmallCardProps> = ({
       `}
     >
       <div className="flex flex-col gap-2">
-        <span className={`font-satoshi font-medium text-[36px] ${variant === 'dark' ? 'text-foreground-primary' : 'text-[#000000]'}`}>
+        <span className={`font-satoshi font-medium text-[36px] ${variant === 'dark' ? 'text-primary' : 'text-[#000000]'}`}>
           {number}
         </span>
-        <h3 className={`font-inter font-medium text-[18px] leading-[150%] ${variant === 'dark' ? 'text-foreground-primary' : 'text-[#000000]'}`}>
+        <h3 className={`font-inter font-medium text-[18px] leading-[150%] ${variant === 'dark' ? 'text-primary' : 'text-[#000000]'}`}>
           {headline}
         </h3>
-        <p className={`font-inter font-medium text-[16px] leading-[150%] tracking-[0.5%] ${variant === 'dark' ? 'text-foreground-secondary' : 'text-[#636573]'}`}>
+        <p className={`font-inter font-medium text-[16px] leading-[150%] tracking-[0.5%] ${variant === 'dark' ? 'text-secondary' : 'text-[#636573]'}`}>
           {description}
         </p>
       </div>

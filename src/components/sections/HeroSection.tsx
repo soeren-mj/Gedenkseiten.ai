@@ -2,6 +2,7 @@ import React from 'react';
 import Image from 'next/image';
 import Button from '@/components/ui/Button';
 
+
 interface HeroSectionProps {
   onStartClick?: () => void;
 }
@@ -16,11 +17,11 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onStartClick }) => {
         <div className="w-full max-w-[113.75rem] mx-auto">
           <div className="w-full justify-between items-start px-2 md:px-[2rem]">
             <div className="w-full lg:max-w-[42.8125rem] flex flex-col gap-2 items-start">
-              <div className="" style={{color: '#FE7678', fontFamily: 'Satoshi'}}>NEU und mit der Power von KI</div>
+              <div className="text-tag text-accent-red">NEU und mit der Power von KI</div>
               <div>
                 <h1>Digitale Gedenkseiten: Die moderne Art, Erinnerungen zu bewahren</h1>
               </div>
-              <div className="text-xl md:text-[1.125rem] leading-[150%] max-w-full lg:max-w-[42.8125rem]" style={{color: '#C0C1CC', fontFamily: 'Inter'}}>
+              <div className="text-body-l text-secondary max-w-full lg:max-w-[42.8125rem]">
                 In einer zunehmend digitalen Welt suchen immer mehr Menschen nach innovativen Wegen, das Andenken an unsere verstorbenen Lieben zu bewahren. Mit Gedenkseiten.ai kannst du deine Gedenkseite super schnell erstellen und mit deinen Lieben teilen.
               </div>
             </div>
@@ -52,11 +53,17 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onStartClick }) => {
                     />
                   </div>
                 </div>
-                <p>Menschen wie du, die bereits angemeldet sind</p>
+                <p className="text-body-m text-secondary">Menschen wie du, die bereits angemeldet sind</p>
               </div>
 
             <div className="flex items-end py-6 self-stretch">
-              <Button onClick={onStartClick}>Jetzt starten</Button>
+            <Button 
+                variant="primary"
+                size="md"
+                onClick={onStartClick}
+              >
+                Jetzt starten
+              </Button>
             </div>
           </div>
         </div>

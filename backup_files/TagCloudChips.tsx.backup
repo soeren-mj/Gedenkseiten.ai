@@ -1,0 +1,30 @@
+import React from 'react';
+
+interface TagCloudChipsProps {
+  label?: string;
+  tags: string[];
+}
+
+const TagCloudChips: React.FC<TagCloudChipsProps> = ({ label, tags }) => {
+  return (
+    <div className="flex flex-col gap-2">
+      {label && (
+        <span className="text-body-s-semibold mb-1">
+          {label}
+        </span>
+      )}
+      <div className="flex flex-wrap gap-3">
+        {tags.map((tag, idx) => (
+          <span
+            key={idx}
+            className="bg-bw rounded-xxs px-2 py-1 text-body-s"
+          >
+            {tag}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export default TagCloudChips; 

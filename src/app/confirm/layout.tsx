@@ -17,7 +17,7 @@ export default function ConfirmLayout({
 }) {
   return (
     <html lang="de" className={inter.variable}>
-      <body className="bg-primary text-foreground-bw">
+      <body className="bg-primary text-bw">
         {children}
         <GTMConsentClient />
       </body>

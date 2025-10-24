@@ -288,7 +288,7 @@ const PreviewCardSlider: React.FC = () => {
         {/* Tabs Container */}
         <div 
           ref={tabsContainerRef}
-          className="inline-flex justify-center gap-4 bg-zinc-900 rounded-full px-2 py-2 my-4 mx-auto overflow-x-auto scrollbar-hide"
+          className="inline-flex justify-center gap-4 bg-bw rounded-xl p-2 my-4 mx-auto overflow-x-auto scrollbar-hide"
           role="tablist"
           onScroll={() => {
             if (tabsContainerRef.current) {
@@ -306,16 +306,22 @@ const PreviewCardSlider: React.FC = () => {
               aria-selected={idx === activeTab}
               aria-controls={`tab-panel-${idx}`}
               id={`tab-${idx}`}
-              className={`px-4 py-2 rounded-full font-inter font-medium text-base transition-colors flex items-center whitespace-nowrap flex-shrink-0 ${
-                idx === activeTab
-                  ? 'bg-blue-700 text-white shadow'
-                  : 'bg-transparent text-foreground-secondary hover:bg-zinc-800'
-              }`}
+              className={`
+                px-4 py-2 rounded-md font-inter font-medium text-base transition-colors flex items-center whitespace-nowrap flex-shrink-0
+                ${idx === activeTab
+                  ? 'bg-interactive-primary-active text-interactive-active shadow'
+                  : 'bg-transparent text-secondary hover:bg-secondary'}
+              `}
               onClick={e => handleTabClick(idx, e)}
               onKeyDown={e => handleKeyDown(e, idx)}
             >
-              {tab.icon(idx === activeTab ? '#fff' : tabIconColors[idx])}
+              {tab.icon(idx === activeTab ? 'currentColor' : tabIconColors[idx])}
               {tab.label}
+              {tab.isPremium && (
+                <span className="ml-2 bg-accent text-background-interactive-primary-default rounded-xxs px-2 py-0.5 text-xs font-medium">
+                  PREMIUM
+                </span>
+              )}
             </button>
           ))}
         </div>
