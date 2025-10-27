@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
+import { createClient } from '@/lib/supabase/client-legacy'
 import { Button } from '@/components/ui/Button'
 import { TextInput } from '@/components/ui/text-input'
 import Link from 'next/link'

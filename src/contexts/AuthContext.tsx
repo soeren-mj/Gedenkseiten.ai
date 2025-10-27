@@ -1,8 +1,8 @@
 'use client'
 
-import { createContext, useContext, useEffect, useState, useCallback, useMemo } from 'react'
+import { createContext, useContext, useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
+import { createClient } from '@/lib/supabase/client-legacy'
 import type { User as AuthUser } from '@supabase/supabase-js'
 import type { User, MemorialInvitation } from '@/lib/supabase'
 
@@ -13,6 +13,7 @@ interface AuthContextType {
   invitations: MemorialInvitation[]
   signOut: () => Promise<void>
   refreshUser: () => Promise<void>
+  updateUserName: (name: string | null) => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -22,6 +23,7 @@ const AuthContext = createContext<AuthContextType>({
   invitations: [],
   signOut: async () => {},
   refreshUser: async () => {},
+  updateUserName: async () => {},
 })
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -31,27 +33,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [invitations, setInvitations] = useState<MemorialInvitation[]>([])
   const router = useRouter()
 
-  // Memoize Supabase client to prevent recreation on every render
-  const supabase = useMemo(() => createClient(), [])
-
   const fetchUserProfile = useCallback(async (authUser: AuthUser) => {
+    // Create fresh Supabase client for each call
+    const supabase = createClient()
     try {
-      console.log('Fetching user profile for:', authUser.id)
-      
+      console.log('[AuthContext] Fetching user profile for:', {
+        userId: authUser.id,
+        userEmail: authUser.email,
+        hasMetadata: !!authUser.user_metadata,
+      })
+
       // Get user profile
       const { data: profile, error } = await supabase
         .from('users')
         .select('*')
         .eq('id', authUser.id)
         .single()
-      
-      console.log('Profile query result:', { profile, error })
+
+      console.log('[AuthContext] Profile query result:', {
+        profile: profile ? 'found' : 'not found',
+        error: error ? { code: error.code, message: error.message } : null
+      })
       
       if (profile) {
+        console.log('[AuthContext] ✅ User profile found in database')
         setUser(profile)
       } else if (error?.code === 'PGRST116') {
         // Table doesn't exist or no rows found - create profile
-        console.log('Creating new user profile...')
+        console.log('[AuthContext] No profile found (PGRST116), attempting to create new profile...')
         const { data: newProfile, error: insertError } = await supabase
           .from('users')
           .insert({
@@ -70,13 +79,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           .select()
           .single()
 
-        console.log('Profile creation result:', { newProfile, insertError })
+        console.log('[AuthContext] Profile creation result:', {
+          success: !!newProfile,
+          error: insertError ? { code: insertError.code, message: insertError.message } : null
+        })
 
         if (newProfile) {
+          console.log('[AuthContext] ✅ New profile created successfully')
           setUser(newProfile)
         } else if (insertError?.code === '42P01') {
           // Table doesn't exist - create a minimal user object
-          console.log('Users table does not exist, creating minimal user object')
+          console.warn('[AuthContext] ⚠️ Users table does not exist (42P01), creating minimal user object in memory only')
           setUser({
             id: authUser.id,
             email: authUser.email!,
@@ -98,7 +111,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Check for invitations (only if users table exists)
       if (authUser.email && !error?.code) {
         try {
-          const { data: userInvitations } = await supabase
+          console.log('[AuthContext] Fetching invitations for:', authUser.email)
+          const { data: userInvitations, error: invitationError } = await supabase
             .from('memorial_invitations')
             .select(`
               *,
@@ -111,16 +125,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             .eq('invited_email', authUser.email)
             .eq('status', 'pending')
 
-          if (userInvitations) {
+          if (invitationError) {
+            console.log('[AuthContext] Invitation fetch error (table may not exist yet):', {
+              code: invitationError.code,
+              message: invitationError.message
+            })
+          } else if (userInvitations) {
+            console.log('[AuthContext] Found', userInvitations.length, 'pending invitations')
             setInvitations(userInvitations as MemorialInvitation[])
           }
         } catch (invitationError) {
-          console.log('Invitation fetch error (table may not exist):', invitationError)
+          console.log('[AuthContext] Invitation fetch exception (table may not exist):', invitationError)
           // Silently handle invitation errors - table may not exist yet
         }
       }
     } catch (error) {
-      console.error('Profile fetch error:', error)
+      console.error('[AuthContext] Profile fetch error:', error)
       // Create minimal user object as fallback
       setUser({
         id: authUser.id,
@@ -138,9 +158,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         updated_at: new Date().toISOString(),
       })
     }
-  }, [supabase]) // Keep supabase since it's now stable with useMemo
+  }, []) // Empty deps - supabase is recreated on each render
 
   const refreshUser = async () => {
+    const supabase = createClient()
     const { data: { user: authUser } } = await supabase.auth.getUser()
     if (authUser) {
       await fetchUserProfile(authUser)
@@ -148,21 +169,44 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   useEffect(() => {
+    // Create Supabase client once for the effect
+    const supabase = createClient()
+
     // Get initial session
     const initAuth = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession()
+        console.log('[AuthContext] Initializing auth, getting session...')
+
+        // Add timeout to detect hanging getSession calls
+        const timeoutPromise = new Promise((_, reject) => {
+          setTimeout(() => reject(new Error('getSession timeout after 10 seconds')), 10000)
+        })
+
+        const sessionPromise = supabase.auth.getSession()
+
+        const { data: { session } } = await Promise.race([
+          sessionPromise,
+          timeoutPromise
+        ]) as any
+
+        console.log('[AuthContext] getSession completed')
 
         if (session?.user) {
+          console.log('[AuthContext] Initial session found for user:', session.user.email)
           setAuthUser(session.user)
           setLoading(false)
           // Fetch profile in background (don't await)
           fetchUserProfile(session.user)
         } else {
+          console.log('[AuthContext] No initial session found')
           setLoading(false)
         }
       } catch (error) {
         console.error('[AuthContext] Error in initAuth:', error)
+        console.error('[AuthContext] Error details:', {
+          message: error instanceof Error ? error.message : String(error),
+          stack: error instanceof Error ? error.stack : undefined
+        })
         setLoading(false)
       }
     }
@@ -173,6 +217,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('[AuthContext] Auth state changed:', event, 'User:', session?.user?.email || 'none')
+
       if (session?.user) {
         setAuthUser(session.user)
         setLoading(false)
@@ -185,18 +231,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setLoading(false)
       }
 
-      // Handle auth events
+      // Handle auth events - only redirect if not already on target page
       if (event === 'SIGNED_IN') {
-        router.push('/dashboard')
+        // Only redirect if we're not already on dashboard or auth pages
+        const currentPath = window.location.pathname
+        if (!currentPath.startsWith('/dashboard') && !currentPath.startsWith('/auth/callback')) {
+          console.log('[AuthContext] SIGNED_IN event, redirecting to /dashboard from:', currentPath)
+          router.push('/dashboard')
+        } else {
+          console.log('[AuthContext] SIGNED_IN event, already on dashboard/callback, skipping redirect')
+        }
       } else if (event === 'SIGNED_OUT') {
-        router.push('/')
+        const currentPath = window.location.pathname
+        if (currentPath !== '/') {
+          console.log('[AuthContext] SIGNED_OUT event, redirecting to /')
+          router.push('/')
+        }
       }
     })
 
     return () => subscription.unsubscribe()
-  }, [router, supabase, fetchUserProfile])
+  }, [router, fetchUserProfile])
 
   const signOut = async () => {
+    const supabase = createClient()
     try {
       await supabase.auth.signOut()
       setUser(null)
@@ -205,6 +263,49 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       router.push('/')
     } catch (error) {
       console.error('[AuthContext] Error signing out:', error)
+    }
+  }
+
+  const updateUserName = async (name: string | null) => {
+    const supabase = createClient()
+    try {
+      if (!authUser) {
+        throw new Error('No authenticated user')
+      }
+
+      console.log('[AuthContext] Updating user name to:', name)
+
+      // Optimistic update: Update local state immediately
+      if (user) {
+        setUser({
+          ...user,
+          name: name || null
+        })
+      }
+
+      // Update name in Supabase users table
+      const { error } = await supabase
+        .from('users')
+        .update({ name: name || null })
+        .eq('id', authUser.id)
+
+      if (error) {
+        console.error('[AuthContext] Error updating user name:', error)
+        // Rollback optimistic update on error
+        await refreshUser()
+        throw error
+      }
+
+      console.log('[AuthContext] User name updated successfully')
+
+      // Refresh in background without blocking (optional, for other data sync)
+      refreshUser().catch(err => {
+        console.error('[AuthContext] Background refresh error:', err)
+      })
+
+    } catch (error) {
+      console.error('[AuthContext] Error in updateUserName:', error)
+      throw error
     }
   }
 
@@ -217,6 +318,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         invitations,
         signOut,
         refreshUser,
+        updateUserName,
       }}
     >
       {children}

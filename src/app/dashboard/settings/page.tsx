@@ -2,133 +2,284 @@
 
 import { useAuth } from '@/contexts/AuthContext'
 import { Button } from '@/components/ui/Button'
-import { Input } from '@/components/ui/Input'
-import { useState } from 'react'
+import { NameInput } from '@/components/ui/NameInput'
+import { Switch } from '@/components/ui/switch'
+import InitialsAvatar from '@/components/ui/InitialsAvatar'
+import { useState, useEffect } from 'react'
 import { useTheme } from 'next-themes'
 
 export default function SettingsPage() {
-  const { user } = useAuth()
+  const { user, updateUserName } = useAuth()
   const { theme, setTheme } = useTheme()
-  const [loading, setLoading] = useState(false)
-  const [success, setSuccess] = useState(false)
+  const [darkMode, setDarkMode] = useState(theme === 'dark')
+  const [userName, setUserName] = useState('')
+  const [savingName, setSavingName] = useState(false)
+  const [emailNotifications, setEmailNotifications] = useState({
+    activities: true,
+    releases: true,
+    reminders: true,
+    features: true
+  })
 
-  const handleSave = async () => {
-    setLoading(true)
-    // Simulate save operation
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    setSuccess(true)
-    setLoading(false)
-    setTimeout(() => setSuccess(false), 3000)
+  // Initialize userName from user data
+  useEffect(() => {
+    if (user?.name) {
+      setUserName(user.name)
+    }
+  }, [user?.name])
+
+  const handleThemeToggle = (checked: boolean) => {
+    setDarkMode(checked)
+    setTheme(checked ? 'dark' : 'light')
+  }
+
+  const handleCookieSettings = () => {
+    // TODO: Open cookie settings modal
+    console.log('Open cookie settings modal')
+  }
+
+  const handleSupportClick = () => {
+    // TODO: Open support modal
+    console.log('Open support modal')
+  }
+
+  const handleNameSave = async (name: string) => {
+    setSavingName(true)
+    try {
+      await updateUserName(name || null)
+    } catch (error) {
+      console.error('Failed to update name:', error)
+      // Optionally show error message to user
+    } finally {
+      setSavingName(false)
+    }
   }
 
   return (
-    <div className="max-w-2xl mx-auto">
-      <div className="mb-8">
-        <h1 className="text-desktop-h2 font-semibold text-primary mb-2">
-          Kontoeinstellungen
-        </h1>
-        <p className="text-desktop-body-m text-secondary">
-          Verwalten Sie Ihre persönlichen Daten und Kontoeinstellungen.
-        </p>
+    <div className="max-w-4xl gap-6 flex flex-col bg-bw-opacity-60 p-8 mx-auto">
+      {/* Header with Avatar and Name */}
+      <div className="gap-3">
+        <h2 className="text-webapp-group mb-1">Einstellungen</h2>
+        <div className="border-b border-main"></div>
+
+        <div className="flex gap-4 items-center mb-6">
+          <InitialsAvatar
+            name={user?.name || user?.email || 'U'}
+            size="lg"
+          />
+          <div className="flex-1">
+            <NameInput
+              value={userName}
+              onChange={setUserName}
+              onSave={handleNameSave}
+              loading={savingName}
+              label="Name"
+              placeholder="Gib deinen Namen ein"
+            />
+          </div>
+        </div>
       </div>
 
-      {success && (
-        <div className="mb-6 p-4 bg-background-interactive-positive-subtle border border-border-positive rounded-xs">
-          <p className="text-desktop-body-s text-interactive-positive-default">
-            Einstellungen erfolgreich gespeichert.
-          </p>
-        </div>
-      )}
+      {/* Zugriffseinstellungen Section */}
+      <div className="mb-8">
+        <h2 className="text-webapp-group mb-3">Zugriffseinstellungen</h2>
+        <div className="border-b border-main mb-6"></div>
 
-      <div className="bg-bw rounded-lg border border-border-subtle p-6 space-y-6">
-        {/* Profile Section */}
-        <div>
-          <h2 className="text-desktop-h3 font-semibold text-primary mb-4">
-            Profil
-          </h2>
-          
-          <div className="space-y-4">
-            <div>
-              <label className="block text-desktop-body-m font-medium text-primary mb-2">
-                Vollständiger Name
-              </label>
-              <Input
-                type="text"
-                defaultValue={user?.name || ''}
-                placeholder="Ihr vollständiger Name"
-              />
-            </div>
-
-            <div>
-              <label className="block text-desktop-body-m font-medium text-primary mb-2">
+        <div className="space-y-6">
+          {/* E-Mail-Adresse */}
+          <div className="flex items-center justify-between">
+            <div className="flex-1">
+              <p className="text-primary text-desktop-body-m font-medium mb-1">
                 E-Mail-Adresse
-              </label>
-              <Input
-                type="email"
-                defaultValue={user?.email || ''}
-                disabled
-                className="bg-secondary"
-              />
-              <p className="text-desktop-body-xs text-tertiary mt-1">
-                Die E-Mail-Adresse kann nicht geändert werden.
+              </p>
+              <p className="text-tertiary text-desktop-body-s">
+                {user?.email || 'peter.williams@guugleemails.com'}
               </p>
             </div>
+            <Button variant="tertiary" size="sm">
+              E-Mail-Adresse ändern
+            </Button>
           </div>
-        </div>
 
-        {/* Theme Settings */}
-        <div className="border-t border-border-subtle pt-6">
-          <h2 className="text-desktop-h3 font-semibold text-primary mb-4">
-            Darstellung
-          </h2>
-          
-          <div>
-            <label className="block text-desktop-body-m font-medium text-primary mb-2">
-              Design-Theme
-            </label>
-            <select 
-              className="w-full px-3 py-2 border border-main rounded-xs bg-bw text-primary focus:outline-none focus:ring-2 focus:ring-background-interactive-primary-default"
-              value={theme || 'system'}
-              onChange={(e) => setTheme(e.target.value)}
-            >
-              <option value="system">System (Automatisch)</option>
-              <option value="light">Hell</option>
-              <option value="dark">Dunkel</option>
-            </select>
-          </div>
-        </div>
-
-        {/* Account Type */}
-        <div className="border-t border-border-subtle pt-6">
-          <h2 className="text-desktop-h3 font-semibold text-primary mb-4">
-            Kontotyp
-          </h2>
-          
-          <div className="flex items-center justify-between p-4 bg-secondary rounded-xs">
-            <div>
-              <p className="text-desktop-body-m font-medium text-primary">
-                Kostenloser Account
+          {/* Passwort */}
+          <div className="flex items-center justify-between">
+            <div className="flex-1">
+              <p className="text-primary text-desktop-body-m font-medium mb-1">
+                Passwort
               </p>
-              <p className="text-desktop-body-s text-secondary">
-                Grundfunktionen für Gedenkseiten
+              <p className="text-tertiary text-desktop-body-s">
+                Wähle ein sicheres Passwort um dich einzuloggen
               </p>
             </div>
-            <Button variant="primary" size="sm">
-              Upgrade
+            <Button variant="tertiary" size="sm">
+              Passwort ändern
             </Button>
           </div>
         </div>
+      </div>
 
-        {/* Save Button */}
-        <div className="border-t border-border-subtle pt-6">
-          <Button
-            variant="primary"
-            size="lg"
-            onClick={handleSave}
-            loading={loading}
+      {/* Privatsphäre Section */}
+      <div className="mb-8">
+        <h2 className="text-webapp-group mb-3">Privatsphäre</h2>
+        <div className="border-b border-main mb-6"></div>
+
+        <div
+          className="flex items-center justify-between p-4 bg-bw rounded-sm border border-border-subtle cursor-pointer hover:bg-secondary transition-colors"
+          onClick={handleCookieSettings}
+        >
+          <div className="flex-1">
+            <p className="text-primary text-desktop-body-m mb-1">
+              Cookie Einstellungen
+            </p>
+            <p className="text-tertiary text-desktop-body-s">
+              Stelle deine Cookies ein. Mehr Details findest du in den{' '}
+              <a
+                href="/datenschutz"
+                className="text-interactive-primary-default underline"
+                onClick={(e) => e.stopPropagation()}
+              >
+                Datenschutzbestimmungen
+              </a>
+              .
+            </p>
+          </div>
+          <svg
+            className="w-5 h-5 text-tertiary flex-shrink-0 ml-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
           >
-            Änderungen speichern
-          </Button>
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+        </div>
+      </div>
+
+      {/* E-Mail-Benachrichtigungen Section */}
+      <div className="mb-8">
+        <h2 className="text-webapp-group mb-3">E-Mail-Benachrichtigungen</h2>
+        <div className="border-b border-main mb-6"></div>
+
+        <div className="space-y-4">
+          {/* Aktivitäten */}
+          <div className="flex items-center justify-between">
+            <div className="flex-1">
+              <p className="text-primary text-desktop-body-m font-medium mb-1">
+                Aktivitäten auf deinen Gedenkseiten
+              </p>
+              <p className="text-tertiary text-desktop-body-s">
+                Erhalte E-Mails über neue Einträge, Verknüpfungsanfragen, Kontaktanfragen
+              </p>
+            </div>
+            <Switch
+              checked={emailNotifications.activities}
+              onCheckedChange={(checked) =>
+                setEmailNotifications(prev => ({ ...prev, activities: checked }))
+              }
+            />
+          </div>
+
+          {/* Freigaben */}
+          <div className="flex items-center justify-between">
+            <div className="flex-1">
+              <p className="text-primary text-desktop-body-m font-medium mb-1">
+                Freigaben
+              </p>
+              <p className="text-tertiary text-desktop-body-s">
+                Erhalte E-Mails über Einträge die noch von dir freizugeben sind
+              </p>
+            </div>
+            <Switch
+              checked={emailNotifications.releases}
+              onCheckedChange={(checked) =>
+                setEmailNotifications(prev => ({ ...prev, releases: checked }))
+              }
+            />
+          </div>
+
+          {/* Erinnerungen */}
+          <div className="flex items-center justify-between">
+            <div className="flex-1">
+              <p className="text-primary text-desktop-body-m font-medium mb-1">
+                Erinnerungen
+              </p>
+              <p className="text-tertiary text-desktop-body-s">
+                Erhalte E-Mails über Erinnerungen zu Terminen und Jahrestagen
+              </p>
+            </div>
+            <Switch
+              checked={emailNotifications.reminders}
+              onCheckedChange={(checked) =>
+                setEmailNotifications(prev => ({ ...prev, reminders: checked }))
+              }
+            />
+          </div>
+
+          {/* Neue Funktionen */}
+          <div className="flex items-center justify-between">
+            <div className="flex-1">
+              <p className="text-primary text-desktop-body-m font-medium mb-1">
+                Neue Funktionen
+              </p>
+              <p className="text-tertiary text-desktop-body-s">
+                Erhalte E-Mails über neue Funktionen
+              </p>
+            </div>
+            <Switch
+              checked={emailNotifications.features}
+              onCheckedChange={(checked) =>
+                setEmailNotifications(prev => ({ ...prev, features: checked }))
+              }
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Darstellung Section */}
+      <div className="mb-8">
+        <h2 className="text-webapp-group mb-3">Darstellung</h2>
+        <div className="border-b border-main mb-6"></div>
+
+        <div className="flex items-center justify-between">
+          <div className="flex-1">
+            <p className="text-primary text-desktop-body-m font-medium mb-1">
+              Dark Mode
+            </p>
+            <p className="text-tertiary text-desktop-body-s">
+              Die Darstellung wird anhand der Browser-Einstellung gewählt. Die Standard-Einstellung ist Light Mode. Du kannst die Einstellung hier nach belieben anpassen.
+            </p>
+          </div>
+          <Switch
+            checked={darkMode}
+            onCheckedChange={handleThemeToggle}
+          />
+        </div>
+      </div>
+
+      {/* Support Section */}
+      <div className="mb-8">
+        <h2 className="text-webapp-group mb-3">Support</h2>
+        <div className="border-b border-main mb-6"></div>
+
+        <div
+          className="flex items-center justify-between p-4 bg-bw rounded-sm border border-border-subtle cursor-pointer hover:bg-secondary transition-colors"
+          onClick={handleSupportClick}
+        >
+          <div className="flex-1">
+            <p className="text-primary text-desktop-body-m mb-1">
+              Konto-ID
+            </p>
+            <p className="text-tertiary text-desktop-body-s font-mono">
+              {user?.id || 'a1b2c3d4-e5f6-7890-abcd-ef1234567890'}
+            </p>
+          </div>
+          <svg
+            className="w-5 h-5 text-tertiary flex-shrink-0 ml-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
         </div>
       </div>
     </div>

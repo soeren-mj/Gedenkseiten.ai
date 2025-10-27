@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
-import Input from './Input';
+import Input from './register-input';
 import Checkbox from './Checkbox';
 import Button from './Button';
 import Image from 'next/image';
