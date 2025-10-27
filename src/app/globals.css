@@ -472,7 +472,7 @@
   .text-webapp-group {
     font-family: 'Inter', sans-serif;
     font-weight: 600;
-    font-size: 0.875rem;
+    font-size: 0.875rem; /* 14px */
     line-height: 140%;
     letter-spacing: 0.005em;
   }

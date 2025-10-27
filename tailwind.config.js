@@ -119,6 +119,15 @@ module.exports = {
         'interactive-error-default': 'var(--background-interactive-error-default)',
         'interactive-error-hover': 'var(--background-interactive-error-hover)',
         'interactive-error-active': 'var(--background-interactive-error-active)',
+
+        // Accent colors for backgrounds
+        'accent-blue': 'var(--accent-blue)',
+        'accent-red': 'var(--accent-red)',
+        'accent-orange': 'var(--accent-orange)',
+        'accent-green': 'var(--accent-green)',
+        'accent-yellow': 'var(--accent-yellow)',
+        'accent-purple': 'var(--accent-purple)',
+        'accent-pink': 'var(--accent-pink)',
       }),
       backgroundImage: {
         // Your 4 core gradients
@@ -236,7 +245,7 @@ module.exports = {
         'webapp-section-title': ['1.625rem', { lineHeight: '120%', letterSpacing: '-0.01em' }],
         'webapp-subsection': ['1.375rem', { lineHeight: '120%', letterSpacing: '-0.005em' }],
         'webapp-title-body': ['1.125rem', { lineHeight: '120%', letterSpacing: '0' }],
-        'webapp-title-group': ['0.875rem', { lineHeight: '140%', letterSpacing: '0.005em' }],
+        'webapp-group': ['0.875rem', { lineHeight: '140%', letterSpacing: '0.005em' }], // Note: Use .text-webapp-group from globals.css for full styling with font-weight: 600
         // Special
         'desktop-tag': ['1rem', { lineHeight: '150%', letterSpacing: '0.03em' }],
         'desktop-chip': ['0.625rem', { lineHeight: '100%', letterSpacing: '0.02em' }],

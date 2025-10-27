@@ -43,7 +43,7 @@ export function Sidebar() {
   }
 
   return (
-    <div className="w-64 bg-bw-opacity-80 h-full flex flex-col rounded-l-md gap-3 p-4">
+    <div className="w-72 bg-bw-opacity-80 h-full flex flex-col rounded-l-md gap-3 p-4">
       {/* Account Section Header */}
       <div className="">
         <h5 className="text-tertiary">
@@ -72,10 +72,10 @@ export function Sidebar() {
 
           {/* User Info */}
           <div className="flex-1 min-w-0 flex items-center gap-2">
-            <p className="text-mobile-body-s font-semibold text-primary truncate">
+            <p className="text-webapp-group truncate">
               {user?.name || user?.email}
             </p>
-            <span className="px-2 py-0.5 rounded-xs text-[0.75rem] font-semibold bg-accent text-primary">
+            <span className="py-1 px-1.5 rounded-xs text-chip font-semibold bg-accent-purple">
               DASHBOARD
             </span>
           </div>

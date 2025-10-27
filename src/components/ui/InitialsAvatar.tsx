@@ -23,9 +23,9 @@ const InitialsAvatar: React.FC<InitialsAvatarProps> = ({
 
   // Size classes
   const sizeClasses = {
-    sm: 'w-6 h-6 sm:w-8 sm:h-8 text-xs sm:text-xs',
-    md: 'w-6 h-6 sm:w-8 sm:h-8 text-xs sm:text-xs',
-    lg: 'w-6 h-6 sm:w-10 sm:h-10 text-md sm:text-md'
+    sm: 'w-6 h-6 sm:w-8 sm:h-8 text-webapp-group sm:text-webapp-group',
+    md: 'w-6 h-6 sm:w-8 sm:h-8 text-webapp-group sm:text-webapp-group',
+    lg: 'w-6 h-6 sm:w-10 sm:h-10 text-webapp-group sm:text-webapp-group'
   };
 
   return (

@@ -27,7 +27,7 @@ interface NavigationItemProps {
  *
  * Features:
  * - Consistent layout with icon, label, and optional badge
- * - Active, hover, and inactive states
+ * - Active and hover states
  * - Fully accessible with Next.js Link
  * - Smooth transitions
  */
@@ -45,44 +45,32 @@ export default function NavigationItem({
       className={cn(
         // Layout - all items left-aligned
         "flex items-center gap-3 p-1 rounded-lg",
-        "text-desktop-body-s",
+        "text-webapp-group",
 
         // Transitions
         "transition-colors duration-200",
 
         // State-based styling
-        isActive && [
-          "bg-bw",
-        ],
-        !isActive && [
-          "hover:bg-primary",
-          "text-interactive-disabled", // Inactive text color
-        ],
+        isActive && "bg-bw",
+        !isActive && "hover:bg-primary",
 
         className
       )}
     >
       {/* Icon - fixed width for consistency */}
-      <span
-        className={cn(
-          "w-6 h-6 flex items-center justify-center flex-shrink-0",
-          isActive ? "text-primary" : "text-interactive-disabled"
-        )}
-      >
+      <span className="w-8 h-8 flex items-center justify-center flex-shrink-0 text-primary">
         {icon}
       </span>
 
       {/* Label */}
-      <span className={cn(
-        isActive ? "text-primary" : "text-interactive-disabled"
-      )}>
+      <span className="text-webapp-group text-primary">
         {label}
       </span>
 
       {/* Optional Badge/Chip */}
       {badge && (
         <span
-          className="px-2 py-0.5 rounded-xs text-[0.75rem] font-semibold"
+          className="p-1 rounded-xs text-chip font-semibold"
           style={{
             backgroundColor: badge.bgColor,
             color: badge.textColor,
