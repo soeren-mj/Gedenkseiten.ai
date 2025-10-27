@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useRef } from 'react'
+import React, { useRef } from 'react'
 import { cn } from '@/lib/utils'
 
 interface NameInputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'onChange' | 'onBlur'> {
@@ -21,12 +21,10 @@ export const NameInput: React.FC<NameInputProps> = ({
   placeholder = 'Gib deinen Namen ein',
   ...props
 }) => {
-  const [isFocused, setIsFocused] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
   const hasValue = value.length > 0
 
   const handleBlur = async () => {
-    setIsFocused(false)
     // Trigger auto-save
     await onSave(value)
   }
@@ -52,7 +50,6 @@ export const NameInput: React.FC<NameInputProps> = ({
           type="text"
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          onFocus={() => setIsFocused(true)}
           onBlur={handleBlur}
           disabled={loading}
           placeholder={placeholder}

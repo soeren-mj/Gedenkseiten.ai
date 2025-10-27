@@ -184,10 +184,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         const sessionPromise = supabase.auth.getSession()
 
-        const { data: { session } } = await Promise.race([
+        const result = await Promise.race([
           sessionPromise,
           timeoutPromise
-        ]) as any
+        ])
+
+        // Type guard: if we get here without rejection, it's the session result
+        const { data: { session } } = result as Awaited<typeof sessionPromise>
 
         console.log('[AuthContext] getSession completed')
 

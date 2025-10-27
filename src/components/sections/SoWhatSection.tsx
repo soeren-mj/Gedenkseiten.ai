@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 import Button from '@/components/ui/Button';
 import PrimaryCard from '@/components/cards/PrimaryCard';
 
@@ -11,12 +12,12 @@ function SoWhatNumberBox({ number, text }: { number: string; text: string }) {
   return (
     <div className="flex w-full items-center justify-center gap-6 p-2 md:py-0">
       <div className="flex items-center">
-        <img 
+        <Image
           src={`/images/${number}-number-blur.webp`}
           alt={`Number ${number} with progressive blur gradient effect`}
           className="h-[8rem] w-auto"
-          width="84" 
-          height="84"
+          width={84}
+          height={84}
           style={{ objectFit: 'contain' }}
         />
         <span className="sr-only">{number}</span>
