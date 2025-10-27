@@ -7,10 +7,12 @@ import Link from 'next/link'
 import Image from 'next/image'
 
 export function DashboardHeader() {
-  const { invitations } = useAuth()
+  const { invitations, hasPassword } = useAuth()
   const [showNotifications, setShowNotifications] = useState(false)
 
-  const hasNotifications = invitations.length > 0
+  // Show 2FA notification if user doesn't have a password set
+  const show2FANotification = !hasPassword
+  const hasNotifications = invitations.length > 0 || show2FANotification
 
   return (
     <header className="px-6 py-4 w-full">
@@ -58,10 +60,37 @@ export function DashboardHeader() {
               </div>
               
               <div className="max-h-96 overflow-y-auto">
-                {invitations.length > 0 ? (
+                {(show2FANotification || invitations.length > 0) ? (
                   <div className="p-4 space-y-3">
+                    {/* 2FA Setup Notification */}
+                    {show2FANotification && (
+                      <Link href="/dashboard/settings" onClick={() => setShowNotifications(false)}>
+                        <div className="p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-xs border border-yellow-300 dark:border-yellow-700 hover:bg-yellow-100 dark:hover:bg-yellow-900/30 transition-colors cursor-pointer">
+                          <div className="flex items-start space-x-3">
+                            <div className="w-8 h-8 bg-yellow-400 dark:bg-yellow-600 rounded-full flex items-center justify-center flex-shrink-0">
+                              <svg className="w-4 h-4 text-neutral-900 dark:text-neutral-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                              </svg>
+                            </div>
+                            <div className="flex-1">
+                              <p className="text-desktop-body-s font-medium text-primary">
+                                Sicherheit erhöhen
+                              </p>
+                              <p className="text-desktop-body-xs text-secondary">
+                                Richten Sie ein Passwort ein, um Ihr Konto zusätzlich zu schützen (2-Faktor-Authentifizierung).
+                              </p>
+                              <p className="text-desktop-body-xs text-interactive-primary-default mt-1 font-medium">
+                                Jetzt einrichten →
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </Link>
+                    )}
+
+                    {/* Invitation Notifications */}
                     {invitations.map((invitation) => (
-                      <div 
+                      <div
                         key={invitation.id}
                         className="p-3 bg-secondary rounded-xs border border-border-subtle"
                       >

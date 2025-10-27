@@ -35,6 +35,7 @@ export type User = {
     reminders: boolean;
     new_features: boolean;
   };
+  has_password: boolean; // Track if user has set up password for 2FA
   created_at: string;
   updated_at: string;
 };

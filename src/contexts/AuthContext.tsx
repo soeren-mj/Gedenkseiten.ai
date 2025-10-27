@@ -11,6 +11,7 @@ interface AuthContextType {
   authUser: AuthUser | null
   loading: boolean
   invitations: MemorialInvitation[]
+  hasPassword: boolean
   signOut: () => Promise<void>
   refreshUser: () => Promise<void>
 }
@@ -20,6 +21,7 @@ const AuthContext = createContext<AuthContextType>({
   authUser: null,
   loading: true,
   invitations: [],
+  hasPassword: false,
   signOut: async () => {},
   refreshUser: async () => {},
 })
@@ -29,6 +31,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [authUser, setAuthUser] = useState<AuthUser | null>(null)
   const [loading, setLoading] = useState(true)
   const [invitations, setInvitations] = useState<MemorialInvitation[]>([])
+  const [hasPassword, setHasPassword] = useState(false)
   const router = useRouter()
 
   // Memoize Supabase client to prevent recreation on every render
@@ -37,7 +40,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const fetchUserProfile = useCallback(async (authUser: AuthUser) => {
     try {
       console.log('Fetching user profile for:', authUser.id)
-      
+
       // Get user profile
       const { data: profile, error } = await supabase
         .from('users')
@@ -46,9 +49,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         .single()
       
       console.log('Profile query result:', { profile, error })
-      
+
       if (profile) {
         setUser(profile)
+        // Set hasPassword from database field
+        setHasPassword(profile.has_password || false)
       } else if (error?.code === 'PGRST116') {
         // Table doesn't exist or no rows found - create profile
         console.log('Creating new user profile...')
@@ -66,6 +71,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               reminders: true,
               new_features: true,
             },
+            has_password: false, // Default to false for new users
           })
           .select()
           .single()
@@ -74,24 +80,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         if (newProfile) {
           setUser(newProfile)
+          setHasPassword(newProfile.has_password || false)
         } else if (insertError?.code === '42P01') {
           // Table doesn't exist - create a minimal user object
           console.log('Users table does not exist, creating minimal user object')
-          setUser({
+          const minimalUser = {
             id: authUser.id,
             email: authUser.email!,
             name: authUser.user_metadata.full_name || null,
             avatar_url: authUser.user_metadata.avatar_url || null,
-            theme_preference: 'system',
+            theme_preference: 'system' as const,
             notification_preferences: {
               memorial_activity: true,
               moderation_required: true,
               reminders: true,
               new_features: true,
             },
+            has_password: false,
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
-          })
+          }
+          setUser(minimalUser)
+          setHasPassword(false)
         }
       }
 
@@ -122,21 +132,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch (error) {
       console.error('Profile fetch error:', error)
       // Create minimal user object as fallback
-      setUser({
+      const fallbackUser = {
         id: authUser.id,
         email: authUser.email!,
         name: authUser.user_metadata.full_name || null,
         avatar_url: authUser.user_metadata.avatar_url || null,
-        theme_preference: 'system',
+        theme_preference: 'system' as const,
         notification_preferences: {
           memorial_activity: true,
           moderation_required: true,
           reminders: true,
           new_features: true,
         },
+        has_password: false,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
-      })
+      }
+      setUser(fallbackUser)
+      setHasPassword(false)
     }
   }, [supabase]) // Keep supabase since it's now stable with useMemo
 
@@ -182,6 +195,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setAuthUser(null)
         setUser(null)
         setInvitations([])
+        setHasPassword(false)
         setLoading(false)
       }
 
@@ -202,6 +216,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(null)
       setAuthUser(null)
       setInvitations([])
+      setHasPassword(false)
       router.push('/')
     } catch (error) {
       console.error('[AuthContext] Error signing out:', error)
@@ -215,6 +230,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         authUser,
         loading,
         invitations,
+        hasPassword,
         signOut,
         refreshUser,
       }}
