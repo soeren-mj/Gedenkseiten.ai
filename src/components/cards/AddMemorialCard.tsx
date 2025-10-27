@@ -1,5 +1,6 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
+import AddCircleIcon from '@/components/icons/AddCircleIcon';
 
 interface AddMemorialCardProps {
   /** Optional custom icon (React element). If not provided, uses default plus icon */
@@ -40,15 +41,7 @@ export default function AddMemorialCard({
 
   // Default plus icon
   const defaultIcon = (
-    <svg
-      className="w-8 h-8 text-tertiary group-hover:text-interactive-default transition-colors"
-      fill="none"
-      stroke="currentColor"
-      viewBox="0 0 24 24"
-      aria-hidden="true"
-    >
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-    </svg>
+    <AddCircleIcon className="w-8 h-8 transition-colors" />
   );
 
   return (
@@ -67,10 +60,10 @@ export default function AddMemorialCard({
 
         // Border - dashed default
         "border-2 border-dashed rounded-lg",
-        "border-main",
+        "border-card-inverted",
 
         // Background
-        "bg-transparent",
+        "bg-bw-opacity-40",
 
         // Transitions
         "transition-all duration-200",
@@ -79,6 +72,9 @@ export default function AddMemorialCard({
 
         // Hover state
         "hover:border-hover",
+
+        // Active state
+        "active:scale-[0.98]",
 
         // Focus state - accessibility
         "focus-visible:outline-none",
@@ -91,7 +87,7 @@ export default function AddMemorialCard({
       )}
     >
       {/* Icon container */}
-      <div className="w-16 h-16 bg-secondary group-hover:bg-primary-600/10 rounded-full flex items-center justify-center mb-4 transition-colors">
+      <div className="w-16 h-16 flex items-center justify-center transition-colors">
         {icon || defaultIcon}
       </div>
 

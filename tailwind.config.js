@@ -167,8 +167,8 @@ module.exports = {
       borderColor: theme => ({
         // Border colors - using CSS variables with shorter names
         'main': 'var(--border-main)',
-        'white': 'var(--border-white)',
-        'black': 'var(--border-black)',
+        'card': 'var(--border-card)',
+        'card-inverted': 'var(--border-card-inverted)',
         'hover': 'var(--border-hover)',
         'active': 'var(--border-active)',
       }),

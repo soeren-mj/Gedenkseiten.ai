@@ -5,6 +5,7 @@ import { IconButton } from '@/components/ui/Button'
 import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
+import BellNotificationIcon from '@/components/icons/BellNotificationIcon'
 
 export function DashboardHeader() {
   const { invitations } = useAuth()
@@ -32,14 +33,12 @@ export function DashboardHeader() {
         {/* Notifications */}
         <div className="relative">
           <IconButton
-            variant="secondary"
+            variant="tertiary"
             size="md"
             onClick={() => setShowNotifications(!showNotifications)}
             icon={
               <div className="relative">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-5-5v5zM21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
+                <BellNotificationIcon className="w-5 h-5" />
                 {hasNotifications && (
                   <span className="absolute -top-1 -right-1 w-3 h-3 bg-interactive-error-default rounded-full border-2 border-background-bw" />
                 )}

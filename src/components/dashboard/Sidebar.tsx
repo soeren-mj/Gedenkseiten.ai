@@ -5,12 +5,18 @@ import { usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/Button'
 import InitialsAvatar from '@/components/ui/InitialsAvatar'
+import NavigationItem from '@/components/dashboard/NavigationItem'
 import { useState } from 'react'
 
 interface NavItem {
   href: string
   icon: React.ReactNode
   label: string
+  badge?: {
+    text: string
+    bgColor: string
+    textColor: string
+  }
 }
 
 const navItems: NavItem[] = [
@@ -50,7 +56,7 @@ export function Sidebar() {
         <Link
           href="/dashboard"
           className={`
-            flex items-center space-x-3 p-1 rounded-lg
+            flex items-center gap-3 p-1 rounded-lg
             transition-colors duration-200
             ${pathname === '/dashboard'
               ? 'bg-bw'
@@ -83,22 +89,13 @@ export function Sidebar() {
             const isActive = pathname === item.href
             return (
               <li key={item.href}>
-                <Link
+                <NavigationItem
                   href={item.href}
-                  className={`
-                    flex items-center space-x-3 p-1 rounded-lg text-desktop-body-s
-                    transition-colors duration-200
-                    ${isActive
-                      ? 'bg-background-interactive-primary-subtle text-background-interactive-primary-default'
-                      : 'text-secondary hover:bg-secondary hover:text-primary'
-                    }
-                  `}
-                >
-                  <span className={isActive ? 'text-background-interactive-primary-default' : ''}>
-                    {item.icon}
-                  </span>
-                  <span>{item.label}</span>
-                </Link>
+                  icon={item.icon}
+                  label={item.label}
+                  isActive={isActive}
+                  badge={item.badge}
+                />
               </li>
             )
           })}

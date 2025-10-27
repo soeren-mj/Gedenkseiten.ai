@@ -202,9 +202,9 @@
     --accent-pink: #E74DC3;
 
     /* Border colors */
-    --border-main: #D2D3D9;
-    --border-white: #FFFFFF;
-    --border-black: #000000;
+    --border-main: #D2D3D9; /* neutral-200 */
+    --border-card: #FFFFFF;
+    --border-card-inverted: #000000;
     --border-hover: #C0C1CC; /* neutral-300 */
     --border-active: #2F2F30; /* neutral-800 */
   }
@@ -275,9 +275,9 @@
     --accent-pink: #E74DC3;
 
     /* Border colors */
-    --border-main: #2F2F30;
-    --border-white: #FFFFFF;
-    --border-black: #000000;
+    --border-main: #2F2F30; /* neutral-800 */
+    --border-card: #000000;
+    --border-card-inverted: #FFFFFF;
     --border-hover: #8B8FA5; /* neutral-500 */
     --border-active: #D2D3D9; /* neutral-200 */  
   }

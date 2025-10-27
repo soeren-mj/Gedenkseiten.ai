@@ -3,7 +3,10 @@
 import { useAuth } from '@/contexts/AuthContext'
 import { Button } from '@/components/ui/Button'
 import AddMemorialCard from '@/components/cards/AddMemorialCard'
+import ActionCard from '@/components/cards/ActionCard'
 import InitialsAvatar from '@/components/ui/InitialsAvatar'
+import { SearchIcon } from '@/components/icons/SearchIcon'
+import HelpLibraryIcon from '@/components/icons/HelpLibraryIcon'
 
 export default function DashboardPage() {
   const { user, invitations } = useAuth()
@@ -12,6 +15,18 @@ export default function DashboardPage() {
   const handleCreateMemorial = () => {
     // TODO: Navigate to memorial creation flow
     console.log('Create new memorial')
+  }
+
+  // Handler for searching memorials
+  const handleSearchMemorials = () => {
+    // TODO: Navigate to search page
+    console.log('Search memorials')
+  }
+
+  // Handler for help & support
+  const handleHelpSupport = () => {
+    // TODO: Navigate to help page
+    console.log('Open help & support')
   }
 
   return (
@@ -24,7 +39,7 @@ export default function DashboardPage() {
             name={user?.name || user?.email || 'U'}
             size="lg"
           />
-        <h3 className="mb-2">
+        <h3 className="">
           Hallo {user?.name || 'Herzlich Willkommen'}, schön das du da bist!
         </h3>
         </div>
@@ -99,39 +114,21 @@ export default function DashboardPage() {
 
           {/* Alternative Actions */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="p-6 bg-secondary rounded-lg">
-              <div className="w-12 h-12 bg-background-interactive-primary-subtle rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-6 h-6 text-background-interactive-primary-default" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-              </div>
-              <h3 className="text-desktop-body-l font-medium text-primary mb-2">
-                Gedenkseite finden
-              </h3>
-              <p className="text-desktop-body-s text-secondary mb-4">
-                Suchen Sie nach bestehenden Gedenkseiten von Familie und Freunden.
-              </p>
-              <Button variant="tertiary" size="sm" fullWidth>
-                Durchsuchen
-              </Button>
-            </div>
+            <ActionCard
+              icon={<SearchIcon className="w-6 h-6" />}
+              title="Gedenkseite finden"
+              description="Suchen Sie nach bestehenden Gedenkseiten von Familie und Freunden."
+              onClick={handleSearchMemorials}
+              variant="secondary"
+            />
 
-            <div className="p-6 bg-secondary rounded-lg">
-              <div className="w-12 h-12 bg-background-interactive-positive-subtle rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-6 h-6 text-background-interactive-positive-default" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                </svg>
-              </div>
-              <h3 className="text-desktop-body-l font-medium text-primary mb-2">
-                Hilfe & Support
-              </h3>
-              <p className="text-desktop-body-s text-secondary mb-4">
-                Lernen Sie, wie Sie Gedenkseiten erstellen und verwalten.
-              </p>
-              <Button variant="tertiary" size="sm" fullWidth>
-                Anleitungen ansehen
-              </Button>
-            </div>
+            <ActionCard
+              icon={<HelpLibraryIcon className="w-11 h-11" />}
+              title="Hilfe & Support"
+              description="Lernen Sie, wie Sie Gedenkseiten erstellen und verwalten."
+              onClick={handleHelpSupport}
+              variant="secondary"
+            />
           </div>
         </div>
       </div>
