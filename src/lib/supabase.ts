@@ -195,6 +195,23 @@ export type WaitlistEntry = {
   marketing_consent: boolean;
 };
 
+// Registration status type
+export type RegistrationStatus = 'pending' | 'confirmed' | 'confirmed_with_email' | 'confirmed_without_email' | 'email_failed';
+
+// Registrations (waitlist with DOI confirmation)
+export type Registration = {
+  id: string;
+  name: string;
+  email: string;
+  status: RegistrationStatus;
+  confirmation_token: string;
+  confirmed_at: string | null;
+  token_expires_at: string;
+  email_error: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
 // Database schema type
 export type Database = {
   public: {
@@ -281,6 +298,13 @@ export type Database = {
         Row: WaitlistEntry;
         Insert: Omit<WaitlistEntry, 'id' | 'created_at'>;
         Update: Partial<Omit<WaitlistEntry, 'id' | 'created_at'>>;
+      };
+
+      // Registrations (waitlist with DOI confirmation)
+      registrations: {
+        Row: Registration;
+        Insert: Omit<Registration, 'id' | 'created_at' | 'updated_at'>;
+        Update: Partial<Omit<Registration, 'id' | 'created_at'>>;
       };
     };
   };

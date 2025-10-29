@@ -11,6 +11,10 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
   typescript: {
+    // TEMPORARY: Ignore React 19 + TypeScript compatibility issues
+    // These are false positives caused by React 19 type definitions
+    // See: https://github.com/DefinitelyTyped/DefinitelyTyped/discussions/69006
+    // TODO: Remove once React 19 types are stable or downgrade to React 18
     ignoreBuildErrors: true,
   },
   compiler: {

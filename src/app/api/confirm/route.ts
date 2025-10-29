@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { supabase, type Registration } from '@/lib/supabase';
 import resend from '@/lib/resend';
 
 export async function GET(request: Request) {
@@ -19,7 +19,7 @@ export async function GET(request: Request) {
       .from('registrations')
       .select('*')
       .eq('confirmation_token', token)
-      .single();
+      .single() as { data: Registration | null; error: unknown };
 
     if (findError || !registration) {
       return NextResponse.json(
@@ -49,7 +49,7 @@ export async function GET(request: Request) {
     const { error: updateError } = await supabase
       .from('registrations')
       .update({
-        status: 'confirmed',
+        status: 'confirmed' as const,
         confirmed_at: new Date().toISOString()
       })
       .eq('id', registration.id);
