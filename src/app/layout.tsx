@@ -6,6 +6,7 @@ import { CookieBanner } from '@/components/CookieBanner';
 import { GTMConsentClient } from '@/components/GTMConsentClient';
 import { ThemeProvider } from '@/components/providers/ThemeProvider';
 import { AuthProvider } from '@/contexts/AuthContext';
+import { ToastProvider } from '@/contexts/ToastContext';
 import { ConditionalLayout } from '@/components/layout/ConditionalLayout';
 import { 
   faqSchema, 
@@ -148,13 +149,15 @@ export default function RootLayout({
           disableTransitionOnChange={false}
           storageKey="gedenkseiten-theme"
         >
-          <AuthProvider>
-            <ConditionalLayout>
-              {children}
-            </ConditionalLayout>
-            <CookieBanner />
-            <GTMConsentClient />
-          </AuthProvider>
+          <ToastProvider>
+            <AuthProvider>
+              <ConditionalLayout>
+                {children}
+              </ConditionalLayout>
+              <CookieBanner />
+              <GTMConsentClient />
+            </AuthProvider>
+          </ToastProvider>
         </ThemeProvider>
       </body>
     </html>
