@@ -75,7 +75,7 @@ export const TextInput: React.FC<TextInputProps> = ({
     
     switch (state) {
       case 'error':
-        return `${baseClasses} border-[var(--text-error-message)] bg-error-message`;
+        return `${baseClasses} border-message-error bg-error-message`;
       case 'done':
         return `${baseClasses} border-main bg-bw-opacity-40`;
       default:
@@ -103,13 +103,13 @@ export const TextInput: React.FC<TextInputProps> = ({
   const iconClasses = 'w-5 h-5 text-primary';
 
   // Label classes using text-body-s-semibold
-  const labelClasses = 'block text-body-s-semibold mb-1 px-1 text-primary';
+  const labelClasses = 'block text-body-s-semibold mb-1 px-2 text-primary';
 
   // Hint/Error text classes using text-body-xs
   const hintClasses = cn(
     'mt-1 px-1 text-body-xs',
     error 
-      ? 'text-error-message' 
+      ? 'text-message-error' 
       : state === 'done' 
         ? 'text-secondary' 
         : 'text-secondary'

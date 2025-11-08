@@ -54,11 +54,10 @@ export const NameInput: React.FC<NameInputProps> = ({
           disabled={loading}
           placeholder={placeholder}
           className={cn(
-            'w-full rounded-s border px-3 py-1 transition pr-10',
-            'bg-bw',
-            'text-body-m text-primary',
+            'w-full rounded-xs border px-3 py-1 transition pr-10',
+            'bg-bw-opacity-40',
+            'text-body-s',
             'border-main',
-            'placeholder-tertiary',
             'focus:outline-none focus:ring-2',
             'focus:ring-background-interactive-primary-default',
             'focus:border-background-interactive-primary-default',

@@ -142,24 +142,26 @@
     --background-bw: #FFFFFF;
     --bg-bw-opacity-40: rgba(255, 255, 255, 0.4); /* white/40 */
     --bg-bw-opacity-60: rgba(255, 255, 255, 0.6); /* white/60 */
-    --bg-bw-opacity-80: rgba(255, 255, 255, 0.8); /* white/80 */
+    --bg-bw-opacity-80: rgba(255, 255, 255, 0.86); /* white/86 */
     --background-primary: #F0F0F2;
     --background-secondary: #E0E1E5;
     --background-tertiary: #D2D3D9;
     --background-inverted: #000000;
     --background-accent: #9AB6FD;
-    --background-interactive-primary-default: #0928F5;
-    --background-interactive-primary-hover: #0822CC;
-    --background-interactive-primary-active: #031AA8;
-    --background-interactive-disabled: #E0E1E5;
-    --background-interactive-info: #DAE8FF;
-    --background-interactive-positive-default: #1E9B4C;
-    --background-interactive-positive-hover: #1B7A3E;
-    --background-interactive-positive-active: #1A6134;
-    --bg-error-message: #FFC7C8; /* red-200 */
-    --background-interactive-error-default: #A01417;
-    --background-interactive-error-hover: #84181A;
-    --background-interactive-error-active: #480708;
+    --bg-interactive-primary-default: #0928f5;
+    --bg-interactive-primary-hover: #0822CC;
+    --bg-interactive-primary-active: #031AA8;
+    --bg-interactive-disabled: #E0E1E5;
+    --bg-interactive-primary-opacity-10: rgba(9, 40, 245, 0.10);
+    --bg-interactive-info: rgba(23, 92, 210, 0.10); /* info-400 with 10% opacity */
+    --bg-interactive-positive-default: #1E9B4C;
+    --bg-interactive-positive-hover: #1B7A3E;
+    --bg-interactive-positive-active: #1A6134;
+    --bg-message-success: rgba(108, 220, 149, 0.10); /* green-400 with 10% opacity */
+    --bg-error-message: rgba(255, 89, 92, 0.10); /* red-400 with 10% opacity */
+    --bg-interactive-error-default: #A01417;
+    --bg-interactive-error-hover: #84181A;
+    --bg-interactive-error-active: #480708;
     --background-interactive-secondary-default: #FFFFFF;
     --background-interactive-secondary-hover: #F0F0F2;
     --background-interactive-secondary-active: #E0E1E5;
@@ -167,30 +169,29 @@
     --background-interactive-tertiary-active: #E0E1E5;
 
     /* Foreground colors */
-    --foreground-bw: #000000;
-    --foreground-primary: #2F2F30;
-    --foreground-secondary: #636573;
-    --foreground-tertiary: #8B8FA5;
-    --foreground-accent: #0822CC;
-    --foreground-inverted-bw: #FFFFFF;
-    --foreground-inverted-primary: #F0F0F2;
-    --foreground-inverted-secondary: #C0C1CC;
-    --foreground-interactive-default: #FFFFFF;
-    --foreground-interactive-active: #FFFFFF;
-    --foreground-interactive-disabled: #AAADBF;
-    --foreground-interactive-info: #031AA8;
-    --text-interactive-link-default: #213EFF;
-    --text-interactive-link-hover: #0822CC;
-    --text-interactive-link-active: #031AA8;
-    --foreground-interactive-positive-default: #DEFAE8;
-    --foreground-interactive-positive-active: #DEFAE8;
-    --foreground-interactive-error-default: #FFE1E1;
-    --foreground-interactive-secondary-default: #000000;
-    --foreground-interactive-tertiary-text: #0928F5;
-    --foreground-interactive-positive-text: #FFFFFF;
-    --foreground-interactive-error-text: #FFFFFF;
-    --text-error-message: #A01417; /* red-800 */
-    --foreground-interactive-primary-disabled: #AAADBF;
+    --text-bw: #000000;
+    --text-primary: #2F2F30;
+    --text-secondary: #636573;
+    --text-tertiary: #8B8FA5;
+    --text-accent: #0822CC;
+    --text-inverted-bw: #FFFFFF;
+    --text-inverted-primary: #F0F0F2;
+    --text-inverted-secondary: #C0C1CC;
+    --text-interactive-default: #FFFFFF;
+    --text-interactive-active: #FFFFFF;
+    --text-interactive-disabled: #AAADBF;
+    --text-interactive-info: #175CD2; /* info-400 */
+    --text-interactive-positive-default: #213EFF;
+    --text-interactive-positive-hover: #0822CC;
+    --text-interactive-positive-active: #031AA8;
+    --text-interactive-error-default: #FFC7C8;
+    --text-interactive-secondary-default: #000000;
+    --text-interactive-tertiary-text: #0928F5;
+    --text-interactive-positive-text: #FFFFFF;
+    --text-interactive-error-text: #FFFFFF;
+    --text-message-success: #17502C; /* green-900 */
+    --text-message-error: #A01417; /* red-800 */
+    --text-interactive-primary-disabled: #AAADBF;
 
     /* Accent colors */
     --accent-blue: #0928F5;
@@ -207,6 +208,13 @@
     --border-card-inverted: #000000;
     --border-hover: #C0C1CC; /* neutral-300 */
     --border-active: #2F2F30; /* neutral-800 */
+    --border-interactive-default: #213EFF;
+    --border-interactive-hover: #0928F5;
+    --border-interactive-active: #0822CC;
+    --border-interactive-disabled: #E0E1E5;
+    --border-interactive-info: #175CD2; /* info-400 */
+    --border-message-success: #6CDC95; /* accent-green / green-400 */
+    --border-message-error: #FF595C; /* accent-red / red-400 */
   }
 
   /* Dark mode */
@@ -215,24 +223,26 @@
     --background-bw: #000000;
     --bg-bw-opacity-40: rgba(0, 0, 0, 0.4); /* black/40 */
     --bg-bw-opacity-60: rgba(0, 0, 0, 0.6); /* black/60 */
-    --bg-bw-opacity-80: rgba(0, 0, 0, 0.8); /* black/80 */
+    --bg-bw-opacity-80: rgba(0, 0, 0, 0.86); /* black/86 */
     --background-primary: #1F2024;
     --background-secondary: #2F2F30;
     --background-tertiary: #636573;
     --background-inverted: #FFFFFF;
     --background-accent: #0822CC;
-    --background-interactive-primary-default: #4C63F7;
+    --background-interactive-primary-default: #4c63f7;
     --background-interactive-primary-hover: #213EFF;
     --background-interactive-primary-active: #0928F5;
-    --background-interactive-disabled: #C0C1CC;
-    --background-interactive-info: #DAE8FF;
-    --background-interactive-positive-default: #8CE9AE;
-    --background-interactive-positive-hover: #6CDC95;
-    --background-interactive-positive-active: #1E9B4C;
-    --bg-error-message: #A01417; /* red-800 */
-    --background-interactive-error-default: #FFE1E1;
-    --background-interactive-error-hover: #FFC7C8;
-    --background-interactive-error-active: #FFA0A2;
+    --background-interactive-disabled: #636573;
+    --bg-interactive-primary-opacity-10: rgba(9, 40, 245, 0.10);
+    --bg-interactive-info: rgba(23, 92, 210, 0.10); /* info-400 with 10% opacity */
+    --bg-interactive-positive-default: #8CE9AE;
+    --bg-interactive-positive-hover: #6CDC95;
+    --bg-interactive-positive-active: #1E9B4C;
+    --bg-message-success: rgba(108, 220, 149, 0.10); /* green-400 with 10% opacity */
+    --bg-error-message: rgba(255, 89, 92, 0.10); /* red-400 with 10% opacity */
+    --bg-interactive-error-default: #FFC7C8;
+    --bg-interactive-error-hover: #FFA0A2;
+    --bg-interactive-error-active: #FF595C;
     --background-interactive-secondary-default: #000000;
     --background-interactive-secondary-hover: #2F2F30;
     --background-interactive-secondary-active: #636573;
@@ -240,30 +250,31 @@
     --background-interactive-tertiary-active: #636573;
 
     /* Foreground colors */
-    --foreground-bw: #FFFFFF;
-    --foreground-primary: #F0F0F2;
-    --foreground-secondary: #C0C1CC;
-    --foreground-tertiary: #AAADBF;
-    --foreground-accent: #0822CC;
-    --foreground-inverted-bw: #000000;
-    --foreground-inverted-primary: #2F2F30;
-    --foreground-inverted-secondary: #636573;
-    --foreground-interactive-default: #FFFFFF;
-    --foreground-interactive-active: #DAE8FF;
-    --foreground-interactive-disabled: #636573;
-    --foreground-interactive-info: #DAE8FF;
+    --text-bw: #FFFFFF;
+    --text-primary: #F0F0F2;
+    --text-secondary: #C0C1CC;
+    --text-tertiary: #AAADBF;
+    --text-accent: #9AB6FD;
+    --text-inverted-bw: #000000;
+    --text-inverted-primary: #2F2F30;
+    --text-inverted-secondary: #636573;
+    --text-interactive-default: #FFFFFF;
+    --text-interactive-active: #DAE8FF;
+    --text-interactive-disabled: #636573;
+    --text-interactive-info: #BBD3FC; /* info-100 */
     --text-interactive-link-default: #9AB6FD;
     --text-interactive-link-hover: #6B89FF;
     --text-interactive-link-active: #4C63F7;
-    --foreground-interactive-positive-default: #17502C;
-    --foreground-interactive-positive-active: #DEFAE8;
-    --foreground-interactive-error-default: #84181A;
-    --text-error-message: #FFC7C8; /* red-200 */
-    --foreground-interactive-secondary-default: #FFFFFF;
-    --foreground-interactive-tertiary-text: #9AB6FD;
-    --foreground-interactive-positive-text: #17502C;
-    --foreground-interactive-error-text: #84181A;
-    --foreground-interactive-primary-disabled: #636573;
+    --text-interactive-positive-default: #17502C;
+    --text-interactive-positive-active: #DEFAE8;
+    --text-interactive-error-default: #84181A;
+    --text-message-success: #DEFAE8; /* green-100 */
+    --text-message-error: #FFE1E1; /* red-100 */
+    --text-interactive-secondary-default: #FFFFFF;
+    --text-interactive-tertiary-text: #9AB6FD;
+    --text-interactive-positive-text: #17502C;
+    --text-interactive-error-text: #84181A;
+    --text-interactive-primary-disabled: #636573;
 
     /* Accent colors (same as light mode) */
     --accent-blue: #0928F5;
@@ -280,7 +291,42 @@
     --border-card-inverted: #FFFFFF;
     --border-hover: #8B8FA5; /* neutral-500 */
     --border-active: #D2D3D9; /* neutral-200 */  
+    --border-interactive-default: #4C63F7;
+    --border-interactive-hover: #213EFF;
+    --border-interactive-active: #0928F5;
+    --border-interactive-disabled: #636573;
+    --border-interactive-info: #175CD2; /* info-400 */
+    --border-message-success: #6CDC95; /* accent-green / green-400 */
+    --border-message-error: #FF595C; /* accent-red / red-400 */
   }
+}
+
+/* Loading dots wave animation */
+@keyframes loading-wave {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+}
+
+.loading-dot {
+  animation: loading-wave 1.2s ease-in-out infinite;
+}
+
+.loading-dot:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.loading-dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.loading-dot:nth-child(3) {
+  animation-delay: 0.4s;
 }
 
 @layer utilities {
@@ -357,7 +403,7 @@
   .text-body-s {
     font-family: 'Inter', sans-serif;
     font-weight: 500;
-    font-size: 0.875rem;
+    font-size: 0.875rem; /* 14px */
     line-height: 175%;
     letter-spacing: 0.0175em;
   }

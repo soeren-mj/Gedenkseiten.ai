@@ -2,7 +2,7 @@ import React from 'react';
 import { cn } from '@/lib/utils';
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'tertiary' | 'positive' | 'negative';
+  variant?: 'primary' | 'secondary' | 'tertiary' | 'positive' | 'negative' | 'text';
   size?: 'xs' | 'sm' | 'md' | 'lg';
   fullWidth?: boolean;
   loading?: boolean;
@@ -10,6 +10,54 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
   rightIcon?: React.ReactNode;
   children: React.ReactNode;
 }
+
+// LoadingDots component with variant-specific colors
+interface LoadingDotsProps {
+  variant: 'primary' | 'secondary' | 'tertiary' | 'positive' | 'negative' | 'text';
+}
+
+const LoadingDots: React.FC<LoadingDotsProps> = ({ variant }) => {
+  // Variant-specific dot colors
+  // User requested: blue dots for blue buttons, green dots for green buttons
+  // Using lighter shades/opacity for visibility on colored backgrounds
+  const dotColors = {
+    // Primary: blue button - use lighter blue (primary-300) for visibility on blue background
+    primary: 'bg-primary-300',
+    // Positive: green button - use lighter green (green-300) for visibility on green background
+    positive: 'bg-green-300',
+    // Negative: red button - use lighter red for visibility
+    negative: 'bg-red-300',
+    // Neutral buttons: use neutral gray
+    secondary: 'bg-neutral-500',
+    tertiary: 'bg-neutral-500',
+    text: 'bg-neutral-500'
+  };
+
+  const dotColor = dotColors[variant];
+
+  return (
+    <div className="flex items-center justify-center gap-1.5">
+      <div
+        className={cn(
+          'w-1.5 h-1.5 rounded-full loading-dot',
+          dotColor
+        )}
+      />
+      <div
+        className={cn(
+          'w-1.5 h-1.5 rounded-full loading-dot',
+          dotColor
+        )}
+      />
+      <div
+        className={cn(
+          'w-1.5 h-1.5 rounded-full loading-dot',
+          dotColor
+        )}
+      />
+    </div>
+  );
+};
 
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({
@@ -32,38 +80,49 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     `;
 
     // Variant styles using semantic tokens from design system
+    // Note: disabled styles are conditionally applied in className to avoid affecting loading state
     const variantStyles = {
       primary: `
         bg-interactive-primary-default !text-interactive-default
         hover:bg-interactive-primary-hover active:bg-interactive-primary-active
         focus:ring-blue
-        disabled:bg-interactive-disabled disabled:text-interactive-disabled
       `,
       secondary: `
         bg-interactive-secondary-default text-interactive-secondary-default
         hover:bg-interactive-secondary-hover
         active:bg-interactive-secondary-active
         focus:ring-blue
-        disabled:bg-interactive-disabled disabled:text-interactive-disabled
       `,
       tertiary: `
-        bg-transparent text-primary border border-transparent
+        bg-transparent text-primary border border-card-inverted
         hover:border hover:border-hover active:bg-secondary
         focus:ring-blue
-        disabled:bg-interactive-disabled disabled:text-interactive-disabled
       `,
       positive: `
         bg-interactive-positive-default text-interactive-positive-default
         hover:bg-interactive-positive-hover active:bg-interactive-positive-active
         focus:ring-green
-        disabled:bg-interactive-disabled disabled:text-interactive-disabled
       `,
       negative: `
-        bg-interactive-error-default text-interactive-error-default
+        bg-interactive-error-default !text-interactive-error-default
         hover:bg-interactive-error-hover active:bg-interactive-error-active
         focus:ring-red
-        disabled:bg-interactive-disabled disabled:text-interactive-disabled
+      `,
+      text: `
+        bg-transparent text-interactive-tertiary-text
+        hover:text-interactive-link-hover active:text-interactive-link-active
+        focus:ring-blue
       `
+    };
+
+    // Disabled styles (only applied when disabled=true and loading=false)
+    const disabledStyles = {
+      primary: 'bg-interactive-disabled text-interactive-disabled',
+      secondary: 'bg-interactive-disabled text-interactive-disabled',
+      tertiary: 'bg-transparent border-interactive-disabled text-interactive-disabled',
+      positive: 'bg-interactive-disabled text-interactive-disabled',
+      negative: 'bg-interactive-disabled text-interactive-disabled',
+      text: 'text-interactive-disabled'
     };
 
     // Size styles based on design specs
@@ -77,6 +136,9 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     // Width styles - full width only on mobile
     const widthStyles = fullWidth ? 'w-full sm:w-auto' : '';
 
+    // Apply disabled styles only when disabled is true AND loading is false
+    const shouldShowDisabledStyles = disabled && !loading;
+
     return (
       <button
         ref={ref}
@@ -85,6 +147,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           variantStyles[variant],
           sizeStyles[size],
           widthStyles,
+          shouldShowDisabledStyles && disabledStyles[variant],
           className
         )}
         disabled={disabled || loading}
@@ -93,30 +156,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         {...props}
       >
         {loading ? (
-          <>
-            <svg
-              className="animate-spin -ml-1 mr-2 h-4 w-4"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              aria-hidden="true"
-            >
-              <circle
-                className="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                strokeWidth="4"
-              />
-              <path
-                className="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-              />
-            </svg>
-            <span>Laden...</span>
-          </>
+          <LoadingDots variant={variant} />
         ) : (
           <>
             {leftIcon && (
