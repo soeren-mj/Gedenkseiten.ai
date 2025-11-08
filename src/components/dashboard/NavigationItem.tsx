@@ -52,7 +52,7 @@ export default function NavigationItem({
 
         // State-based styling
         isActive && "bg-bw",
-        !isActive && "hover:bg-primary",
+        !isActive && "hover:bg-bw-opacity-60",
 
         className
       )}

@@ -41,7 +41,7 @@ export default function AddMemorialCard({
 
   // Default plus icon
   const defaultIcon = (
-    <AddCircleIcon className="w-8 h-8 transition-colors" />
+    <AddCircleIcon className="w-10 h-10 transition-colors" />
   );
 
   return (
@@ -60,10 +60,10 @@ export default function AddMemorialCard({
 
         // Border - dashed default
         "border-2 border-dashed rounded-lg",
-        "border-card-inverted",
+        "border-interactive-default",
 
         // Background
-        "bg-bw-opacity-40",
+        "bg-interactive-primary-opacity-10",
 
         // Transitions
         "transition-all duration-200",
@@ -71,7 +71,7 @@ export default function AddMemorialCard({
         "group",
 
         // Hover state
-        "hover:border-hover",
+        "hover:border-interactive-hover",
 
         // Active state
         "active:scale-[0.98]",
@@ -87,12 +87,12 @@ export default function AddMemorialCard({
       )}
     >
       {/* Icon container */}
-      <div className="w-16 h-16 flex items-center justify-center transition-colors">
+      <div className="w-12 h-12 flex items-center justify-center transition-colors">
         {icon || defaultIcon}
       </div>
 
       {/* Title */}
-      <h4 className="mb-2 text-center">
+      <h4 className="mb-2 text-center text-webapp-group text-bw max-w-[140px] leading-tight">
         {title}
       </h4>
 
