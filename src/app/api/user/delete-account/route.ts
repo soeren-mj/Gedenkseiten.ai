@@ -306,7 +306,7 @@ export async function POST(request: Request) {
       console.error('[Delete Account] ⚠️ Hard delete failed, attempting soft delete...', {
         message: authUserError.message,
         status: authUserError.status,
-        code: (authUserError as any).code,
+        code: authUserError.code,
       })
 
       // Fallback: Soft delete (user is disabled, not deleted from DB)
@@ -321,7 +321,7 @@ export async function POST(request: Request) {
         console.error('[Delete Account] ❌ Soft delete also failed:', {
           message: authUserError.message,
           status: authUserError.status,
-          code: (authUserError as any).code,
+          code: authUserError.code,
           name: authUserError.name,
           fullError: authUserError,
         })
@@ -329,7 +329,7 @@ export async function POST(request: Request) {
           {
             error: 'Failed to delete authentication record.',
             debug: `Hard delete failed: ${authUserError.message}. Soft delete also failed.`,
-            errorCode: (authUserError as any).code,
+            errorCode: authUserError.code,
           },
           { status: 500 }
         )

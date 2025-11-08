@@ -153,7 +153,7 @@ export default function AuthCallbackPage() {
 
             const { data, error: verifyError } = await legacyClient.auth.verifyOtp({
               token_hash,
-              type: 'email_change' as any
+              type: 'email_change'
             })
 
             if (verifyError || !data.user) {
