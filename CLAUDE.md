@@ -4,6 +4,24 @@
 ## Project Overview
 You are working on Gedenkseiten.ai, a digital memorial platform for creating commemorative pages for deceased persons and pets. The platform is built with Next.js, TypeScript, Tailwind CSS, and Supabase.
 
+## Known Issues
+
+### ~~Account Deletion - Foreign Key Constraints~~ ✅ GELÖST
+- **Status:** ✅ GELÖST (2025-01-05) - Hard Delete funktioniert jetzt
+- **Details:** See `docs/account-deletion-issue.md` for complete documentation
+- **Problem (behoben):** Hard Delete schlug fehl wegen 3 FKs mit NO ACTION
+- **Root Cause:** `memorial_invitations`, `memorials`, `users` hatten FKs ohne CASCADE
+- **Lösung:** Alle 3 FKs via psql auf `ON DELETE CASCADE` geändert
+- **Ergebnis:**
+  - ✅ Hard Delete funktioniert - User wird permanent aus DB gelöscht
+  - ✅ Email-Adressen können sofort wiederverwendet werden
+  - ✅ GDPR-konform - keine User-Daten bleiben zurück
+- **Betroffene Dateien:**
+  - `src/app/api/user/delete-account/route.ts:300-342` - Hard Delete mit Soft Delete Fallback (funktioniert jetzt)
+  - `src/components/settings/AccountDeletionModal.tsx` - Account Deletion UI
+  - `src/app/api/user/deletion-summary/route.ts` - Deletion Preview API
+  - `src/app/dashboard/settings/page.tsx:204-253` - Account Deletion Handler mit Redirect
+
 ## Critical Project Context
 - **Language**: All UI text must be in German, code comments in English
 - **Design System**: Strict adherence to custom design tokens (see docs/)
@@ -19,7 +37,24 @@ You are working on Gedenkseiten.ai, a digital memorial platform for creating com
 - `docs/design-system/colors.md` - Color system and semantic tokens
 - `docs/design-system/typography.md` - Typography scales and usage
 - `docs/design-system/button.md` - Button component specifications
+- `docs/auth-troubleshooting.md` - **Authentication issues, solutions, and debugging guide**
 - `cursor-rules.txt` - Development guidelines and patterns
+
+## Authentication Troubleshooting
+**⚠️ IMPORTANT:** If you encounter authentication errors or issues, always check `docs/auth-troubleshooting.md` first.
+
+Common auth issues documented:
+- **getSession timeout errors** - Storage key misconfiguration and race conditions
+- **Magic link callback problems** - Server vs client-side handling
+- **Session not persisting** - Storage mechanism conflicts
+- **Legacy client configuration** - Why we use it and how to configure it correctly
+
+The troubleshooting guide includes:
+- Root cause analysis for known issues
+- Step-by-step solutions and fixes
+- Best practices for auth configuration
+- Debugging checklists and commands
+- Architecture overview and design decisions
 
 ## Current Implementation Status
 - ✅ Landing page with waitlist
