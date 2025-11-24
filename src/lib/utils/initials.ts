@@ -111,7 +111,7 @@ export function getInitialsAvatarClasses(size: 'sm' | 'md' | 'lg' | 'xl'): strin
  * Gets contrasting text color for background
  * (For future use if custom colors are allowed)
  */
-export function getContrastingTextColor(backgroundColor: string): 'primary' | 'black' {
+export function getContrastingTextColor(_backgroundColor: string): 'primary' | 'black' {
   // Simple luminance calculation
   // For now, all our gradients use white text
   // This is a placeholder for future customization

@@ -61,7 +61,6 @@ export const InlineAutocomplete = forwardRef<HTMLInputElement, InlineAutocomplet
     {
       options,
       value,
-      onChange,
       onOpenChange,
       onClear,
       placeholder,
@@ -231,7 +230,6 @@ export const InlineAutocompleteList: React.FC<InlineAutocompleteListProps> = ({
   value,
   onChange,
   searchValue = '',
-  onSearchChange,
   className = '',
 }) => {
   const [focusedIndex, setFocusedIndex] = useState<number>(-1);

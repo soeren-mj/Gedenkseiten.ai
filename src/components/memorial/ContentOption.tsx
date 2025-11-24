@@ -22,7 +22,6 @@ export function ContentOption({
   badge,
   buttonText,
   disabled,
-  premium,
   onAction,
 }: ContentOptionProps) {
   return (

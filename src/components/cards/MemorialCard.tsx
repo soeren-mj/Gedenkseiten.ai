@@ -38,7 +38,6 @@ export function MemorialCard({
 
   // Normalize type ('pet' from DB should be treated as 'tier')
   const isPerson = memorial.type === 'person';
-  const isAnimal = memorial.type === 'pet' || memorial.type === 'tier';
 
   // Format display name using formatFullName utility
   const displayName = formatFullName(memorial);

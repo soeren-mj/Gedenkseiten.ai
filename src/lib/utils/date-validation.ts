@@ -3,7 +3,7 @@
  * Handles German date format (DD.MM.YYYY) and ISO conversions
  */
 
-import { format, parse, isValid, isBefore, isAfter, isFuture } from 'date-fns';
+import { format, isValid, isAfter, isFuture } from 'date-fns';
 import { de } from 'date-fns/locale';
 
 // German date format
@@ -164,7 +164,7 @@ export function formatDateRange(
  */
 export function autoCorrectGermanDate(input: string): string {
   // Replace slashes with dots
-  let corrected = input.replace(/\//g, '.');
+  const corrected = input.replace(/\//g, '.');
 
   // Pad single digits
   const parts = corrected.split('.');

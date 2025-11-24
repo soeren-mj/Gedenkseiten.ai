@@ -64,7 +64,7 @@ export default function StammdatenPage() {
         try {
           const errorData = await response.json();
           errorMessage = errorData.error || errorMessage;
-        } catch (parseError) {
+        } catch {
           // Response is not JSON (might be HTML error page from dev server)
           errorMessage = `Server-Fehler (${response.status})`;
         }

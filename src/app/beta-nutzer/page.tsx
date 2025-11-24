@@ -7,7 +7,7 @@ import Button from '@/components/ui/Button'
 import { TextInput } from '@/components/ui/text-input'
 import Checkbox from '@/components/ui/Checkbox'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
-import { Share2, Mail } from 'lucide-react'
+import { Mail } from 'lucide-react'
 import { HeroSection } from '@/components/sections/HeroSection'
 
 const HERO_BACKGROUND = '/images/blur-beta-nutzer.webp'

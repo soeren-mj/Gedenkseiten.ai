@@ -104,7 +104,7 @@ export default function PetBasicInfoPage() {
   const [apiError, setApiError] = useState<string | null>(null);
 
   // Auto-save draft
-  const { data: draftData, setData: setDraftData } = useLocalStorageDraft<Partial<PetBasicInfo>>(
+  const { setData: setDraftData } = useLocalStorageDraft<Partial<PetBasicInfo>>(
     {},
     {
       userId: user?.id || 'anonymous',
