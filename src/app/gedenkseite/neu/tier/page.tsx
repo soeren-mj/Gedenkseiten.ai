@@ -68,7 +68,7 @@ export default function PetBasicInfoPage() {
 
     // Add fields that have values in formData
     optionalFieldIds.forEach(fieldId => {
-      const value = (formData as any)?.[fieldId];
+      const value = (formData as Record<string, unknown>)?.[fieldId];
       if (value && value !== '' && !initialFields.includes(fieldId)) {
         initialFields.push(fieldId);
       }
@@ -199,7 +199,7 @@ export default function PetBasicInfoPage() {
 
       // Check all optional fields for values
       PET_OPTIONAL_FIELDS.forEach(field => {
-        const fieldValue = (value as any)?.[field.id];
+        const fieldValue = (value as Record<string, unknown>)?.[field.id];
         if (fieldValue && fieldValue !== '' && !selectedFields.includes(field.id)) {
           fieldsToAdd.push(field.id);
         }

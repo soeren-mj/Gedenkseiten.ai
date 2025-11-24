@@ -122,7 +122,7 @@ export default function DashboardPage() {
                 
                 <div className="space-y-2 mb-4">
                   {invitations.slice(0, 2).map((invitation) => {
-                    const memorial = invitation.memorials as any | null;
+                    const memorial = invitation.memorials as { first_name: string; last_name: string | null } | null;
                     const memorialName = memorial ? formatFullName(memorial) : '';
                     return (
                       <div key={invitation.id} className="text-white/90 text-desktop-body-s">

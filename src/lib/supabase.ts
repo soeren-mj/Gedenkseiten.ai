@@ -434,7 +434,7 @@ export async function addToWaitlist(email: string, marketingConsent: boolean): P
     const confirmationToken = crypto.randomUUID();
 
     const { data, error } = await (supabase
-      .from('waitlist') as any)
+      .from('waitlist') as unknown as ReturnType<typeof supabase.from>)
       .insert({
         email,
         marketing_consent: marketingConsent,
@@ -467,7 +467,7 @@ export async function addToWaitlist(email: string, marketingConsent: boolean): P
 export async function confirmWaitlist(token: string): Promise<WaitlistEntry> {
   try {
     const { data, error } = await (supabase
-      .from('waitlist') as any)
+      .from('waitlist') as unknown as ReturnType<typeof supabase.from>)
       .update({ confirmed: true })
       .eq('confirmation_token', token)
       .select()
@@ -544,7 +544,7 @@ export async function getMemorialReactions(
     return { heart: 0, candle: 0, flower: 0, dove: 0, prayer: 0 };
   }
 
-  const counts = (data as any[]).reduce((acc: any, reaction: any) => {
+  const counts = (data as { reaction_type: string }[]).reduce((acc: { [key in ReactionType]: number }, reaction: { reaction_type: string }) => {
     acc[reaction.reaction_type as ReactionType] = (acc[reaction.reaction_type as ReactionType] || 0) + 1;
     return acc;
   }, {} as { [key in ReactionType]: number });
@@ -581,7 +581,7 @@ export async function toggleMemorialReaction(
     const { error } = await client
       .from('memorial_reactions')
       .delete()
-      .eq('id', (existing as any).id);
+      .eq('id', (existing as { id: string }).id);
     return !error;
   } else {
     // Add reaction
@@ -591,7 +591,7 @@ export async function toggleMemorialReaction(
         memorial_id: memorialId,
         user_id: userId,
         reaction_type: reactionType,
-      } as any);
+      });
     return !error;
   }
 }
