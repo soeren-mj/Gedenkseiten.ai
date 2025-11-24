@@ -1,0 +1,147 @@
+import { NextResponse } from 'next/server';
+import { createClient as createSupabaseClient } from '@supabase/supabase-js';
+import type { Database } from '@/lib/supabase';
+
+/**
+ * PATCH /api/memorials/[id]
+ *
+ * Updates an existing memorial's basic information.
+ * Requires authentication and ownership.
+ */
+export async function PATCH(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id: memorialId } = await params;
+
+    // 1. Get auth token from request headers
+    const authHeader = request.headers.get('authorization');
+
+    if (!authHeader) {
+      return NextResponse.json(
+        { success: false, error: 'Nicht authentifiziert - Kein Auth Header' },
+        { status: 401 }
+      );
+    }
+
+    const token = authHeader.replace('Bearer ', '');
+
+    // Create client with user's session token
+    const supabase = createSupabaseClient<Database>(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        global: {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      }
+    );
+
+    // Get user from token
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+
+    if (authError || !user) {
+      return NextResponse.json(
+        { success: false, error: 'Nicht authentifiziert - Ungültiger Token' },
+        { status: 401 }
+      );
+    }
+
+    // 2. Verify memorial exists and user has permission
+    const { data: memorial, error: fetchError } = await supabase
+      .from('memorials')
+      .select('id, creator_id, type')
+      .eq('id', memorialId)
+      .single();
+
+    if (fetchError || !memorial) {
+      return NextResponse.json(
+        { success: false, error: 'Gedenkseite nicht gefunden' },
+        { status: 404 }
+      );
+    }
+
+    // Check if user is the creator
+    if (memorial.creator_id !== user.id) {
+      return NextResponse.json(
+        { success: false, error: 'Keine Berechtigung zum Bearbeiten' },
+        { status: 403 }
+      );
+    }
+
+    // 3. Parse request body
+    const payload = await request.json();
+
+    // 4. Build update object (only allow specific fields)
+    const updateData: Record<string, unknown> = {};
+
+    // Common fields
+    if (payload.first_name !== undefined) updateData.first_name = payload.first_name;
+    if (payload.last_name !== undefined) updateData.last_name = payload.last_name || null;
+    if (payload.birth_date !== undefined) updateData.birth_date = payload.birth_date;
+    if (payload.death_date !== undefined) updateData.death_date = payload.death_date;
+    if (payload.birth_place !== undefined) updateData.birth_place = payload.birth_place || null;
+    if (payload.death_place !== undefined) updateData.death_place = payload.death_place || null;
+
+    // Person-specific fields
+    if (memorial.type === 'person') {
+      if (payload.gender !== undefined) updateData.gender = payload.gender || null;
+      if (payload.salutation !== undefined) updateData.salutation = payload.salutation || null;
+      if (payload.title !== undefined) updateData.title = payload.title || null;
+      if (payload.second_name !== undefined) updateData.second_name = payload.second_name || null;
+      if (payload.third_name !== undefined) updateData.third_name = payload.third_name || null;
+      if (payload.birth_name !== undefined) updateData.birth_name = payload.birth_name || null;
+      if (payload.name_suffix !== undefined) updateData.name_suffix = payload.name_suffix || null;
+      if (payload.nickname !== undefined) updateData.nickname = payload.nickname || null;
+      if (payload.relationship_degree !== undefined) updateData.relationship_degree = payload.relationship_degree || null;
+      if (payload.relationship_custom !== undefined) updateData.relationship_custom = payload.relationship_custom || null;
+    }
+
+    // Pet-specific fields
+    if (memorial.type === 'pet') {
+      if (payload.animal_type_id !== undefined) updateData.animal_type_id = payload.animal_type_id || null;
+      if (payload.breed_group_id !== undefined) updateData.breed_group_id = payload.breed_group_id || null;
+      if (payload.breed_id !== undefined) updateData.breed_id = payload.breed_id || null;
+      if (payload.gender !== undefined) updateData.gender = payload.gender || null;
+      if (payload.nickname !== undefined) updateData.nickname = payload.nickname || null;
+    }
+
+    // Avatar/Display fields (for both person and pet)
+    if (payload.avatar_type !== undefined) updateData.avatar_type = payload.avatar_type || null;
+    if (payload.avatar_url !== undefined) updateData.avatar_url = payload.avatar_url || null;
+
+    // Add updated_at timestamp
+    updateData.updated_at = new Date().toISOString();
+
+    // 5. Update database
+    const { error: updateError } = await supabase
+      .from('memorials')
+      .update(updateData)
+      .eq('id', memorialId);
+
+    if (updateError) {
+      console.error('Memorial update error:', updateError);
+      return NextResponse.json(
+        { success: false, error: 'Fehler beim Aktualisieren der Gedenkseite' },
+        { status: 500 }
+      );
+    }
+
+    // 6. Return success
+    return NextResponse.json({
+      success: true,
+      memorial_id: memorialId,
+      message: 'Gedenkseite erfolgreich aktualisiert'
+    });
+
+  } catch (error) {
+    console.error('Unexpected error:', error);
+    return NextResponse.json(
+      { success: false, error: 'Ein unerwarteter Fehler ist aufgetreten' },
+      { status: 500 }
+    );
+  }
+}

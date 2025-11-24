@@ -3,12 +3,16 @@
 import React, { useState, useRef } from 'react'
 import { Tooltip } from './Tooltip'
 import Image from 'next/image'
+import PersonIcon from '@/components/icons/PersonIcon'
+import AnimalIcon from '@/components/icons/AnimalIcon'
 
 interface InitialsAvatarProps {
   name: string
   size?: 'sm' | 'md' | 'lg' | 'xl'
   className?: string
   imageUrl?: string | null
+  avatarType?: 'initials' | 'icon' | 'image'
+  memorialType?: 'person' | 'pet'
   editable?: boolean
   onUpload?: (file: File) => void
   onDelete?: () => void
@@ -20,6 +24,8 @@ const InitialsAvatar: React.FC<InitialsAvatarProps> = ({
   size = 'md',
   className = '',
   imageUrl = null,
+  avatarType = 'initials',
+  memorialType = 'person',
   editable = false,
   onUpload,
   onDelete,
@@ -42,7 +48,7 @@ const InitialsAvatar: React.FC<InitialsAvatarProps> = ({
   // Size classes
   const sizeClasses = {
     sm: 'w-6 h-6 sm:w-8 sm:h-8 text-webapp-group sm:text-webapp-group',
-    md: 'w-6 h-6 sm:w-8 sm:h-8 text-webapp-group sm:text-webapp-group',
+    md: 'w-6 h-6 sm:w-10 sm:h-10 text-webapp-group sm:text-webapp-group',
     lg: 'w-8 h-8 sm:w-12 sm:h-12 text-webapp-subsection sm:text-webapp-subsection',
     xl: 'w-10 h-10 sm:w-16 sm:h-16 text-webapp-section sm:text-webapp-section'
   }
@@ -103,7 +109,7 @@ const InitialsAvatar: React.FC<InitialsAvatarProps> = ({
             h-full
             rounded-full
             relative
-            ${imageUrl ? 'bg-transparent' : 'bg-[#92A1FC]'}
+            ${avatarType === 'image' && imageUrl ? 'bg-transparent' : 'bg-[#92A1FC]'}
             text-white
             flex
             items-center
@@ -113,7 +119,7 @@ const InitialsAvatar: React.FC<InitialsAvatarProps> = ({
             ${isUploading ? 'opacity-50' : ''}
           `}
         >
-          {imageUrl ? (
+          {avatarType === 'image' && imageUrl ? (
             <Image
               src={imageUrl}
               alt={name}
@@ -121,6 +127,14 @@ const InitialsAvatar: React.FC<InitialsAvatarProps> = ({
               className="object-cover"
               unoptimized // For Supabase storage URLs
             />
+          ) : avatarType === 'icon' ? (
+            <div className="w-3/5 h-3/5">
+              {memorialType === 'person' ? (
+                <PersonIcon className="w-full h-full" color="white" />
+              ) : (
+                <AnimalIcon className="w-full h-full" color="white" />
+              )}
+            </div>
           ) : (
             getInitials(name)
           )}

@@ -16,8 +16,8 @@
 @layer base {
   /* Base styles for html and body */
   html, body {
-    color: var(--foreground-primary);
-    background: var(--background-primary);
+    color: var(--text-primary);
+    background: var(--bg-primary);
     font-family: 'Inter', Arial, Helvetica, sans-serif;
   }
 
@@ -33,7 +33,7 @@
     font-size: 2rem; /* 32px - Mobile */
     line-height: 120%;
     letter-spacing: -0.015em;
-    color: var(--foreground-bw);
+    color: var(--text-bw);
   }
 
   @media (min-width: 768px) {
@@ -139,21 +139,22 @@
   /* Light mode (default) */
   :root {
     /* Background colors */
-    --background-bw: #FFFFFF;
+    --bg-bw: #FFFFFF;
     --bg-bw-opacity-40: rgba(255, 255, 255, 0.4); /* white/40 */
     --bg-bw-opacity-60: rgba(255, 255, 255, 0.6); /* white/60 */
     --bg-bw-opacity-80: rgba(255, 255, 255, 0.86); /* white/86 */
-    --background-primary: #F0F0F2;
-    --background-secondary: #E0E1E5;
-    --background-tertiary: #D2D3D9;
-    --background-inverted: #000000;
-    --background-accent: #9AB6FD;
+    --bg-primary: #F0F0F2;
+    --bg-secondary: #E0E1E5;
+    --bg-tertiary: #D2D3D9;
+    --bg-inverted: #000000;
+    --bg-accent: #9AB6FD;
     --bg-interactive-primary-default: #0928f5;
     --bg-interactive-primary-hover: #0822CC;
     --bg-interactive-primary-active: #031AA8;
     --bg-interactive-disabled: #E0E1E5;
     --bg-interactive-primary-opacity-10: rgba(9, 40, 245, 0.10);
     --bg-interactive-info: rgba(23, 92, 210, 0.10); /* info-400 with 10% opacity */
+    --bg-interactive-info-hover: rgba(23, 92, 210, 0.20); /* info-400 with 20% opacity */
     --bg-interactive-positive-default: #1E9B4C;
     --bg-interactive-positive-hover: #1B7A3E;
     --bg-interactive-positive-active: #1A6134;
@@ -162,11 +163,11 @@
     --bg-interactive-error-default: #A01417;
     --bg-interactive-error-hover: #84181A;
     --bg-interactive-error-active: #480708;
-    --background-interactive-secondary-default: #FFFFFF;
-    --background-interactive-secondary-hover: #F0F0F2;
-    --background-interactive-secondary-active: #E0E1E5;
-    --background-interactive-tertiary-hover: #F0F0F2;
-    --background-interactive-tertiary-active: #E0E1E5;
+    --bg-interactive-secondary-default: #FFFFFF;
+    --bg-interactive-secondary-hover: #F0F0F2;
+    --bg-interactive-secondary-active: #E0E1E5;
+    --bg-interactive-tertiary-hover: #F0F0F2;
+    --bg-interactive-tertiary-active: #E0E1E5;
 
     /* Foreground colors */
     --text-bw: #000000;
@@ -181,6 +182,9 @@
     --text-interactive-active: #FFFFFF;
     --text-interactive-disabled: #AAADBF;
     --text-interactive-info: #175CD2; /* info-400 */
+    --text-interactive-link-default: #0928F5;
+    --text-interactive-link-hover: #0822CC;
+    --text-interactive-link-active: #031AA8;
     --text-interactive-positive-default: #213EFF;
     --text-interactive-positive-hover: #0822CC;
     --text-interactive-positive-active: #031AA8;
@@ -191,7 +195,7 @@
     --text-interactive-error-text: #FFFFFF;
     --text-message-success: #17502C; /* green-900 */
     --text-message-error: #A01417; /* red-800 */
-    --text-interactive-primary-disabled: #AAADBF;
+    --text-interactive-primary-disabled: #AAADBF; /* neutral-400 */
 
     /* Accent colors */
     --accent-blue: #0928F5;
@@ -201,6 +205,14 @@
     --accent-yellow: #EDDB16;
     --accent-purple: #996DE3;
     --accent-pink: #E74DC3;
+
+    /* Chip colors */
+    --bg-chip-empfehlung: #E2DBF9; /* purple-200 */
+    --text-chip-empfehlung: #6733A4; /* purple-800 */
+    --bg-chip-premium: #F8F790; /* yellow-200 */
+    --text-chip-premium: #7F5A14; /* yellow-800 */
+    --bg-chip-bald-verfuegbar: #D2D3D9; /* neutral-200 */
+    --text-chip-bald-verfuegbar: #1F2024; /* neutral-900 */
 
     /* Border colors */
     --border-main: #D2D3D9; /* neutral-200 */
@@ -213,6 +225,7 @@
     --border-interactive-active: #0822CC;
     --border-interactive-disabled: #E0E1E5;
     --border-interactive-info: #175CD2; /* info-400 */
+    --border-interactive-info-hover: #9AB6FD; /* primary-300 */
     --border-message-success: #6CDC95; /* accent-green / green-400 */
     --border-message-error: #FF595C; /* accent-red / red-400 */
   }
@@ -220,21 +233,22 @@
   /* Dark mode */
   .dark {
     /* Background colors */
-    --background-bw: #000000;
+    --bg-bw: #000000;
     --bg-bw-opacity-40: rgba(0, 0, 0, 0.4); /* black/40 */
     --bg-bw-opacity-60: rgba(0, 0, 0, 0.6); /* black/60 */
     --bg-bw-opacity-80: rgba(0, 0, 0, 0.86); /* black/86 */
-    --background-primary: #1F2024;
-    --background-secondary: #2F2F30;
-    --background-tertiary: #636573;
-    --background-inverted: #FFFFFF;
-    --background-accent: #0822CC;
-    --background-interactive-primary-default: #4c63f7;
-    --background-interactive-primary-hover: #213EFF;
-    --background-interactive-primary-active: #0928F5;
-    --background-interactive-disabled: #636573;
+    --bg-primary: #1F2024;
+    --bg-secondary: #2F2F30;
+    --bg-tertiary: #636573;
+    --bg-inverted: #FFFFFF;
+    --bg-accent: #0822CC;
+    --bg-interactive-primary-default: #4C63F7;
+    --bg-interactive-primary-hover: #213EFF;
+    --bg-interactive-primary-active: #0928F5;
+    --bg-interactive-disabled: #636573;
     --bg-interactive-primary-opacity-10: rgba(9, 40, 245, 0.10);
-    --bg-interactive-info: rgba(23, 92, 210, 0.10); /* info-400 with 10% opacity */
+    --bg-interactive-info: rgba(4, 23, 56, 0.20); /* info-900 with 20% opacity */
+    --bg-interactive-info-hover: rgba(4, 23, 56, 0.30); /* info-900 with 30% opacity */
     --bg-interactive-positive-default: #8CE9AE;
     --bg-interactive-positive-hover: #6CDC95;
     --bg-interactive-positive-active: #1E9B4C;
@@ -243,28 +257,28 @@
     --bg-interactive-error-default: #FFC7C8;
     --bg-interactive-error-hover: #FFA0A2;
     --bg-interactive-error-active: #FF595C;
-    --background-interactive-secondary-default: #000000;
-    --background-interactive-secondary-hover: #2F2F30;
-    --background-interactive-secondary-active: #636573;
-    --background-interactive-tertiary-hover: #2F2F30;
-    --background-interactive-tertiary-active: #636573;
+    --bg-interactive-secondary-default: #000000;
+    --bg-interactive-secondary-hover: #2F2F30;
+    --bg-interactive-secondary-active: #636573;
+    --bg-interactive-tertiary-hover: #2F2F30;
+    --bg-interactive-tertiary-active: #636573;
 
     /* Foreground colors */
     --text-bw: #FFFFFF;
     --text-primary: #F0F0F2;
-    --text-secondary: #C0C1CC;
+    --text-secondary: #C0C1CC; 
     --text-tertiary: #AAADBF;
-    --text-accent: #9AB6FD;
+    --text-accent: #6B89FF;
     --text-inverted-bw: #000000;
     --text-inverted-primary: #2F2F30;
     --text-inverted-secondary: #636573;
     --text-interactive-default: #FFFFFF;
     --text-interactive-active: #DAE8FF;
-    --text-interactive-disabled: #636573;
+    --text-interactive-disabled: #AAADBF; /* neutral-400 */
     --text-interactive-info: #BBD3FC; /* info-100 */
-    --text-interactive-link-default: #9AB6FD;
-    --text-interactive-link-hover: #6B89FF;
-    --text-interactive-link-active: #4C63F7;
+    --text-interactive-link-default: #6B89FF;
+    --text-interactive-link-hover: #4C63F7;
+    --text-interactive-link-active: #213EFF;
     --text-interactive-positive-default: #17502C;
     --text-interactive-positive-active: #DEFAE8;
     --text-interactive-error-default: #84181A;
@@ -285,17 +299,26 @@
     --accent-purple: #996DE3;
     --accent-pink: #E74DC3;
 
+    /* Chip colors (inverted from light mode) */
+    --bg-chip-empfehlung: #6733A4; /* purple-800 */
+    --text-chip-empfehlung: #E2DBF9; /* purple-200 */
+    --bg-chip-premium: #7F5A14; /* yellow-800 */
+    --text-chip-premium: #F8F790; /* yellow-200 */
+    --bg-chip-bald-verfuegbar: #1F2024; /* neutral-900 */
+    --text-chip-bald-verfuegbar: #D2D3D9; /* neutral-200 */
+
     /* Border colors */
     --border-main: #2F2F30; /* neutral-800 */
     --border-card: #000000;
     --border-card-inverted: #FFFFFF;
     --border-hover: #8B8FA5; /* neutral-500 */
     --border-active: #D2D3D9; /* neutral-200 */  
-    --border-interactive-default: #4C63F7;
-    --border-interactive-hover: #213EFF;
-    --border-interactive-active: #0928F5;
+    --border-interactive-default: #6B89FF;
+    --border-interactive-hover: #4C63F7;
+    --border-interactive-active: #213EFF;
     --border-interactive-disabled: #636573;
     --border-interactive-info: #175CD2; /* info-400 */
+    --border-interactive-info-hover: #9AB6FD; /* primary-300 */
     --border-message-success: #6CDC95; /* accent-green / green-400 */
     --border-message-error: #FF595C; /* accent-red / red-400 */
   }
@@ -419,7 +442,7 @@
   .text-body-xs {
     font-family: 'Inter', sans-serif;
     font-weight: 500;
-    font-size: 0.75rem;
+    font-size: 0.75rem; 
     line-height: 175%;
     letter-spacing: 0.02em;
   }
@@ -494,7 +517,7 @@
   .text-webapp-section {
     font-family: 'Inter', sans-serif;
     font-weight: 600;
-    font-size: 1.625rem;
+    font-size: 1.625rem; /* 26px */
     line-height: 120%;
     letter-spacing: -0.01em;
   }
@@ -502,7 +525,7 @@
   .text-webapp-subsection {
     font-family: 'Inter', sans-serif;
     font-weight: 600;
-    font-size: 1.375rem;
+    font-size: 1.375rem; /* 22px */
     line-height: 120%;
     letter-spacing: -0.005em;
   }
@@ -510,7 +533,7 @@
   .text-webapp-body {
     font-family: 'Inter', sans-serif;
     font-weight: 600;
-    font-size: 1.125rem;
+    font-size: 1.125rem; /* 18px */
     line-height: 120%;
     letter-spacing: 0;
   }
@@ -518,11 +541,39 @@
   .text-webapp-group {
     font-family: 'Inter', sans-serif;
     font-weight: 600;
-    font-size: 0.875rem; /* 14px */
+    font-size: 0.9375rem; /* 15px */
     line-height: 140%;
     letter-spacing: 0.005em;
   }
-  
+
+  /* Design Element Styles */
+  .text-display-number {
+    font-family: 'Satoshi', sans-serif;
+    font-weight: 500;
+    font-size: 3rem;
+    line-height: 135.42%;
+    letter-spacing: 0;
+  }
+
+  /* Gradient Text */
+  .text-gradient-accent {
+    background: linear-gradient(
+      90deg,
+      var(--accent-red) 0%,
+      var(--accent-pink) 37%,
+      var(--accent-purple) 69%,
+      var(--accent-green) 100%
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Drop Shadows */
+  .shadow-card {
+    box-shadow: 1px 1px 12px 1px rgba(210, 211, 217, 0.2);
+  }
+
   /* Responsive Body Text */
   .text-body-m-responsive {
     font-family: 'Inter', sans-serif;

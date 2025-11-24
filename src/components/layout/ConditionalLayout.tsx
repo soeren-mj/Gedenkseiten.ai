@@ -10,11 +10,13 @@ interface ConditionalLayoutProps {
 
 export function ConditionalLayout({ children }: ConditionalLayoutProps) {
   const pathname = usePathname()
-  
-  // Hide navbar and footer on auth and dashboard pages
+
+  // Hide navbar and footer on auth, dashboard, memorial creation wizard, and management pages
   const isAuthPage = pathname.startsWith('/auth')
   const isDashboardPage = pathname.startsWith('/dashboard')
-  const hideNavAndFooter = isAuthPage || isDashboardPage
+  const isMemorialCreationPage = pathname.startsWith('/gedenkseite/neu')
+  const isMemorialManagementPage = pathname.includes('/verwalten')
+  const hideNavAndFooter = isAuthPage || isDashboardPage || isMemorialCreationPage || isMemorialManagementPage
 
   if (hideNavAndFooter) {
     return <>{children}</>

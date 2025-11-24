@@ -90,19 +90,20 @@ module.exports = {
         info: {
           100: '#BBD3FC',
           400: '#175CD2',
+          900: '#041738',
         },
       },
       backgroundColor: theme => ({
         // Semantic backgrounds - using CSS variables with shorter names
-        'bw': 'var(--background-bw)',
+        'bw': 'var(--bg-bw)',
         'bw-opacity-80': 'var(--bg-bw-opacity-80)',
         'bw-opacity-60': 'var(--bg-bw-opacity-60)',
         'bw-opacity-40': 'var(--bg-bw-opacity-40)',
-        'primary': 'var(--background-primary)',
-        'secondary': 'var(--background-secondary)',
-        'tertiary': 'var(--background-tertiary)',
-        'inverted': 'var(--background-inverted)',
-        'accent': 'var(--background-accent)',
+        'primary': 'var(--bg-primary)',
+        'secondary': 'var(--bg-secondary)',
+        'tertiary': 'var(--bg-tertiary)',
+        'inverted': 'var(--bg-inverted)',
+        'accent': 'var(--bg-accent)',
         
         
         // Interactive backgrounds
@@ -111,12 +112,13 @@ module.exports = {
         'interactive-primary-active': 'var(--bg-interactive-primary-active)',
         'interactive-disabled': 'var(--bg-interactive-disabled)',
         'interactive-primary-opacity-10': 'var(--bg-interactive-primary-opacity-10)',
-        'interactive-secondary-default': 'var(--background-interactive-secondary-default)',
-        'interactive-secondary-hover': 'var(--background-interactive-secondary-hover)',
-        'interactive-secondary-active': 'var(--background-interactive-secondary-active)',
-        'interactive-tertiary-hover': 'var(--background-interactive-tertiary-hover)',
-        'interactive-tertiary-active': 'var(--background-interactive-tertiary-active)',
+        'interactive-secondary-default': 'var(--bg-interactive-secondary-default)',
+        'interactive-secondary-hover': 'var(--bg-interactive-secondary-hover)',
+        'interactive-secondary-active': 'var(--bg-interactive-secondary-active)',
+        'interactive-tertiary-hover': 'var(--bg-interactive-tertiary-hover)',
+        'interactive-tertiary-active': 'var(--bg-interactive-tertiary-active)',
         'interactive-info': 'var(--bg-interactive-info)',
+        'interactive-info-hover': 'var(--bg-interactive-info-hover)',
         'interactive-positive-default': 'var(--bg-interactive-positive-default)',
         'interactive-positive-hover': 'var(--bg-interactive-positive-hover)',
         'interactive-positive-active': 'var(--bg-interactive-positive-active)',
@@ -134,6 +136,11 @@ module.exports = {
         'accent-yellow': 'var(--accent-yellow)',
         'accent-purple': 'var(--accent-purple)',
         'accent-pink': 'var(--accent-pink)',
+
+        // Chip backgrounds
+        'chip-empfehlung': 'var(--bg-chip-empfehlung)',
+        'chip-premium': 'var(--bg-chip-premium)',
+        'chip-bald-verfuegbar': 'var(--bg-chip-bald-verfuegbar)',
       }),
       backgroundImage: {
         // Your 4 core gradients
@@ -148,7 +155,7 @@ module.exports = {
 
       textColor: theme => ({
         // Semantic text colors - using CSS variables with shorter names
-        'bw': 'var(--foreground-bw)',
+        'bw': 'var(--text-bw)',
         'primary': 'var(--text-primary)',
         'secondary': 'var(--text-secondary)',
         'tertiary': 'var(--text-tertiary)',
@@ -179,6 +186,11 @@ module.exports = {
         'accent-yellow': 'var(--accent-yellow)',
         'accent-purple': 'var(--accent-purple)',
         'accent-pink': 'var(--accent-pink)',
+
+        // Chip text colors
+        'chip-empfehlung': 'var(--text-chip-empfehlung)',
+        'chip-premium': 'var(--text-chip-premium)',
+        'chip-bald-verfuegbar': 'var(--text-chip-bald-verfuegbar)',
       }),
       borderColor: theme => ({
         // Border colors - using CSS variables with shorter names
@@ -192,14 +204,15 @@ module.exports = {
         'interactive-active': 'var(--border-interactive-active)',
         'interactive-disabled': 'var(--border-interactive-disabled)',
         'interactive-info': 'var(--border-interactive-info)',
+        'interactive-info-hover': 'var(--border-interactive-info-hover)',
         'message-success': 'var(--border-message-success)',
         'message-error': 'var(--border-message-error)',
       }),
       placeholderColor: theme => ({
         // Placeholder colors - using CSS variables with shorter names
-        'primary': 'var(--foreground-primary)',
-        'secondary': 'var(--foreground-secondary)',
-        'tertiary': 'var(--foreground-tertiary)',
+        'primary': 'var(--text-primary)',
+        'secondary': 'var(--text-secondary)',
+        'tertiary': 'var(--text-tertiary)',
       }),
       // Accent colors can stay in the general colors section
       accentColor: theme => ({

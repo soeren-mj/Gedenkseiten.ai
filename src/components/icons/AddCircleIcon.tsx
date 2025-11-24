@@ -16,14 +16,14 @@ export default function AddCircleIcon({ className = '' }: IconProps) {
     >
       <style>{`
         .add-circle-icon-path {
-          fill: var(--background-interactive-primary-default);
+          fill: var(--bg-interactive-primary-default);
           transition: fill 0.2s ease-in-out;
         }
         svg:hover .add-circle-icon-path {
-          fill: var(--background-interactive-primary-hover);
+          fill: var(--border-interactive-info-hover);
         }
         svg:active .add-circle-icon-path {
-          fill: var(--background-interactive-primary-active);
+          fill: var(--border-interactive-info-hover);
         }
       `}</style>
       <mask

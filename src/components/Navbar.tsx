@@ -134,28 +134,30 @@ export default function Navbar() {
               >
                 KI-Unterstützung
               </button>
-              <button 
+              <button
                 onClick={() => scrollToSection('faq')}
                 className={navLinkClasses('faq')}
               >
                 FAQ
               </button>
-              <div className="flex items-center gap-2">
-              <Button 
-                variant="secondary" 
-                size="sm"
-                onClick={() => router.push('/auth/login')}
-              >
-                Einloggen
-              </Button>
-              <Button 
-                variant="primary"
-                size="sm"
-                onClick={() => setPopoverOpen(true)}
-              >
-                Jetzt starten
-              </Button>
-              </div>
+              {process.env.NEXT_PUBLIC_ENABLE_LOGIN_BUTTON === 'true' && (
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => router.push('/auth/login')}
+                  >
+                    Einloggen
+                  </Button>
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    onClick={() => setPopoverOpen(true)}
+                  >
+                    Jetzt starten
+                  </Button>
+                </div>
+              )}
               <ThemeToggle />
               
             </div>
@@ -209,33 +211,35 @@ export default function Navbar() {
               >
                 KI-Unterstützung
               </button>
-              <button 
+              <button
                 onClick={() => scrollToSection('faq')}
                 className={`block w-full text-left ${navLinkClasses('faq')} px-4 py-2`}
               >
                 FAQ
               </button>
-              <div className="flex flex-col gap-2">
-                <Button 
-                  variant="secondary" 
-                  size="md"
-                  fullWidth
-                  onClick={() => router.push('/auth/login')}
-                >
-                  Einloggen
-                </Button>
-                <Button 
-                variant="primary"
-                size="md"
-                fullWidth
-                onClick={() => setPopoverOpen(true)} 
-                >
-                  Jetzt starten
+              {process.env.NEXT_PUBLIC_ENABLE_LOGIN_BUTTON === 'true' && (
+                <div className="flex flex-col gap-2">
+                  <Button
+                    variant="secondary"
+                    size="md"
+                    fullWidth
+                    onClick={() => router.push('/auth/login')}
+                  >
+                    Einloggen
                   </Button>
-                <div className="flex justify-center pt-2">
-                  <ThemeToggle />
+                  <Button
+                    variant="primary"
+                    size="md"
+                    fullWidth
+                    onClick={() => setPopoverOpen(true)}
+                  >
+                    Jetzt starten
+                  </Button>
+                  <div className="flex justify-center pt-2">
+                    <ThemeToggle />
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           </div>
         </div>

@@ -351,13 +351,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       // Handle auth events - only redirect if not already on target page
       if (event === 'SIGNED_IN') {
-        // Only redirect if we're not already on dashboard or auth pages
+        // Only redirect if we're not already on dashboard, auth, or memorial pages
         const currentPath = window.location.pathname
-        if (!currentPath.startsWith('/dashboard') && !currentPath.startsWith('/auth/callback')) {
+        const isOnDashboard = currentPath.startsWith('/dashboard')
+        const isOnAuthCallback = currentPath.startsWith('/auth/callback')
+        const isOnMemorialPage = currentPath.startsWith('/gedenkseite')
+
+        if (!isOnDashboard && !isOnAuthCallback && !isOnMemorialPage) {
           console.log('[AuthContext] SIGNED_IN event, redirecting to /dashboard from:', currentPath)
           router.push('/dashboard')
         } else {
-          console.log('[AuthContext] SIGNED_IN event, already on dashboard/callback, skipping redirect')
+          console.log('[AuthContext] SIGNED_IN event, already on dashboard/callback/memorial, skipping redirect')
         }
       } else if (event === 'SIGNED_OUT') {
         const currentPath = window.location.pathname

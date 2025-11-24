@@ -1,21 +1,71 @@
 'use client'
 
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
+import { createClient } from '@/lib/supabase/client-legacy'
 import { Button } from '@/components/ui/Button'
 import AddMemorialCard from '@/components/cards/AddMemorialCard'
+import { MemorialCard } from '@/components/cards/MemorialCard'
 import InitialsAvatar from '@/components/ui/InitialsAvatar'
+import type { Memorial } from '@/lib/supabase'
+import { logger } from '@/lib/utils/logger'
+import { formatFullName } from '@/lib/utils/nameFormatter'
 
 export default function DashboardPage() {
+  const router = useRouter()
   const { user, invitations } = useAuth()
+  const [memorials, setMemorials] = useState<Memorial[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  // Fetch user's memorials
+  useEffect(() => {
+    if (!user?.id) return
+
+    const fetchMemorials = async () => {
+      try {
+        setError(null)
+        const supabase = createClient()
+        const { data, error } = await supabase
+          .from('memorials')
+          .select('id, type, first_name, last_name, avatar_type, avatar_url, privacy_level, view_count, created_at')
+          .eq('creator_id', user.id)
+          .order('created_at', { ascending: false })
+
+        if (error) {
+          logger.error({
+            context: 'Dashboard:fetchMemorials',
+            error,
+            userId: user?.id,
+          })
+          setError('Fehler beim Laden der Gedenkseiten. Bitte versuche es später erneut.')
+          return
+        }
+
+        setMemorials(data || [])
+      } catch (err) {
+        logger.error({
+          context: 'Dashboard:fetchMemorials:catch',
+          error: err,
+          userId: user?.id,
+        })
+        setError('Ein unerwarteter Fehler ist aufgetreten. Bitte lade die Seite neu.')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchMemorials()
+  }, [user?.id])
 
   // Handler for creating new memorial
   const handleCreateMemorial = () => {
-    // TODO: Navigate to memorial creation flow
-    console.log('Create new memorial')
+    router.push('/gedenkseite/neu')
   }
 
   return (
-    <div className="mx-auto max-w-4xl gap-8 flex flex-col">
+    <div className="mx-auto max-w-3xl gap-8 flex flex-col">
 
       {/* Header */}
      <div className="">
@@ -71,11 +121,15 @@ export default function DashboardPage() {
                 </p>
                 
                 <div className="space-y-2 mb-4">
-                  {invitations.slice(0, 2).map((invitation) => (
-                    <div key={invitation.id} className="text-white/90 text-desktop-body-s">
-                      • Gedenkseite von {(invitation.memorials as { first_name: string; last_name: string })?.first_name} {(invitation.memorials as { first_name: string; last_name: string })?.last_name}
-                    </div>
-                  ))}
+                  {invitations.slice(0, 2).map((invitation) => {
+                    const memorial = invitation.memorials as any | null;
+                    const memorialName = memorial ? formatFullName(memorial) : '';
+                    return (
+                      <div key={invitation.id} className="text-white/90 text-desktop-body-s">
+                        • Gedenkseite{memorialName ? ` von ${memorialName}` : ''}
+                      </div>
+                    );
+                  })}
                   {invitations.length > 2 && (
                     <div className="text-white/90 text-desktop-body-s">
                       • und {invitations.length - 2} weitere...
@@ -96,18 +150,51 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {/* Main Content - Empty State */}
+      {/* Main Content - Memorial Cards Grid */}
       <div className="">
-        <div className="text-center">
-          {/* Add Memorial Card */}
-          <div className="flex mb-6">
+        {error ? (
+          <div className="p-6 bg-red-50 border border-red-200 rounded-lg dark:bg-red-900/20 dark:border-red-800">
+            <h3 className="text-body-l font-medium text-red-800 dark:text-red-200 mb-2">Fehler</h3>
+            <p className="text-body-m text-red-700 dark:text-red-300">{error}</p>
+            <Button
+              variant="secondary"
+              size="sm"
+              className="mt-4"
+              onClick={() => window.location.reload()}
+            >
+              Seite neu laden
+            </Button>
+          </div>
+        ) : loading ? (
+          <div className="text-center py-8">
+            <p className="text-secondary">Laden...</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            {/* Add Memorial Card - Always first */}
             <AddMemorialCard
               title="Gedenkseite hinzufügen"
-              
               onClick={handleCreateMemorial}
             />
+
+            {/* Memorial Cards */}
+            {memorials.map((memorial) => (
+              <MemorialCard
+                key={memorial.id}
+                memorial={{
+                  id: memorial.id,
+                  type: memorial.type as 'person' | 'pet' | 'tier',
+                  first_name: memorial.first_name,
+                  last_name: memorial.last_name,
+                  avatar_type: memorial.avatar_type as 'initials' | 'icon' | 'image',
+                  avatar_url: memorial.avatar_url,
+                  privacy_level: memorial.privacy_level as 'public' | 'private',
+                }}
+                visitorCount={memorial.view_count || 0}
+              />
+            ))}
           </div>
-        </div>
+        )}
       </div>
     </div>
   )

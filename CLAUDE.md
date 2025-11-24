@@ -62,33 +62,50 @@ The troubleshooting guide includes:
 - ✅ Design system implementation (colors, typography, buttons)
 - ✅ Tailwind configuration with custom tokens
 - ✅ CSS Variables System (Light/Dark Mode in globals.css)
-- ✅ UI Components Library (Button, TextInput)
-- ⏳ Authentication system (Phase 2 - In Progress)
-- ⏳ Memorial creation flow
+- ✅ UI Components Library (Button, TextInput, DateInput, Select, Autocomplete)
+- ✅ Authentication system (Phase 2 - Completed)
+- ⏳ Memorial creation flow (Phase 3 - In Progress: Components done, Routes pending)
 - ⏳ Public memorial pages
 - ⏳ Admin features
 
-## Phase 2: Authentication System - Requirements
-1. **Magic Link Authentication**
-   - Primary auth method via Supabase
-   - German DOI (Double Opt-In) compliance
-   - Email templates in German
+## Phase 2: Authentication System ✅ COMPLETED
+See `docs/auth-troubleshooting.md` for details.
 
-2. **OAuth Providers**
-   - Google, Apple, Microsoft
-   - Passkey (future implementation)
-   - Redirect to dashboard after success
+## Phase 3: Memorial Creation Flow ⏳ IN PROGRESS
 
-3. **User Dashboard**
-   - Empty state for new users
-   - Invitation card for invited users
-   - Sidebar navigation
-   - User profile display
+### ✅ Completed (2025-01-11 + 2025-01-17)
+**Database & Infrastructure:**
+- Supabase Types extended (Tierarten, Memorial fields)
+- 4 DB Migrations created and executed
+- Storage Bucket setup documented
+- Dependencies installed (react-hook-form, zod, react-easy-crop, date-fns)
 
-4. **Session Management**
-   - Protected routes via middleware
-   - Persistent sessions
-   - Automatic redirect logic
+**Components & Utils:**
+- Form Components: Select, Autocomplete, InlineDatePicker
+- Memorial Components: WizardLayout (with sticky footer), ProgressIndicator, InitialsPreview
+- Hooks: useMemorialWizard, useLocalStorageDraft, useDebounce
+- Utils: Zod Schemas (ISO date format), Date Validation, Initials Generator, Name Formatter
+
+**Wizard Routes (Implemented):**
+- ✅ `/gedenkseite/neu` - Type Selection
+- ✅ `/gedenkseite/neu/person` - Person Basic Info (fully refined with field persistence)
+- ✅ `/gedenkseite/neu/[type]/avatar` - Avatar Selection
+- ✅ `/gedenkseite/neu/[type]/sichtbarkeit` - Privacy Settings
+- ✅ `/gedenkseite/neu/[type]/zusammenfassung` - Summary
+
+### ⏳ Pending (Next Session)
+**Wizard Routes:**
+- `/gedenkseite/neu/tier` - Pet Basic Info
+
+**API Endpoints:**
+- POST `/api/memorials` - Create Memorial
+- POST `/api/memorials/avatar` - Upload Avatar
+- GET `/api/animals/*` - Fetch Tierarten/Rassen
+
+**Memorial Management:**
+- `/gedenkseite/[id]/verwalten` - Management Page
+
+See `/docs/SESSION-SUMMARY-2025-01-11.md` for initial implementation details.
 
 ## Development Workflow
 1. Always check the technical documentation before implementing features
@@ -191,6 +208,53 @@ public/             # Static assets
 - Tokens: `rounded-none`, `rounded-xxs`, `rounded-xs`, `rounded-sm`, `rounded-md`, `rounded-lg`, `rounded-xl`
 - Use design tokens instead of arbitrary values
 
+## React Hook Form Best Practices
+### Prop Order in forwardRef Components
+⚠️ **CRITICAL:** When creating custom input components with `forwardRef`, always spread `{...props}` BEFORE custom handlers:
+```tsx
+<select
+  ref={ref}
+  {...props}  // MUST come BEFORE custom onChange
+  onChange={(e) => {
+    // Custom logic
+    props.onChange?.(e);
+  }}
+>
+```
+**Why:** React Hook Form's `onChange` must be called. Spreading after custom handlers overrides them.
+
+### Field Watching Pattern
+Use subscription pattern with proper cleanup:
+```tsx
+useEffect(() => {
+  const subscription = watch((value) => {
+    // Handle value changes
+  });
+  return () => subscription.unsubscribe();
+}, [watch]);
+```
+
+### Form Buttons Outside Forms
+Use HTML5 `form` attribute to connect buttons to forms:
+```tsx
+<form id="my-form" onSubmit={handleSubmit(onSubmit)}>
+  {/* form fields */}
+</form>
+
+{/* Somewhere else in layout */}
+<Button type="submit" form="my-form">Submit</Button>
+```
+
+### Sticky Layout Pattern
+For wizard-style layouts with persistent navigation:
+```tsx
+<main className="flex flex-col h-full">
+  <div className="sticky top-0">Top Bar</div>
+  <div className="flex-1 overflow-y-auto">Scrollable Content</div>
+  <div className="sticky bottom-0">Footer Buttons</div>
+</main>
+```
+
 ## Authentication Flow
 1. User clicks "Jetzt voranmelden" → Login page
 2. Choose auth method (Social or Email)
@@ -199,7 +263,14 @@ public/             # Static assets
 5. Dashboard shows empty state or invitations
 
 ## Important Reminders
-- All dates in German format (DD.MM.YYYY)
+- **Date Format Strategy:**
+  - **Storage:** ISO format (YYYY-MM-DD) for database compatibility
+  - **Display:** German format (DD.MM.YYYY) using `date-fns`
+  - **Validation:** ISO format in Zod schemas
+- **Design System Colors:**
+  - ⚠️ **ALWAYS check `globals.css` for semantic color variables first**
+  - Use `text-interactive-disabled` instead of `opacity-50`
+  - Ensures consistent theming across light/dark modes
 - Privacy levels: Public and Private (invite-only)
 - User roles: Member and Administrator
 - Error messages must be user-friendly and in German

@@ -7,8 +7,8 @@ interface AddMemorialCardProps {
   icon?: React.ReactNode;
   /** Main title text */
   title: string;
-  /** Description text below title */
-  description: string;
+  /** Optional description text below title */
+  description?: string;
   /** Click handler for the card */
   onClick: () => void;
   /** Optional additional CSS classes */
@@ -60,10 +60,10 @@ export default function AddMemorialCard({
 
         // Border - dashed default
         "border-2 border-dashed rounded-lg",
-        "border-interactive-default",
+        "border-interactive-info",
 
         // Background
-        "bg-interactive-primary-opacity-10",
+        "bg-interactive-info",
 
         // Transitions
         "transition-all duration-200",
@@ -71,7 +71,8 @@ export default function AddMemorialCard({
         "group",
 
         // Hover state
-        "hover:border-interactive-hover",
+        "hover:border-interactive-info-hover",
+        "hover:bg-interactive-info-hover",
 
         // Active state
         "active:scale-[0.98]",
@@ -97,9 +98,11 @@ export default function AddMemorialCard({
       </h4>
 
       {/* Description */}
-      <p className="text-body-xs text-secondary text-center">
-        {description}
-      </p>
+      {description && (
+        <p className="text-body-xs text-secondary text-center">
+          {description}
+        </p>
+      )}
     </div>
   );
 }

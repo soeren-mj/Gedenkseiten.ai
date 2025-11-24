@@ -15,7 +15,7 @@ export default function DashboardLayout({
     return (
       <div className="min-h-screen bg-primary flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-background-interactive-primary-default mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-interactive-default mx-auto mb-4"></div>
           <p className="text-desktop-body-m text-secondary">Dein Dashboard wird geladen...</p>
         </div>
       </div>
@@ -27,7 +27,7 @@ export default function DashboardLayout({
       {/* Background Image */}
       <div className="fixed inset-0 -z-1">
         <Image
-          src="/images/Gedenkseiten-blur-79.webp"
+          src="/images/blur-default-0.75.webp"
           alt="Dashboard Background"
           fill
           className="object-cover object-center scale-125"
@@ -36,14 +36,14 @@ export default function DashboardLayout({
       </div>
 
       {/* Content Area - Full Screen, No Padding */}
-      <div className="flex-1 flex overflow-hidden z-10">
+      <div className="flex-1 flex overflow-hidden z-10 h-full">
         {/* Sidebar - 1/4 width */}
-        <aside className="hidden md:block w-1/4">
+        <aside className="hidden md:block w-1/4 h-full">
           <Sidebar />
         </aside>
 
         {/* Main Content - 3/4 width, Scrollable */}
-        <main className="w-3/4 h-full p-8 bg-bw-opacity-80 overflow-y-auto backdrop-blur-lg mb-4">
+        <main className="w-3/4 h-full p-8 bg-bw-opacity-60 overflow-y-auto backdrop-blur-lg mb-4">
           {children}
         </main>
       </div>

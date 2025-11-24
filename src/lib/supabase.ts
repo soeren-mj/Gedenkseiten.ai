@@ -39,38 +39,70 @@ export type User = {
   updated_at: string;
 };
 
+// Animal classification types (matching actual DB schema)
+export type Tierart = {
+  Tierart_ID: number;
+  Tierart_Name: string; // e.g., "Hund", "Katze", "Pferd"
+};
+
+export type Rassengruppe = {
+  Rassengruppe_ID: number;
+  FK_Tierart_ID: number; // FK to Tierarten
+  Rassengruppe_Name: string; // e.g., "Retriever", "Hütehunde"
+};
+
+export type Rasse = {
+  Rassen_ID: number;
+  FK_Rassengruppe_ID: number; // FK to Rassengruppe
+  Rasse_Name: string; // e.g., "Golden Retriever", "Labrador"
+  Suchbegriffe: string | null; // Search keywords
+};
+
 export type Memorial = {
   id: string;
   creator_id: string;
   type: MemorialType;
-  
+
   // Basic information
   first_name: string;
   last_name: string | null;
   birth_name: string | null;
   nickname: string | null;
-  
+
+  // Person-specific fields
+  gender: string | null; // 'männlich' | 'weiblich' | 'divers' | 'keine Angabe'
+  salutation: string | null; // 'Herr' | 'Frau' | 'keine Angabe'
+  title: string | null; // 'Dr.' | 'Prof.' | 'Prof. Dr.' | etc.
+  second_name: string | null; // Zweiter Vorname
+  third_name: string | null; // Dritter Vorname
+  name_suffix: string | null; // Namenszusatz
+  relationship_degree: string | null; // Relationship to deceased (e.g., 'Vater', 'Mutter', 'Sonstiges')
+  relationship_custom: string | null; // Custom relationship when relationship_degree is 'Sonstiges'
+
   // Dates and locations
   birth_date: string;
   death_date: string;
   birth_place: string | null;
   death_place: string | null;
-  
-  // Pet-specific fields
-  animal_type: string | null;
-  breed_group: string | null;
-  breed: string | null;
-  
+
+  // Pet-specific fields (Foreign Keys to Tierarten tables)
+  animal_type_id: number | null; // numeric FK to Tierarten
+  breed_group_id: number | null; // numeric FK to Rassengruppe
+  breed_id: number | null; // numeric FK to Rassen
+
   // Display
   avatar_type: 'initials' | 'icon' | 'image';
   avatar_url: string | null;
   memorial_quote: string | null;
   obituary: string | null;
-  
+
   // Privacy and access
   privacy_level: PrivacyLevel;
   invite_link: string | null;
-  
+
+  // Analytics
+  view_count: number;
+
   // Status
   is_active: boolean;
   created_at: string;
@@ -222,7 +254,26 @@ export type Database = {
         Insert: Omit<User, 'id' | 'created_at' | 'updated_at'>;
         Update: Partial<Omit<User, 'id' | 'created_at'>>;
       };
-      
+
+      // Animal classification tables (case-sensitive table names!)
+      Tierarten: {
+        Row: Tierart;
+        Insert: Omit<Tierart, 'Tierart_ID'>;
+        Update: Partial<Omit<Tierart, 'Tierart_ID'>>;
+      };
+
+      Rassengruppe: {
+        Row: Rassengruppe;
+        Insert: Omit<Rassengruppe, 'Rassengruppe_ID'>;
+        Update: Partial<Omit<Rassengruppe, 'Rassengruppe_ID'>>;
+      };
+
+      Rassen: {
+        Row: Rasse;
+        Insert: Omit<Rasse, 'Rassen_ID'>;
+        Update: Partial<Omit<Rasse, 'Rassen_ID'>>;
+      };
+
       // Memorials
       memorials: {
         Row: Memorial;
@@ -381,17 +432,15 @@ export class SupabaseError extends Error {
 export async function addToWaitlist(email: string, marketingConsent: boolean): Promise<WaitlistEntry> {
   try {
     const confirmationToken = crypto.randomUUID();
-    
-    const { data, error } = await supabase
-      .from('waitlist')
-      .insert([
-        {
-          email,
-          marketing_consent: marketingConsent,
-          confirmation_token: confirmationToken,
-          confirmed: false,
-        },
-      ])
+
+    const { data, error } = await (supabase
+      .from('waitlist') as any)
+      .insert({
+        email,
+        marketing_consent: marketingConsent,
+        confirmation_token: confirmationToken,
+        confirmed: false,
+      })
       .select()
       .single();
 
@@ -406,7 +455,7 @@ export async function addToWaitlist(email: string, marketingConsent: boolean): P
       throw new SupabaseError('Fehler beim Speichern der Daten.');
     }
 
-    return data;
+    return data as WaitlistEntry;
   } catch (error) {
     if (error instanceof SupabaseError) {
       throw error;
@@ -417,8 +466,8 @@ export async function addToWaitlist(email: string, marketingConsent: boolean): P
 
 export async function confirmWaitlist(token: string): Promise<WaitlistEntry> {
   try {
-    const { data, error } = await supabase
-      .from('waitlist')
+    const { data, error } = await (supabase
+      .from('waitlist') as any)
       .update({ confirmed: true })
       .eq('confirmation_token', token)
       .select()
@@ -432,7 +481,7 @@ export async function confirmWaitlist(token: string): Promise<WaitlistEntry> {
       throw new SupabaseError('Ungültiger oder abgelaufener Bestätigungslink.');
     }
 
-    return data;
+    return data as WaitlistEntry;
   } catch (error) {
     if (error instanceof SupabaseError) {
       throw error;
@@ -495,7 +544,7 @@ export async function getMemorialReactions(
     return { heart: 0, candle: 0, flower: 0, dove: 0, prayer: 0 };
   }
 
-  const counts = data.reduce((acc, reaction) => {
+  const counts = (data as any[]).reduce((acc: any, reaction: any) => {
     acc[reaction.reaction_type as ReactionType] = (acc[reaction.reaction_type as ReactionType] || 0) + 1;
     return acc;
   }, {} as { [key in ReactionType]: number });
@@ -532,7 +581,7 @@ export async function toggleMemorialReaction(
     const { error } = await client
       .from('memorial_reactions')
       .delete()
-      .eq('id', existing.id);
+      .eq('id', (existing as any).id);
     return !error;
   } else {
     // Add reaction
@@ -542,7 +591,7 @@ export async function toggleMemorialReaction(
         memorial_id: memorialId,
         user_id: userId,
         reaction_type: reactionType,
-      });
+      } as any);
     return !error;
   }
 }
