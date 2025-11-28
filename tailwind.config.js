@@ -55,6 +55,7 @@ module.exports = {
           700: '#1B7A3E',
           800: '#1A6134',
           900: '#17502C',
+          950: '#072C15',
         },
         red: {
           100: '#FFE1E1',
@@ -70,22 +71,29 @@ module.exports = {
           300: '#F3EC51',
           400: '#EDDB16',
           800: '#7F5A14',
+          950: '#3F2609',
         },
         orange: {
-          200: '#F7E190',
-          400: '#EFB830',
-          500: '#E59617',
+          200: '#F7BB90',
+          400: '#EF8030',
+          500: '#E56D17',
           800: '#8B4115',
+          950: '#411A07',
         },
         purple: {
           200: '#E2DBF9',
+          300: '#CDBEF4',
+          400: '#B99BF6',
           500: '#996DE3',
           800: '#6733A4',
+          950: '#220847',
         },
         pink: {
           200: '#FAD0F3',
+          400: '#F076D7',
           500: '#E74DC3',
           800: '#991B70',
+          950: '#470731',
         },
         info: {
           100: '#BBD3FC',
@@ -137,10 +145,6 @@ module.exports = {
         'accent-purple': 'var(--accent-purple)',
         'accent-pink': 'var(--accent-pink)',
 
-        // Chip backgrounds
-        'chip-empfehlung': 'var(--bg-chip-empfehlung)',
-        'chip-premium': 'var(--bg-chip-premium)',
-        'chip-bald-verfuegbar': 'var(--bg-chip-bald-verfuegbar)',
       }),
       backgroundImage: {
         // Your 4 core gradients
@@ -187,10 +191,6 @@ module.exports = {
         'accent-purple': 'var(--accent-purple)',
         'accent-pink': 'var(--accent-pink)',
 
-        // Chip text colors
-        'chip-empfehlung': 'var(--text-chip-empfehlung)',
-        'chip-premium': 'var(--text-chip-premium)',
-        'chip-bald-verfuegbar': 'var(--text-chip-bald-verfuegbar)',
       }),
       borderColor: theme => ({
         // Border colors - using CSS variables with shorter names

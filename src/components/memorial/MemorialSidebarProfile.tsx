@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import InitialsAvatar from '@/components/ui/InitialsAvatar';
+import { Badge } from '@/components/ui/Badge';
 import { formatFullName } from '@/lib/utils/nameFormatter';
 
 interface MemorialSidebarProfileProps {
@@ -29,10 +30,7 @@ interface MemorialSidebarProfileProps {
  */
 export const MemorialSidebarProfile = ({ memorial }: MemorialSidebarProfileProps) => {
   const displayName = formatFullName(memorial);
-
   const isPublic = memorial.privacy_level === 'public';
-  const badgeText = isPublic ? 'ÖFFENTLICH' : 'PRIVAT';
-  const badgeBgClass = isPublic ? 'bg-interactive-positive-default text-interactive-positive-text' : 'bg-bw text-bw';
 
   return (
     <Link
@@ -53,9 +51,9 @@ export const MemorialSidebarProfile = ({ memorial }: MemorialSidebarProfileProps
         <p className="text-webapp-group truncate">
           {displayName}
         </p>
-        <span className={`py-1 px-1.5 rounded-xs text-chip font-semibold ${badgeBgClass}`}>
-          {badgeText}
-        </span>
+        <Badge variant={isPublic ? 'public' : 'private'}>
+          {isPublic ? 'Öffentlich' : 'Privat'}
+        </Badge>
       </div>
     </Link>
   );

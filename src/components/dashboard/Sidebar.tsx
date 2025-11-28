@@ -16,7 +16,7 @@ import {
   ArrowLeft,
   FileText,
   Image as ImageIcon,
-  Heart,
+  PenLine,
   BookOpen,
   Lightbulb,
   Calendar,
@@ -42,6 +42,7 @@ interface SidebarProps {
   mode?: 'dashboard' | 'memorial-management'
   memorialId?: string
   memorial?: {
+    id: string
     first_name: string
     last_name: string | null
     type: 'person' | 'pet'
@@ -149,7 +150,7 @@ export function Sidebar({ mode = 'dashboard', memorialId, memorial }: SidebarPro
                   {user?.name || user?.email}
                 </p>
                 <span className="py-1 px-1.5 rounded-xs text-chip font-semibold bg-accent-purple">
-                  DASHBOARD
+                  Dashboard
                 </span>
               </div>
             </Link>
@@ -186,11 +187,11 @@ export function Sidebar({ mode = 'dashboard', memorialId, memorial }: SidebarPro
                   isEmpty={false}
                 />
                 <NavigationItem
-                  icon={<Heart className="w-5 h-5" />}
-                  label="Spruch"
-                  href={`/gedenkseite/${memorialId}/verwalten/spruch`}
-                  isActive={pathname === `/gedenkseite/${memorialId}/verwalten/spruch`}
-                  isEmpty={true}
+                  icon={<PenLine className="w-5 h-5" />}
+                  label="Spruch und Nachruf"
+                  href={`/gedenkseite/${memorialId}/verwalten/spruch-nachruf`}
+                  isActive={pathname === `/gedenkseite/${memorialId}/verwalten/spruch-nachruf`}
+                  isEmpty={false}
                 />
                 <NavigationItem
                   icon={<BookOpen className="w-5 h-5" />}
@@ -204,7 +205,7 @@ export function Sidebar({ mode = 'dashboard', memorialId, memorial }: SidebarPro
                   label="Wissenswertes"
                   href={`/gedenkseite/${memorialId}/verwalten/wissenswertes`}
                   isActive={pathname === `/gedenkseite/${memorialId}/verwalten/wissenswertes`}
-                  isEmpty={true}
+                  isEmpty={false}
                 />
                 <NavigationItem
                   icon={<Calendar className="w-5 h-5" />}
@@ -253,7 +254,7 @@ export function Sidebar({ mode = 'dashboard', memorialId, memorial }: SidebarPro
                   label="Privatsphäre"
                   href={`/gedenkseite/${memorialId}/verwalten/privatsphaere`}
                   isActive={pathname === `/gedenkseite/${memorialId}/verwalten/privatsphaere`}
-                  isEmpty={true}
+                  isEmpty={false}
                 />
               </div>
             </div>

@@ -204,6 +204,16 @@ export type Achievement = {
   created_at: string;
 };
 
+export type Wissenswertes = {
+  id: string;
+  memorial_id: string;
+  emoji: string;
+  text: string;
+  order_index: number;
+  created_at: string;
+  updated_at: string;
+};
+
 export type Memory = {
   id: string;
   memorial_id: string;
@@ -336,7 +346,14 @@ export type Database = {
         Insert: Omit<Achievement, 'id' | 'created_at'>;
         Update: Partial<Omit<Achievement, 'id' | 'created_at'>>;
       };
-      
+
+      // Wissenswertes (Notable facts)
+      wissenswertes: {
+        Row: Wissenswertes;
+        Insert: Omit<Wissenswertes, 'id' | 'created_at' | 'updated_at'>;
+        Update: Partial<Omit<Wissenswertes, 'id' | 'memorial_id' | 'created_at'>>;
+      };
+
       // Memories (Premium feature)
       memories: {
         Row: Memory;

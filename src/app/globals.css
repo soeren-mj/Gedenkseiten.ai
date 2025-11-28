@@ -207,12 +207,16 @@
     --accent-pink: #E74DC3;
 
     /* Chip colors */
-    --bg-chip-empfehlung: #E2DBF9; /* purple-200 */
-    --text-chip-empfehlung: #6733A4; /* purple-800 */
-    --bg-chip-premium: #F8F790; /* yellow-200 */
-    --text-chip-premium: #7F5A14; /* yellow-800 */
-    --bg-chip-bald-verfuegbar: #D2D3D9; /* neutral-200 */
-    --text-chip-bald-verfuegbar: #1F2024; /* neutral-900 */
+    --bg-chip-empfehlung: #C5A3F5; /* purple-400 */
+    --text-chip-empfehlung: #2D0A52; /* purple-950 */
+    --bg-chip-premium: #4C92F7; /* blue-400 */
+    --text-chip-premium: #041738; /* blue-950 */
+    --bg-chip-soon: #AAADBF; /* neutral-400 */
+    --text-chip-soon: #1F2024; /* neutral-900 */
+    --bg-chip-public: #6CDC95; /* green-400 */
+    --text-chip-public: #0A2914; /* green-950 */
+    --bg-chip-private: #AAADBF; /* neutral-400 */
+    --text-chip-private: #1F2024; /* neutral-900 */
 
     /* Border colors */
     --border-main: #D2D3D9; /* neutral-200 */
@@ -300,12 +304,16 @@
     --accent-pink: #E74DC3;
 
     /* Chip colors (inverted from light mode) */
-    --bg-chip-empfehlung: #6733A4; /* purple-800 */
-    --text-chip-empfehlung: #E2DBF9; /* purple-200 */
-    --bg-chip-premium: #7F5A14; /* yellow-800 */
-    --text-chip-premium: #F8F790; /* yellow-200 */
-    --bg-chip-bald-verfuegbar: #1F2024; /* neutral-900 */
-    --text-chip-bald-verfuegbar: #D2D3D9; /* neutral-200 */
+    --bg-chip-empfehlung: #2D0A52; /* purple-950 */
+    --text-chip-empfehlung: #C5A3F5; /* purple-400 */
+    --bg-chip-premium: #041738; /* blue-950 */
+    --text-chip-premium: #4C92F7; /* blue-400 */
+    --bg-chip-soon: #1F2024; /* neutral-900 */
+    --text-chip-soon: #AAADBF; /* neutral-400 */
+    --bg-chip-public: #0A2914; /* green-950 */
+    --text-chip-public: #6CDC95; /* green-400 */
+    --bg-chip-private: #1F2024; /* neutral-900 */
+    --text-chip-private: #AAADBF; /* neutral-400 */
 
     /* Border colors */
     --border-main: #2F2F30; /* neutral-800 */
@@ -503,6 +511,33 @@
     font-size: 0.625rem;
     line-height: 100%;
     letter-spacing: 0.02em;
+  }
+
+  /* Chip Variant Styles - kombiniert bg + text für Badge-Komponente */
+  /* Verhindert twMerge Konflikt mit text-* Typography-Klassen */
+  .chip-empfehlung {
+    background-color: var(--bg-chip-empfehlung);
+    color: var(--text-chip-empfehlung);
+  }
+
+  .chip-premium {
+    background-color: var(--bg-chip-premium);
+    color: var(--text-chip-premium);
+  }
+
+  .chip-soon {
+    background-color: var(--bg-chip-soon);
+    color: var(--text-chip-soon);
+  }
+
+  .chip-public {
+    background-color: var(--bg-chip-public);
+    color: var(--text-chip-public);
+  }
+
+  .chip-private {
+    background-color: var(--bg-chip-private);
+    color: var(--text-chip-private);
   }
   
   /* Webapp Styles (Dashboard) */

@@ -4,6 +4,7 @@ import { checkMemorialAccess, incrementMemorialViewCount } from '@/lib/utils/mem
 import { createClient } from '@/lib/supabase/server';
 import MemorialProfileSidebar from '@/components/memorial/MemorialProfileSidebar';
 import ObituarySection from '@/components/memorial/ObituarySection';
+import { WissenswertesSection } from '@/components/memorial/WissenswertesSection';
 import { MEMORIAL_REACTIONS } from '@/constants/reactionIcons';
 import { formatFullName } from '@/lib/utils/nameFormatter';
 
@@ -154,6 +155,9 @@ export default async function MemorialPage({ params }: PageProps) {
 
               {/* Obituary Section */}
               {memorial.obituary && <ObituarySection obituary={memorial.obituary} />}
+
+              {/* Wissenswertes Section */}
+              <WissenswertesSection memorialId={id} />
 
               {/* Empty State - No content yet */}
               {!memorial.obituary && (

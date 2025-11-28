@@ -53,7 +53,7 @@ export async function PATCH(
     // 2. Verify memorial exists and user has permission
     const { data: memorial, error: fetchError } = await supabase
       .from('memorials')
-      .select('id, creator_id, type')
+      .select('id, creator_id, type, invite_link')
       .eq('id', memorialId)
       .single();
 
@@ -112,6 +112,48 @@ export async function PATCH(
     // Avatar/Display fields (for both person and pet)
     if (payload.avatar_type !== undefined) updateData.avatar_type = payload.avatar_type || null;
     if (payload.avatar_url !== undefined) updateData.avatar_url = payload.avatar_url || null;
+
+    // Content fields (Spruch & Nachruf)
+    if (payload.memorial_quote !== undefined) {
+      // Validate max length for Spruch (160 characters)
+      const quote = payload.memorial_quote || null;
+      if (quote && quote.length > 160) {
+        return NextResponse.json(
+          { success: false, error: 'Der Spruch darf maximal 160 Zeichen lang sein' },
+          { status: 400 }
+        );
+      }
+      updateData.memorial_quote = quote;
+    }
+    if (payload.obituary !== undefined) {
+      // Validate max length for Nachruf (5000 characters)
+      const obituary = payload.obituary || null;
+      if (obituary && obituary.length > 5000) {
+        return NextResponse.json(
+          { success: false, error: 'Der Nachruf darf maximal 5.000 Zeichen lang sein' },
+          { status: 400 }
+        );
+      }
+      updateData.obituary = obituary;
+    }
+
+    // Privacy/Settings fields
+    if (payload.privacy_level !== undefined) {
+      const privacyLevel = payload.privacy_level;
+      // Validate privacy_level value
+      if (privacyLevel !== 'public' && privacyLevel !== 'private') {
+        return NextResponse.json(
+          { success: false, error: 'Ungültiger Wert für Privatsphäre-Einstellung' },
+          { status: 400 }
+        );
+      }
+      updateData.privacy_level = privacyLevel;
+
+      // Auto-generate invite_link when switching to private (if not exists)
+      if (privacyLevel === 'private' && !memorial.invite_link) {
+        updateData.invite_link = `/einladung/${crypto.randomUUID()}`;
+      }
+    }
 
     // Add updated_at timestamp
     updateData.updated_at = new Date().toISOString();
