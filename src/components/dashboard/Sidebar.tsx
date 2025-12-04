@@ -26,6 +26,7 @@ import {
   Link as LinkIcon,
   Lock
 } from 'lucide-react'
+import { NotificationBell } from '@/components/notifications'
 
 interface NavItem {
   href: string
@@ -86,17 +87,21 @@ export function Sidebar({ mode = 'dashboard', memorialId, memorial }: SidebarPro
   return (
     <div className="w-full bg-bw-opacity-40 h-full flex flex-col p-6 backdrop-blur-md">
       {/* LOGO SECTION - Top */}
-      <div className="flex items-center gap-2 mb-6">
-        <Image
-          src="/images/logo-gedenkseiten.ai-white-x4.png"
-          alt="Gedenkseiten.ai"
-          width={32}
-          height={32}
-          className="w-8 h-8"
-        />
-        <span className="text-primary font-satoshi text-lg font-medium">
-          Gedenkseiten.ai
-        </span>
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-2">
+          <Image
+            src="/images/logo-gedenkseiten.ai-white-x4.png"
+            alt="Gedenkseiten.ai"
+            width={32}
+            height={32}
+            className="w-8 h-8"
+          />
+          <span className="text-primary font-satoshi text-lg font-medium">
+            Gedenkseiten.ai
+          </span>
+        </div>
+        {/* Notification Bell - Only in Memorial Management Mode */}
+        {isMemorialManagement && <NotificationBell />}
       </div>
 
       {/* MIDDLE SECTION: Account + Navigation - Scrollable, fills space */}
@@ -198,7 +203,7 @@ export function Sidebar({ mode = 'dashboard', memorialId, memorial }: SidebarPro
                   label="Kondolenzbuch"
                   href={`/gedenkseite/${memorialId}/verwalten/kondolenzbuch`}
                   isActive={pathname === `/gedenkseite/${memorialId}/verwalten/kondolenzbuch`}
-                  isEmpty={true}
+                  disabled={true}
                 />
                 <NavigationItem
                   icon={<Lightbulb className="w-5 h-5" />}
@@ -240,7 +245,7 @@ export function Sidebar({ mode = 'dashboard', memorialId, memorial }: SidebarPro
                   label="Einladungen"
                   href={`/gedenkseite/${memorialId}/verwalten/einladungen`}
                   isActive={pathname === `/gedenkseite/${memorialId}/verwalten/einladungen`}
-                  isEmpty={true}
+                  disabled={true}
                 />
                 <NavigationItem
                   icon={<LinkIcon className="w-5 h-5" />}

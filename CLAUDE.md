@@ -62,21 +62,23 @@ The troubleshooting guide includes:
 - ✅ Design system implementation (colors, typography, buttons)
 - ✅ Tailwind configuration with custom tokens
 - ✅ CSS Variables System (Light/Dark Mode in globals.css)
-- ✅ UI Components Library (Button, TextInput, TextArea, DateInput, Select, Autocomplete, Badge)
+- ✅ UI Components Library (Button, TextInput, TextArea, DateInput, Select, Autocomplete, Badge, Reactions)
 - ✅ Authentication system (Phase 2 - Completed)
-- ✅ Memorial creation flow (Phase 3 - 95% Complete: Wizard + Management + Content)
+- ✅ Memorial creation flow (Phase 3 - Complete: Wizard + Management + Content)
 - ✅ Memorial management pages (Stammdaten, Darstellung, Wissenswertes, Spruch/Nachruf, Privatsphäre)
 - ✅ Production deployment ready (Linting errors fixed)
-- ⏳ Public memorial pages (Next priority)
-- ⏳ Tier Basic Info page (90% complete)
-- ⏳ Additional content features (Kondolenzbuch, Termine, Erinnerungen)
+- ✅ Tier Basic Info page (Complete - all wizard steps working)
+- ⏳ Reaktionen System (Next priority - UI component exists)
+- ⏳ Termine (Events)
+- ⏳ Public memorial pages
+- ⏳ Additional content features (Kondolenzbuch, Erinnerungen)
 
 ## Phase 2: Authentication System ✅ COMPLETED
 See `docs/auth-troubleshooting.md` for details.
 
-## Phase 3: Memorial Creation Flow ✅ 95% COMPLETE
+## Phase 3: Memorial Creation Flow ✅ COMPLETE
 
-### ✅ Completed (2025-01-11 + 2025-01-17 + 2025-01-24 + 2025-01-28)
+### ✅ Completed (2025-01-11 + 2025-01-17 + 2025-01-24 + 2025-01-28 + 2025-12-01)
 
 **Database & Infrastructure:**
 - Supabase Types extended (Tierarten, Memorial fields, Wissenswertes)
@@ -99,7 +101,7 @@ See `docs/auth-troubleshooting.md` for details.
 **Wizard Routes (Implemented):**
 - ✅ `/gedenkseite/neu` - Type Selection
 - ✅ `/gedenkseite/neu/person` - Person Basic Info (fully refined)
-- ✅ `/gedenkseite/neu/tier` - Pet Basic Info (90% complete)
+- ✅ `/gedenkseite/neu/tier` - Pet Basic Info (Complete with Tierart/Rassengruppe/Rasse cascade)
 - ✅ `/gedenkseite/neu/[type]/avatar` - Avatar Selection (reusable component)
 - ✅ `/gedenkseite/neu/[type]/sichtbarkeit` - Privacy Settings (refactored with reusable PrivacySelection)
 - ✅ `/gedenkseite/neu/[type]/zusammenfassung` - Summary & Creation
@@ -148,23 +150,34 @@ See `docs/auth-troubleshooting.md` for details.
 
 ### ⏳ Pending (Next Priority)
 
+**Reaktionen System (Quick Win):**
+- Existing UI Component: `src/components/ui/Reactions.tsx`
+  - 5 Reaction types: liebe, dankbarkeit, freiheit, blumen, kerze
+  - SVG icons included
+  - isSelected state for toggle behavior
+  - onReactionClick handler
+  - Counter per reaction (value)
+- DB Migration: `memorial_reactions` table (user_id, memorial_id, reaction_type, unique constraint)
+- API Endpoint: `POST /api/memorials/[id]/reactions` - Toggle reaction
+- Integration: Connect existing Reactions component with backend
+
+**Termine (Events):**
+- DB Migration: `memorial_events` table
+- API Endpoints: CRUD for events
+- Event types: Beerdigung, Gedenkfeier, Jahrestag, Sonstiges
+- UI: EventsManager + EventCard components
+
 **Public Memorial Page:**
 - `/gedenkseite/[id]` - Public view route (basic structure exists)
 - Memorial Header Component (Avatar, Name, Dates)
 - Wissenswertes Section Display (read-only)
 - Spruch & Nachruf Display
-- Reaction Bar (Heart, Candle, Flower, Dove, Prayer)
+- Reaction Bar integration
 - View Counter display
 - Privacy Check (public vs private access)
-- `POST /api/memorials/[id]/reactions` - Toggle reactions
-
-**Tier Basic Info Finalization:**
-- Final polish and testing
-- Tierart/Rasse integration testing
 
 **Additional Content Features:**
 - Kondolenzbuch (Guestbook with entries)
-- Termine (Events: funeral, memorial service)
 - Erinnerungen (Photo/Video gallery - Premium)
 
 See session summaries for detailed implementation history:
@@ -181,6 +194,66 @@ See session summaries for detailed implementation history:
 5. Ensure mobile responsiveness
 6. Handle loading and error states
 7. Use German text for all UI elements
+
+## ⚠️ Component Reuse First (WICHTIG)
+
+**Bevor neue Komponenten, Elemente oder Funktionen erstellt werden:**
+
+1. **Prüfen ob bereits vorhanden:**
+   - Suche in `src/components/ui/` nach ähnlichen Komponenten
+   - Prüfe `src/lib/utils/` für Helper-Funktionen
+   - Schaue in bestehende Pages nach ähnlichen Patterns
+
+2. **User informieren:**
+   - Melde gefundene existierende Komponenten/Funktionen
+   - Erkläre wie sie wiederverwendet werden können
+   - Zeige Beispiel-Usage aus dem Codebase
+
+3. **Wiederverwendung bevorzugen:**
+   - Eine Komponente, überall nutzen (wie in Figma)
+   - Änderungen nur an einer Stelle nötig
+   - Konsistentes Styling garantiert
+
+4. **Performance beachten:**
+   - Shared Components werden gecached
+   - Keine doppelten Bundle-Größen
+   - Weniger Code = schnellere Builds
+
+**Beispiel bestehender wiederverwendbarer Komponenten:**
+- `InitialsAvatar` - Avatar mit Initialen-Fallback (Sidebar, Navbar, Reaktionen)
+- `Button` - Alle Button-Varianten (primary, secondary, tertiary, etc.)
+- `TextInput` - Form-Inputs mit Label, Error, Hint
+- `PrivacySelection` - Öffentlich/Privat Toggle
+- `AvatarSelection` - Avatar-Upload mit Crop
+
+## 🧹 Dead Code Detection
+
+**Beim Durchgehen des Codes aktiv nach ungenutztem Code suchen:**
+
+1. **Was prüfen:**
+   - Ungenutzte Imports
+   - Ungenutzte Funktionen/Variablen
+   - Verwaiste Komponenten (nirgends importiert)
+   - Auskommentierter Code
+   - Alte/veraltete Helper-Funktionen
+
+2. **User informieren:**
+   - Melde gefundenen Dead Code mit Datei + Zeile
+   - Erkläre warum es Dead Code ist
+   - Schlage Entfernung vor
+
+3. **Warum wichtig:**
+   - Codebase bleibt clean und übersichtlich
+   - Kleinere Bundle-Größe
+   - Einfachere Wartung
+   - Keine Verwirrung durch alten Code
+
+**Beispiel-Meldung:**
+```
+⚠️ Dead Code gefunden:
+- `src/components/Navbar.tsx:142-148` - `getUserInitials()` Funktion wird nicht mehr verwendet (InitialsAvatar macht das intern)
+- Soll ich das entfernen?
+```
 
 ## Common Commands
 ```bash

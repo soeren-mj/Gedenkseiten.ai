@@ -19,7 +19,8 @@ export type MemorialType = 'person' | 'pet';
 export type PrivacyLevel = 'public' | 'private';
 export type UserRole = 'member' | 'administrator';
 export type InvitationStatus = 'pending' | 'accepted' | 'rejected';
-export type ReactionType = 'heart' | 'candle' | 'flower' | 'dove' | 'prayer';
+export type ReactionType = 'liebe' | 'dankbarkeit' | 'freiheit' | 'blumen' | 'kerze';
+export type NotificationType = 'reaction' | 'kondolenz' | 'beitrag';
 export type EventType = 'burial' | 'memorial_service' | 'cremation' | 'sea_burial' | 'funeral' | 'remembrance_ceremony' | 'other';
 
 // Core table types
@@ -227,6 +228,22 @@ export type Memory = {
   updated_at: string;
 };
 
+// Notifications
+export type Notification = {
+  id: string;
+  recipient_id: string;
+  memorial_id: string | null;
+  type: NotificationType;
+  actor_id: string | null;
+  actor_name: string | null;
+  actor_avatar_url: string | null;
+  reaction_types: ReactionType[] | null;
+  reaction_count: number;
+  is_read: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
 // Waitlist (existing)
 export type WaitlistEntry = {
   id: string;
@@ -373,6 +390,13 @@ export type Database = {
         Row: Registration;
         Insert: Omit<Registration, 'id' | 'created_at' | 'updated_at'>;
         Update: Partial<Omit<Registration, 'id' | 'created_at'>>;
+      };
+
+      // Notifications
+      notifications: {
+        Row: Notification;
+        Insert: Omit<Notification, 'id' | 'created_at' | 'updated_at'>;
+        Update: Partial<Pick<Notification, 'is_read' | 'reaction_types' | 'reaction_count' | 'updated_at'>>;
       };
     };
   };
@@ -558,7 +582,7 @@ export async function getMemorialReactions(
     .eq('memorial_id', memorialId);
 
   if (error || !data) {
-    return { heart: 0, candle: 0, flower: 0, dove: 0, prayer: 0 };
+    return { liebe: 0, dankbarkeit: 0, freiheit: 0, blumen: 0, kerze: 0 };
   }
 
   const counts = (data as { reaction_type: string }[]).reduce((acc: { [key in ReactionType]: number }, reaction: { reaction_type: string }) => {
@@ -567,11 +591,11 @@ export async function getMemorialReactions(
   }, {} as { [key in ReactionType]: number });
 
   return {
-    heart: counts.heart || 0,
-    candle: counts.candle || 0,
-    flower: counts.flower || 0,
-    dove: counts.dove || 0,
-    prayer: counts.prayer || 0,
+    liebe: counts.liebe || 0,
+    dankbarkeit: counts.dankbarkeit || 0,
+    freiheit: counts.freiheit || 0,
+    blumen: counts.blumen || 0,
+    kerze: counts.kerze || 0,
   };
 }
 

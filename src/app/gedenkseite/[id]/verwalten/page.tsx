@@ -1,12 +1,13 @@
 'use client';
 
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { useMemorial } from '@/contexts/MemorialContext';
 import { formatFullName } from '@/lib/utils/nameFormatter';
 import { ContentOption } from '@/components/memorial/ContentOption';
 import { DashboardCard } from '@/components/cards/DashboardCard';
 import InitialsAvatar from '@/components/ui/InitialsAvatar';
 import ArrowUpRightIcon from '@/components/icons/ArrowUpRightIcon';
+import { Heart } from 'lucide-react';
 
 /**
  * Memorial Management Page
@@ -17,6 +18,7 @@ import ArrowUpRightIcon from '@/components/icons/ArrowUpRightIcon';
  */
 export default function MemorialManagementPage() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const { memorial } = useMemorial(); // Get memorial from context (already fetched in layout)
 
   const showWelcome = searchParams.get('welcome') === 'true';
@@ -79,6 +81,14 @@ export default function MemorialManagementPage() {
           description="Hier gelangst du zur Gedenkseite wie jeder Besucher sie sieht."
           icon={<ArrowUpRightIcon className="w-10 h-10 sm:w-16 sm:h-16 text-interactive-link-default" color="currentColor" />}
           onClick={() => window.open(`/gedenkseite/${memorial.id}`, '_blank')}
+          clickable={true}
+        />
+
+        <DashboardCard
+          headline="Reaktionen"
+          description="Alle Reaktionen der Besucher auf einen Blick."
+          icon={<Heart className="w-10 h-10 sm:w-16 sm:h-16 text-accent-red" />}
+          onClick={() => router.push(`/gedenkseite/${memorial.id}/verwalten/reaktionen`)}
           clickable={true}
         />
       </div>

@@ -4,14 +4,17 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import Button from '@/components/ui/Button';
+import InitialsAvatar from '@/components/ui/InitialsAvatar';
 import PopoverRegister from '@/components/ui/PopoverRegister';
 import { usePathname } from 'next/navigation';
 import { useRouter } from 'next/navigation';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
+  const { user, authUser, loading: authLoading } = useAuth();
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -140,23 +143,40 @@ export default function Navbar() {
               >
                 FAQ
               </button>
-              {process.env.NEXT_PUBLIC_ENABLE_LOGIN_BUTTON === 'true' && (
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    onClick={() => router.push('/auth/login')}
-                  >
-                    Einloggen
-                  </Button>
-                  <Button
-                    variant="primary"
-                    size="sm"
-                    onClick={() => setPopoverOpen(true)}
-                  >
-                    Jetzt starten
-                  </Button>
-                </div>
+              {/* Auth Buttons / User Menu */}
+              {!authLoading && (
+                authUser ? (
+                  // Logged in: Avatar + Name as clickable link to dashboard
+                  // Use user (from users table) for display, authUser for auth check
+                  <Link href="/dashboard" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+                    <InitialsAvatar
+                      name={user?.name || user?.email || 'U'}
+                      size="sm"
+                      imageUrl={user?.avatar_url}
+                    />
+                    <span className="text-primary font-medium text-body-m">
+                      {user?.name || user?.email || 'Benutzer'}
+                    </span>
+                  </Link>
+                ) : process.env.NEXT_PUBLIC_ENABLE_LOGIN_BUTTON === 'true' ? (
+                  // Not logged in: Show login buttons
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => router.push('/auth/login')}
+                    >
+                      Einloggen
+                    </Button>
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      onClick={() => setPopoverOpen(true)}
+                    >
+                      Jetzt starten
+                    </Button>
+                  </div>
+                ) : null
               )}
               <ThemeToggle />
               
@@ -217,28 +237,58 @@ export default function Navbar() {
               >
                 FAQ
               </button>
-              {process.env.NEXT_PUBLIC_ENABLE_LOGIN_BUTTON === 'true' && (
-                <div className="flex flex-col gap-2">
-                  <Button
-                    variant="secondary"
-                    size="md"
-                    fullWidth
-                    onClick={() => router.push('/auth/login')}
-                  >
-                    Einloggen
-                  </Button>
-                  <Button
-                    variant="primary"
-                    size="md"
-                    fullWidth
-                    onClick={() => setPopoverOpen(true)}
-                  >
-                    Jetzt starten
-                  </Button>
-                  <div className="flex justify-center pt-2">
+              {/* Mobile Auth Buttons / User Menu */}
+              {!authLoading && (
+                authUser ? (
+                  // Logged in: Avatar + Name as clickable link to dashboard
+                  // Use user (from users table) for display, authUser for auth check
+                  <div className="flex flex-col gap-2 px-4">
+                    <Link
+                      href="/dashboard"
+                      className="flex items-center gap-3 py-2 hover:opacity-80 transition-opacity"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      <InitialsAvatar
+                        name={user?.name || user?.email || 'U'}
+                        size="sm"
+                        imageUrl={user?.avatar_url}
+                      />
+                      <span className="text-primary font-medium text-body-m">
+                        {user?.name || user?.email || 'Benutzer'}
+                      </span>
+                    </Link>
+                    <div className="flex justify-center pt-2">
+                      <ThemeToggle />
+                    </div>
+                  </div>
+                ) : process.env.NEXT_PUBLIC_ENABLE_LOGIN_BUTTON === 'true' ? (
+                  // Not logged in: Show login buttons
+                  <div className="flex flex-col gap-2 px-4">
+                    <Button
+                      variant="secondary"
+                      size="md"
+                      fullWidth
+                      onClick={() => router.push('/auth/login')}
+                    >
+                      Einloggen
+                    </Button>
+                    <Button
+                      variant="primary"
+                      size="md"
+                      fullWidth
+                      onClick={() => setPopoverOpen(true)}
+                    >
+                      Jetzt starten
+                    </Button>
+                    <div className="flex justify-center pt-2">
+                      <ThemeToggle />
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex justify-center pt-2 px-4">
                     <ThemeToggle />
                   </div>
-                </div>
+                )
               )}
             </div>
           </div>

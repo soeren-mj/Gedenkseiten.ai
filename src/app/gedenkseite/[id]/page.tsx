@@ -5,7 +5,6 @@ import { createClient } from '@/lib/supabase/server';
 import MemorialProfileSidebar from '@/components/memorial/MemorialProfileSidebar';
 import ObituarySection from '@/components/memorial/ObituarySection';
 import { WissenswertesSection } from '@/components/memorial/WissenswertesSection';
-import { MEMORIAL_REACTIONS } from '@/constants/reactionIcons';
 import { formatFullName } from '@/lib/utils/nameFormatter';
 
 interface PageProps {
@@ -124,10 +123,7 @@ export default async function MemorialPage({ params }: PageProps) {
         <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
           {/* Left Column - Profile Sidebar (Sticky on desktop) */}
           <aside className="lg:sticky lg:top-8 lg:self-start">
-            <MemorialProfileSidebar
-              memorial={memorial}
-              reactions={MEMORIAL_REACTIONS}
-            />
+            <MemorialProfileSidebar memorial={memorial} />
           </aside>
 
           {/* Right Column - Content Area */}

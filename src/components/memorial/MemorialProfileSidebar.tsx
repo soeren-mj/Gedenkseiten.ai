@@ -1,10 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import Image from 'next/image';
-import Reactions from '../ui/Reactions';
+import ReactionsBar from './ReactionsBar';
 import { InitialsPreview } from './InitialsPreview';
-import { MEMORIAL_REACTIONS, type Reaction } from '@/constants/reactionIcons';
 import { Database } from '@/lib/supabase';
 import { formatFullName } from '@/lib/utils/nameFormatter';
 
@@ -12,7 +11,6 @@ type Memorial = Database['public']['Tables']['memorials']['Row'];
 
 export interface MemorialProfileSidebarProps {
   memorial: Memorial;
-  reactions?: Reaction[];
   className?: string;
 }
 
@@ -27,26 +25,9 @@ export interface MemorialProfileSidebarProps {
  */
 export const MemorialProfileSidebar: React.FC<MemorialProfileSidebarProps> = ({
   memorial,
-  reactions: initialReactions = MEMORIAL_REACTIONS,
   className = '',
 }) => {
   const isAnimal = memorial.type === 'animal';
-
-  // Internal state for reactions
-  const [reactions, setReactions] = useState<Reaction[]>(initialReactions);
-
-  // Handle reaction clicks client-side
-  const handleReactionClick = (reaction: Reaction) => {
-    // TODO: Send reaction to API
-    // For now, just update local state
-    setReactions(prev =>
-      prev.map(r =>
-        r.key === reaction.key
-          ? { ...r, value: r.value + 1 }
-          : r
-      )
-    );
-  };
 
   // Format dates (DD.MM.YYYY)
   const formatDate = (dateString: string | null) => {
@@ -148,12 +129,8 @@ export const MemorialProfileSidebar: React.FC<MemorialProfileSidebarProps> = ({
       </div>
 
       {/* Reactions */}
-      <div className="border-t border-b border-main py-4 px-5 flex flex-col gap-4">
-        <div className="text-[14px] font-inter font-semibold text-[#1F2024]">Reaktionen</div>
-        <Reactions
-          reactions={reactions}
-          onReactionClick={handleReactionClick}
-        />
+      <div className="border-t border-main pt-4 px-2">
+        <ReactionsBar memorialId={memorial.id} />
       </div>
 
       {/* Nachruf Preview (if exists) */}
