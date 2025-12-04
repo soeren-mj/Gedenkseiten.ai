@@ -268,9 +268,16 @@ export default function AuthCallbackPage() {
           // 3. Handle race conditions and conflicts gracefully
           console.log('[Auth Callback Page] Profile will be synced by AuthContext')
 
-          // Regular login - redirect to dashboard
-          console.log('[Auth Callback Page] Regular auth callback, redirecting to dashboard...')
-          router.push('/dashboard')
+          // Check for redirect parameter (e.g., from LoginModal)
+          const redirectUrl = urlParams.get('redirect')
+
+          if (redirectUrl) {
+            console.log('[Auth Callback Page] Redirecting to custom URL:', redirectUrl)
+            router.push(redirectUrl)
+          } else {
+            console.log('[Auth Callback Page] No redirect parameter, going to dashboard')
+            router.push('/dashboard')
+          }
         } else {
           console.error('[Auth Callback Page] No session found after token processing')
           setError('Keine gültige Sitzung gefunden')

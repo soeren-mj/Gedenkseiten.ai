@@ -1,10 +1,12 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
 import type { ReactionType } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { createClient } from '@/lib/supabase/client-legacy';
+import LoginModal from '@/components/auth/LoginModal';
+
+// Note: useRouter removed - using LoginModal instead of redirect
 
 // Smaller reaction icons for the bar (20x20)
 const ReactionIcons: { [key in ReactionType]: React.ReactNode } = {
@@ -70,7 +72,6 @@ interface ReactionsBarProps {
  * Opens login modal if user is not authenticated
  */
 export default function ReactionsBar({ memorialId, className = '' }: ReactionsBarProps) {
-  const router = useRouter();
   const { user, loading: authLoading } = useAuth();
   const [counts, setCounts] = useState<ReactionCounts>({
     liebe: 0,
@@ -82,6 +83,7 @@ export default function ReactionsBar({ memorialId, className = '' }: ReactionsBa
   const [userReactions, setUserReactions] = useState<ReactionType[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isToggling, setIsToggling] = useState<ReactionType | null>(null);
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   // Fetch reactions on mount
   const fetchReactions = useCallback(async () => {
@@ -130,9 +132,8 @@ export default function ReactionsBar({ memorialId, className = '' }: ReactionsBa
 
     // Check if user is authenticated
     if (!user || !session) {
-      // Redirect to login with return URL
-      const returnUrl = encodeURIComponent(window.location.pathname);
-      router.push(`/auth/login?redirect=${returnUrl}`);
+      // Show login modal instead of redirecting
+      setShowLoginModal(true);
       return;
     }
 
@@ -193,40 +194,50 @@ export default function ReactionsBar({ memorialId, className = '' }: ReactionsBa
   }
 
   return (
-    <div className={`flex items-center gap-4 ${className}`}>
-      {REACTION_ORDER.map((type) => {
-        const isSelected = userReactions.includes(type);
-        const count = counts[type];
-        const isCurrentlyToggling = isToggling === type;
+    <>
+      <div className={`flex items-center gap-4 ${className}`}>
+        {REACTION_ORDER.map((type) => {
+          const isSelected = userReactions.includes(type);
+          const count = counts[type];
+          const isCurrentlyToggling = isToggling === type;
 
-        return (
-          <button
-            key={type}
-            onClick={() => handleReactionClick(type)}
-            disabled={isCurrentlyToggling}
-            className={`
-              flex items-center gap-1 py-1 px-1 rounded-md transition-all duration-200
-              ${isSelected
-                ? 'text-interactive-primary-default'
-                : 'text-secondary hover:text-primary'
-              }
-              ${isCurrentlyToggling ? 'opacity-50' : ''}
-              hover:bg-secondary/50
-              focus:outline-none focus:ring-2 focus:ring-interactive-primary-default focus:ring-offset-1
-            `}
-            title={getReactionTooltip(type)}
-            aria-label={`${getReactionTooltip(type)}: ${count}`}
-          >
-            <span className={`transition-transform duration-200 ${isSelected ? 'scale-110' : ''}`}>
-              {ReactionIcons[type]}
-            </span>
-            <span className="text-body-s font-medium min-w-[1rem] text-center">
-              {count > 0 ? count : ''}
-            </span>
-          </button>
-        );
-      })}
-    </div>
+          return (
+            <button
+              key={type}
+              onClick={() => handleReactionClick(type)}
+              disabled={isCurrentlyToggling}
+              className={`
+                flex items-center gap-1 py-1 px-1 rounded-md transition-all duration-200
+                ${isSelected
+                  ? 'text-interactive-primary-default'
+                  : 'text-secondary hover:text-primary'
+                }
+                ${isCurrentlyToggling ? 'opacity-50' : ''}
+                hover:bg-secondary/50
+                focus:outline-none focus:ring-2 focus:ring-interactive-primary-default focus:ring-offset-1
+              `}
+              title={getReactionTooltip(type)}
+              aria-label={`${getReactionTooltip(type)}: ${count}`}
+            >
+              <span className={`transition-transform duration-200 ${isSelected ? 'scale-110' : ''}`}>
+                {ReactionIcons[type]}
+              </span>
+              <span className="text-body-s font-medium min-w-[1rem] text-center">
+                {count > 0 ? count : ''}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Login Modal for unauthenticated users */}
+      <LoginModal
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        redirectUrl={typeof window !== 'undefined' ? window.location.pathname : undefined}
+        title="Anmelden"
+      />
+    </>
   );
 }
 
