@@ -13,22 +13,38 @@ interface CookieSettingsDropdownProps {
   onClose: () => void
 }
 
+// Helper functions for cookie management (same as CookieBanner)
+const COOKIE_NAME = 'cookie-consent'
+const COOKIE_MAX_AGE = 15768000 // 6 months in seconds (DSGVO-konform)
+
+function getCookieConsent(): CookieConsent | null {
+  if (typeof document === 'undefined') return null
+  const match = document.cookie.match(new RegExp(`${COOKIE_NAME}=([^;]+)`))
+  if (!match) return null
+  try {
+    return JSON.parse(decodeURIComponent(match[1]))
+  } catch {
+    return null
+  }
+}
+
+function setCookieConsent(consent: CookieConsent): void {
+  if (typeof document === 'undefined') return
+  const value = encodeURIComponent(JSON.stringify(consent))
+  document.cookie = `${COOKIE_NAME}=${value}; max-age=${COOKIE_MAX_AGE}; path=/; SameSite=Lax`
+}
+
 export function CookieSettingsDropdown({ isOpen }: CookieSettingsDropdownProps) {
   const [consent, setConsent] = useState<CookieConsent>({
     analytics: false,
     necessary: true,
   })
 
-  // Load existing consent from localStorage
+  // Load existing consent from cookie
   useEffect(() => {
-    const savedConsent = localStorage.getItem('cookie-consent')
+    const savedConsent = getCookieConsent()
     if (savedConsent) {
-      try {
-        const parsed = JSON.parse(savedConsent)
-        setConsent(parsed)
-      } catch (e) {
-        console.error('Failed to parse cookie consent', e)
-      }
+      setConsent(savedConsent)
     }
   }, [])
 
@@ -36,7 +52,7 @@ export function CookieSettingsDropdown({ isOpen }: CookieSettingsDropdownProps) 
   const handleAnalyticsSwitch = (checked: boolean) => {
     const updated = { ...consent, analytics: checked }
     setConsent(updated)
-    localStorage.setItem('cookie-consent', JSON.stringify(updated))
+    setCookieConsent(updated)
 
     // Trigger analytics consent event if applicable
     if (checked && typeof window !== 'undefined' && window.dataLayer) {

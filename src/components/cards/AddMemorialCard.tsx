@@ -5,10 +5,6 @@ import AddCircleIcon from '@/components/icons/AddCircleIcon';
 interface AddMemorialCardProps {
   /** Optional custom icon (React element). If not provided, uses default plus icon */
   icon?: React.ReactNode;
-  /** Main title text */
-  title: string;
-  /** Optional description text below title */
-  description?: string;
   /** Click handler for the card */
   onClick: () => void;
   /** Optional additional CSS classes */
@@ -26,8 +22,6 @@ interface AddMemorialCardProps {
  */
 export default function AddMemorialCard({
   icon,
-  title,
-  description,
   onClick,
   className,
 }: AddMemorialCardProps) {
@@ -41,7 +35,7 @@ export default function AddMemorialCard({
 
   // Default plus icon
   const defaultIcon = (
-    <AddCircleIcon className="w-10 h-10 transition-colors" />
+    <AddCircleIcon className="w-10 h-10 transition-colors text-link-default group-hover:text-link-hover" />
   );
 
   return (
@@ -51,19 +45,19 @@ export default function AddMemorialCard({
       onClick={onClick}
       onKeyDown={handleKeyDown}
       className={cn(
-        // Fixed dimensions for square (size L)
-        "w-[247px] h-[247px]",
+        // Responsive square card
+        "min-w-[247px] max-w-full aspect-square",
 
         // Layout
         "flex flex-col items-center justify-center",
-        "p-6",
+        "p-1",
 
         // Border - dashed default
-        "border-2 border-dashed rounded-lg",
-        "border-interactive-info",
+        "border border-dashed rounded-md",
+        "border-interactive-default",
 
         // Background
-        "bg-interactive-info",
+        "bg-bw-opacity-40 backdrop-blur-sm",
 
         // Transitions
         "transition-all duration-200",
@@ -71,11 +65,7 @@ export default function AddMemorialCard({
         "group",
 
         // Hover state
-        "hover:border-interactive-info-hover",
-        "hover:bg-interactive-info-hover",
-
-        // Active state
-        "active:scale-[0.98]",
+        "hover:border-interactive-hover",
 
         // Focus state - accessibility
         "focus-visible:outline-none",
@@ -87,22 +77,18 @@ export default function AddMemorialCard({
         className
       )}
     >
+      {/* Card content */}
+      <div className="w-full h-full border border-dashed border-interactive-default group-hover:border-interactive-hover rounded-sm flex flex-col items-center justify-center">
       {/* Icon container */}
       <div className="w-12 h-12 flex items-center justify-center transition-colors">
         {icon || defaultIcon}
       </div>
 
       {/* Title */}
-      <h4 className="mb-2 text-center text-webapp-group text-bw max-w-[140px] leading-tight">
-        {title}
+      <h4 className="text-body-s text-link-default group-hover:text-link-hover text-center transition-colors">
+        Gedenkseite<br />hinzufügen
       </h4>
-
-      {/* Description */}
-      {description && (
-        <p className="text-body-xs text-secondary text-center">
-          {description}
-        </p>
-      )}
+      </div>
     </div>
   );
 }

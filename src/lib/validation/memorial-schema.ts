@@ -197,7 +197,7 @@ export const petBasicInfoSchema = z.object({
 // ============================================================================
 
 export const avatarSchema = z.object({
-  avatar_type: z.enum(['initials', 'icon', 'image']),
+  avatar_type: z.enum(['initials', 'image']),
   avatar_url: z.string().url().optional().or(z.literal('')),
   avatar_file: z.instanceof(File).optional(),
 }).refine(
@@ -258,7 +258,7 @@ const petBasicInfoBaseSchema = z.object({
 });
 
 const avatarBaseSchema = z.object({
-  avatar_type: z.enum(['initials', 'icon', 'image']),
+  avatar_type: z.enum(['initials', 'image']),
   avatar_url: z.string().url().optional().or(z.literal('')),
   avatar_file: z.instanceof(File).optional(),
 });

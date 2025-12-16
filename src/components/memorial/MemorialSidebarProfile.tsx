@@ -11,7 +11,7 @@ interface MemorialSidebarProfileProps {
     first_name: string;
     last_name: string | null;
     type: 'person' | 'pet';
-    avatar_type: 'initials' | 'icon' | 'image';
+    avatar_type: 'initials' | 'image';
     avatar_url: string | null;
     privacy_level: 'public' | 'private';
   };

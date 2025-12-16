@@ -1,8 +1,8 @@
 'use client'
 
 import { useRequireAuth } from '@/hooks/useRequireAuth'
-import { Sidebar } from '@/components/dashboard/Sidebar'
-import Image from 'next/image'
+import BackendHeader from '@/components/dashboard/BackendHeader'
+import FeedbackButton from '@/components/ui/FeedbackButton'
 
 export default function DashboardLayout({
   children,
@@ -23,30 +23,17 @@ export default function DashboardLayout({
   }
 
   return (
-    <div className="h-screen flex flex-col">
-      {/* Background Image */}
-      <div className="fixed inset-0 -z-1">
-        <Image
-          src="/images/blur-default-0.75.webp"
-          alt="Dashboard Background"
-          fill
-          className="object-cover object-center scale-125"
-          priority
-        />
-      </div>
+    <div className="min-h-screen bg-light-dark-mode flex flex-col">
+      {/* Header */}
+      <BackendHeader />
 
-      {/* Content Area - Full Screen, No Padding */}
-      <div className="flex-1 flex overflow-hidden z-10 h-full">
-        {/* Sidebar - 1/4 width */}
-        <aside className="hidden md:block w-1/4 h-full">
-          <Sidebar />
-        </aside>
+      {/* Main Content */}
+      <main className="flex-1 overflow-x-visible overflow-y-auto px-6">
+        {children}
+      </main>
 
-        {/* Main Content - 3/4 width, Scrollable */}
-        <main className="w-3/4 h-full p-8 bg-bw-opacity-60 overflow-y-auto backdrop-blur-lg mb-4">
-          {children}
-        </main>
-      </div>
+      {/* Sticky Feedback Button */}
+      <FeedbackButton />
     </div>
   )
 }

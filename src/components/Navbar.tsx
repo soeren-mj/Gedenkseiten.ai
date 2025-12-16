@@ -8,7 +8,7 @@ import InitialsAvatar from '@/components/ui/InitialsAvatar';
 import PopoverRegister from '@/components/ui/PopoverRegister';
 import { usePathname } from 'next/navigation';
 import { useRouter } from 'next/navigation';
-import { ThemeToggle } from '@/components/ui/theme-toggle';
+import { ThemeModeToggle } from '@/components/ui/theme-mode-toggle';
 import { useAuth } from '@/contexts/AuthContext';
 
 export default function Navbar() {
@@ -178,7 +178,7 @@ export default function Navbar() {
                   </div>
                 ) : null
               )}
-              <ThemeToggle />
+              <ThemeModeToggle />
               
             </div>
 
@@ -258,7 +258,7 @@ export default function Navbar() {
                       </span>
                     </Link>
                     <div className="flex justify-center pt-2">
-                      <ThemeToggle />
+                      <ThemeModeToggle />
                     </div>
                   </div>
                 ) : process.env.NEXT_PUBLIC_ENABLE_LOGIN_BUTTON === 'true' ? (
@@ -281,12 +281,12 @@ export default function Navbar() {
                       Jetzt starten
                     </Button>
                     <div className="flex justify-center pt-2">
-                      <ThemeToggle />
+                      <ThemeModeToggle />
                     </div>
                   </div>
                 ) : (
                   <div className="flex justify-center pt-2 px-4">
-                    <ThemeToggle />
+                    <ThemeModeToggle />
                   </div>
                 )
               )}

@@ -1,37 +1,34 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import Image from 'next/image';
 import { formatRelativeTime } from '@/lib/utils/dateFormatter';
 import type { Notification, ReactionType } from '@/lib/supabase';
+import {
+  ReactionLiebeIcon,
+  ReactionDankbarkeitIcon,
+  ReactionFreiheitIcon,
+  ReactionBlumenIcon,
+  ReactionKerzeIcon,
+} from '@/components/icons/reactions';
 
-// Small reaction icons for notification cards
-const SmallReactionIcons: { [key in ReactionType]: React.ReactNode } = {
-  liebe: (
-    <svg width="16" height="16" viewBox="0 0 40 41" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M20.0003 34.5493L18.5045 33.1947C15.6748 30.6106 13.3367 28.3875 11.4903 26.5256C9.64366 24.6633 8.17713 23.0092 7.09074 21.5631C6.00408 20.1167 5.24519 18.8064 4.81408 17.6322C4.38269 16.4578 4.16699 15.2757 4.16699 14.086C4.16699 11.7735 4.94671 9.83751 6.50616 8.27806C8.0656 6.71834 9.99602 5.93848 12.2974 5.93848C13.8166 5.93848 15.2339 6.31264 16.5495 7.06098C17.865 7.80903 19.0153 8.89223 20.0003 10.3106C21.0681 8.85112 22.2471 7.7575 23.5374 7.02973C24.8277 6.30223 26.2163 5.93848 27.7032 5.93848C30.0046 5.93848 31.935 6.71834 33.4945 8.27806C35.0539 9.83751 35.8337 11.7735 35.8337 14.086C35.8337 15.2757 35.618 16.4578 35.1866 17.6322C34.7555 18.8064 33.997 20.1158 32.9112 21.5606C31.8256 23.0053 30.36 24.6594 28.5145 26.5231C26.6689 28.3867 24.3295 30.6106 21.4962 33.1947L20.0003 34.5493Z" fill="currentColor"/>
-    </svg>
-  ),
-  dankbarkeit: (
-    <svg width="16" height="16" viewBox="0 0 41 41" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M26.6433 26.9387V22.522L24.7212 18.977C24.1876 19.032 23.7441 19.2624 23.3908 19.6683C23.0377 20.0744 22.8612 20.5463 22.8612 21.0841V30.1908L26.6912 36.522H24.2458L20.767 30.7849V21.0841C20.767 20.1597 21.0359 19.3313 21.5737 18.5991C22.1115 17.8669 22.8148 17.3647 23.6837 17.0924L20.9391 12.0029C20.4263 11.0292 20.2023 10.003 20.267 8.92411C20.3318 7.8455 20.7432 6.9273 21.5012 6.16952L23.8558 3.81494L34.9516 16.882L36.6004 36.522H34.4891L32.8812 17.6874L23.7404 6.88827L23.0008 7.64369C22.6063 8.03841 22.3718 8.50591 22.297 9.04619C22.222 9.58647 22.3118 10.098 22.5662 10.5808L28.737 21.9791V26.9387H26.6433ZM12.78 26.9387V21.9791L18.9508 10.5808C19.2122 10.098 19.3037 9.58647 19.2254 9.04619C19.147 8.50591 18.9107 8.03841 18.5162 7.64369L17.7875 6.88827L8.63579 17.6874L7.02788 36.522H4.91663L6.57579 16.882L17.6612 3.81494L20.0158 6.16952C20.7738 6.9273 21.1852 7.8455 21.25 8.92411C21.3147 10.003 21.0907 11.0292 20.5779 12.0029L17.817 17.0924C18.6862 17.3647 19.3923 17.8669 19.9354 18.5991C20.4784 19.3313 20.75 20.1597 20.75 21.0841V30.7849L17.2712 36.522H14.8258L18.6562 30.1908V21.0841C18.6562 20.5463 18.4795 20.0744 18.1262 19.6683C17.7729 19.2624 17.3294 19.032 16.7958 18.977L14.8737 22.522V26.9387H12.78Z" fill="currentColor"/>
-    </svg>
-  ),
-  freiheit: (
-    <svg width="16" height="16" viewBox="0 0 41 41" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M17.3172 15.0955C17.3172 15.0955 16.6033 14.6195 16.2463 14.2517C15.8893 13.8839 12.3194 8.73445 12.3194 8.36664C12.3194 7.99882 11.9624 4.68848 11.6054 4.68848C11.2484 4.68848 9.46353 6.15974 8.74948 7.26319C8.03542 8.36664 9.82052 8.73445 9.10654 10.2057C8.39255 11.677 8.74943 10.9414 8.03549 12.4126C7.32156 13.8839 7.32144 15.723 8.03549 17.1942C8.74955 18.6655 11.6055 20.1368 12.3195 21.2402C13.0334 22.3436 11.9624 23.8149 12.3194 24.1827C12.6764 24.5505 17.3172 26.0218 17.3172 26.3896C17.3172 26.7574 9.46346 34.4816 9.46346 34.8494C9.46346 35.2172 14.8183 36.6885 15.5323 36.6885C16.2463 36.6885 21.2441 35.2172 21.6011 34.8494C21.9581 34.4816 21.6011 30.8034 21.6011 30.4356C21.6011 30.0678 28.3602 27.8609 30.1452 24.6885C31.9301 21.5161 29.4549 17.9299 29.8119 17.562C30.1689 17.1942 34.0958 17.9299 34.4528 17.9299C34.8098 17.9299 33.0248 16.8264 33.0248 16.4586C33.0248 16.0908 32.6678 14.6195 32.3109 14.2517C31.9539 13.8839 30.8829 12.0448 30.5259 12.0448C30.1689 12.0448 28.7409 12.0448 28.384 12.0448C28.027 12.0448 27.313 12.4126 26.956 12.7804C26.599 13.1482 24.8141 15.723 24.8141 15.723L24.5364 16.0908M17.3172 15.0955C17.3172 15.0955 21.9581 19.0333 22.3151 19.0333C22.6721 19.0333 24.5364 16.0908 24.5364 16.0908M17.3172 15.0955C17.3172 15.0955 16.9603 12.7804 17.3172 12.0448C17.6742 11.3092 18.3882 10.9414 18.7452 10.2057C19.1022 9.47009 18.7452 8.36664 18.7452 7.99882C18.7452 7.63101 21.2441 4.68848 21.6011 4.68848C21.9581 4.68848 21.9581 4.68848 22.3151 4.68848C22.6721 4.68848 22.3151 9.8379 22.3151 10.2057C22.3151 10.5735 22.3151 10.5735 23.0291 12.0448C23.7431 13.5161 23.0291 12.7804 23.0291 14.2517C23.0291 15.723 24.5364 16.0908 24.5364 16.0908" stroke="currentColor" strokeWidth="2"/>
-    </svg>
-  ),
-  blumen: (
-    <svg width="16" height="16" viewBox="0 0 41 41" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M19.1046 34.3292C18.584 32.8226 17.9451 31.6226 17.1879 30.7292C16.431 29.8362 15.3448 29.0571 13.9296 28.3921C13.7137 28.7685 13.5428 29.1038 13.4166 29.398C13.2905 29.6921 13.1933 29.9228 13.125 30.0901C13.38 30.7303 13.6976 31.2952 14.0779 31.7846C14.4585 32.2738 14.9058 32.7005 15.42 33.0646C15.9341 33.4285 16.4989 33.7137 17.1141 33.9201C17.7297 34.1267 18.3932 34.2631 19.1046 34.3292ZM21.3791 34.3292C23.1091 34.1739 24.4657 33.6985 25.4487 32.903C26.4318 32.1074 27.1254 30.9148 27.5296 29.3251C27.2343 29.2395 26.9562 29.1382 26.6954 29.0213C26.4348 28.9041 26.1848 28.7753 25.9454 28.6351C25.3726 28.9606 24.8557 29.3224 24.3946 29.7205C23.9332 30.1185 23.5165 30.5516 23.1446 31.0196C22.7654 31.4946 22.4339 32.0051 22.15 32.5509C21.8658 33.097 21.6089 33.6898 21.3791 34.3292ZM20.25 19.9084C22.168 19.9084 23.7996 19.2359 25.1446 17.8909C26.4898 16.5459 27.1625 14.9144 27.1625 12.9963V9.6413L23.9016 12.4096L20.25 7.80589L16.5983 12.4096L13.3375 9.6413V12.9963C13.3375 14.9144 14.0101 16.5459 15.3554 17.8909C16.7004 19.2359 18.3319 19.9084 20.25 19.9084ZM19.0962 36.3613C16.5498 36.3613 14.3855 35.4702 12.6033 33.688C10.8208 31.9055 9.92957 29.741 9.92957 27.1946V24.7909C11.7948 24.9128 13.5278 25.4305 15.1283 26.3438C16.7286 27.2574 18.0191 28.4278 19 29.8551V21.9413C16.7928 21.6494 14.9482 20.6609 13.4662 18.9759C11.9846 17.2909 11.2437 15.2977 11.2437 12.9963V7.90005C11.2437 7.32311 11.5008 6.92116 12.015 6.69422C12.5291 6.46755 12.9943 6.54255 13.4104 6.91922L16.3396 9.4513L19.2287 5.81339C19.4973 5.48727 19.8382 5.32422 20.2512 5.32422C20.6643 5.32422 21.0043 5.48727 21.2712 5.81339L24.1604 9.4513L27.0896 6.91922C27.5057 6.54255 27.9708 6.46755 28.485 6.69422C28.9992 6.92116 29.2562 7.32311 29.2562 7.90005V12.9963C29.2562 15.2974 28.5154 17.2905 27.0337 18.9755C25.5518 20.6602 23.7072 21.6492 21.5 21.9426V29.8392C22.4808 28.4226 23.7687 27.2576 25.3637 26.3442C26.9587 25.4309 28.6836 24.9131 30.5383 24.7909V27.1946C30.5383 29.741 29.6487 31.9055 27.8696 33.688C26.0901 35.4702 23.9296 36.3613 21.3879 36.3613H19.0962Z" fill="currentColor"/>
-    </svg>
-  ),
-  kerze: (
-    <svg width="16" height="16" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M10.3524 33.7392H29.7437C30.4306 33.7392 31.0066 33.5068 31.4716 33.0421C31.9363 32.5774 32.1687 32.0014 32.1687 31.3142V30.5396H7.92742V31.2971C7.92742 31.9846 8.15978 32.5635 8.6245 33.0338C9.08922 33.504 9.6652 33.7392 10.3524 33.7392ZM20.0278 13.0288C18.8689 13.0288 17.8933 12.619 17.1008 11.7996C16.3085 10.9801 15.9288 9.99 15.9616 8.82917C15.9871 7.50083 16.4248 6.3332 17.2745 5.32625C18.1242 4.31958 19.0487 3.3775 20.0478 2.5C20.9945 3.41889 21.9059 4.37236 22.782 5.36042C23.6581 6.34875 24.1089 7.49958 24.1345 8.81292C24.1601 9.9782 23.7719 10.9721 22.9699 11.7946C22.1677 12.6174 21.187 13.0288 20.0278 13.0288ZM17.6378 28.4454H22.4412V18.0233C22.4412 17.8739 22.3931 17.7511 22.297 17.655C22.2009 17.5589 22.078 17.5108 21.9283 17.5108H18.1508C18.001 17.5108 17.8781 17.5589 17.782 17.655C17.6859 17.7511 17.6378 17.8739 17.6378 18.0233V28.4454Z" fill="currentColor"/>
-    </svg>
-  ),
+// Map reaction types to icon components
+const ReactionIcons: { [key in ReactionType]: React.ComponentType<{ size?: number; className?: string }> } = {
+  liebe: ReactionLiebeIcon,
+  dankbarkeit: ReactionDankbarkeitIcon,
+  freiheit: ReactionFreiheitIcon,
+  blumen: ReactionBlumenIcon,
+  kerze: ReactionKerzeIcon,
+};
+
+// Personalized text for single reactions
+const SingleReactionTexts: { [key in ReactionType]: string } = {
+  liebe: 'hat Liebe gezeigt',
+  dankbarkeit: 'hat Dankbarkeit gezeigt',
+  freiheit: 'hat eine Taube fliegen lassen',
+  blumen: 'hat Blumen gebracht',
+  kerze: 'hat eine Kerze angezündet',
 };
 
 interface NotificationWithMemorial extends Notification {
@@ -40,19 +37,21 @@ interface NotificationWithMemorial extends Notification {
 
 interface NotificationCardProps {
   notification: NotificationWithMemorial;
-  onClick?: () => void;
+  href?: string;
+  onRead?: () => void;
 }
 
 /**
  * NotificationCard - Single notification display
  *
  * Features:
- * - Blue dot for unread state
- * - Avatar with initials fallback
+ * - SVG dot for unread state (colorable via text-)
+ * - Avatar with initials fallback (32x32)
  * - Reaction icons inline
  * - Relative timestamp
+ * - Navigates to detail page when clicked
  */
-export function NotificationCard({ notification, onClick }: NotificationCardProps) {
+export function NotificationCard({ notification, href, onRead }: NotificationCardProps) {
   const isUnread = !notification.is_read;
 
   // Generate initials for avatar fallback
@@ -65,46 +64,63 @@ export function NotificationCard({ notification, onClick }: NotificationCardProp
     return name.substring(0, 2).toUpperCase();
   };
 
+  // Check if this is a single reaction
+  const isSingleReaction = notification.type === 'reaction' &&
+    notification.reaction_types?.length === 1;
+
+  const singleReactionType = isSingleReaction
+    ? notification.reaction_types![0] as ReactionType
+    : null;
+
   // Generate notification text based on type
   const getNotificationText = () => {
     if (notification.type === 'reaction') {
+      // Single reaction: personalized text (icon shown inline)
+      if (singleReactionType) {
+        return SingleReactionTexts[singleReactionType];
+      }
+      // Multiple reactions: generic text
       const count = notification.reaction_count || 1;
-      return count === 1
-        ? 'hat eine Reaktion hinterlassen'
-        : `hat ${count} Reaktionen hinterlassen`;
+      return `hat ${count} Reaktionen hinterlassen`;
     }
-    // Future: kondolenz, beitrag
+    if (notification.type === 'kondolenz') {
+      return 'hat einen Eintrag ins Kondolenzbuch verfasst';
+    }
+    // Future: beitrag
     return 'hat eine Aktivität ausgeführt';
   };
 
-  return (
-    <button
-      onClick={onClick}
-      className={`
-        w-full flex items-start gap-3 p-3 text-left transition-colors rounded-lg
-        ${isUnread ? 'bg-blue-50 hover:bg-blue-100' : 'hover:bg-secondary/50'}
-      `}
-    >
-      {/* Unread Indicator */}
+  // Handle click - mark as read and navigate
+  const handleClick = () => {
+    if (onRead) {
+      onRead();
+    }
+  };
+
+  const cardContent = (
+    <>
+      {/* Unread Indicator - SVG circle for text- color support */}
       <div className="w-2 flex-shrink-0 pt-2">
         {isUnread && (
-          <div className="w-2 h-2 rounded-full bg-blue-500" />
+          <svg width="8" height="8" viewBox="0 0 8 8" fill="none" className="text-interactive-info">
+            <circle cx="4" cy="4" r="4" fill="currentColor" />
+          </svg>
         )}
       </div>
 
-      {/* Avatar */}
+      {/* Avatar - 32x32 */}
       <div className="flex-shrink-0">
         {notification.actor_avatar_url ? (
           <Image
             src={notification.actor_avatar_url}
             alt={notification.actor_name || 'User'}
-            width={40}
-            height={40}
-            className="rounded-full object-cover"
+            width={32}
+            height={32}
+            className="w-8 h-8 rounded-full object-cover"
           />
         ) : (
-          <div className="w-10 h-10 rounded-full bg-interactive-primary-default flex items-center justify-center">
-            <span className="text-white text-body-s font-semibold">
+          <div className="w-8 h-8 rounded-full bg-interactive-primary-default flex items-center justify-center">
+            <span className="text-white text-body-xs font-semibold">
               {getInitials(notification.actor_name)}
             </span>
           </div>
@@ -114,29 +130,73 @@ export function NotificationCard({ notification, onClick }: NotificationCardProp
       {/* Content */}
       <div className="flex-1 min-w-0">
         {/* Name */}
-        <p className="text-body-m font-semibold text-primary truncate">
+        <p className="text-webapp-group text-primary truncate">
           {notification.actor_name || 'Jemand'}
         </p>
 
-        {/* Reaction Icons (if reaction type) */}
-        {notification.type === 'reaction' && notification.reaction_types && (
-          <div className="flex items-center gap-1 mt-1 text-secondary">
-            {notification.reaction_types.map((type) => (
-              <span key={type}>{SmallReactionIcons[type as ReactionType]}</span>
-            ))}
-          </div>
+        {/* Single Reaction: Icon + personalized text inline */}
+        {singleReactionType && (
+          <p className="flex items-center gap-1.5 text-body-s text-secondary mt-1">
+            {React.createElement(ReactionIcons[singleReactionType], { size: 16 })}
+            <span>{getNotificationText()}</span>
+          </p>
         )}
 
-        {/* Text */}
-        <p className="text-body-s text-secondary mt-1">
-          {getNotificationText()}
-        </p>
+        {/* Multiple Reactions: Icons above, generic text below */}
+        {notification.type === 'reaction' && !singleReactionType && notification.reaction_types && (
+          <>
+            <div className="flex items-center gap-1 mt-1 text-secondary">
+              {notification.reaction_types.map((type) => {
+                const IconComponent = ReactionIcons[type as ReactionType];
+                return IconComponent ? <IconComponent key={type} size={16} /> : null;
+              })}
+            </div>
+            <p className="text-body-s text-secondary mt-1">
+              {getNotificationText()}
+            </p>
+          </>
+        )}
+
+        {/* Non-reaction types: just text */}
+        {notification.type !== 'reaction' && (
+          <p className="text-body-s text-secondary mt-1">
+            {getNotificationText()}
+          </p>
+        )}
 
         {/* Timestamp */}
         <p className="text-body-xs text-tertiary mt-1">
           {formatRelativeTime(notification.created_at)}
         </p>
       </div>
+    </>
+  );
+
+  const baseClassName = `
+    w-full flex items-start gap-3 p-3 text-left transition-colors
+    ${isUnread ? ' hover:bg-interactive-info-hover' : 'hover:bg-interactive-info-hover'}
+  `;
+
+  // If href is provided, render as Link
+  if (href) {
+    return (
+      <Link
+        href={href}
+        onClick={handleClick}
+        className={baseClassName}
+      >
+        {cardContent}
+      </Link>
+    );
+  }
+
+  // Otherwise render as button
+  return (
+    <button
+      onClick={handleClick}
+      className={baseClassName}
+    >
+      {cardContent}
     </button>
   );
 }

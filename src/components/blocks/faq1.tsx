@@ -102,7 +102,7 @@ const Faq1 = ({
                 <li key={item.id}>
                   <a 
                     href={`#${item.id}`}
-                    className="text-body-m text-interactive-link-default hover:text-interactive-link-hover transition-colors"
+                    className="text-body-m text-link-default hover:text-link-hover transition-colors"
                     style={{ fontFamily: 'Inter' }}
                     onClick={(e) => {
                       e.preventDefault();

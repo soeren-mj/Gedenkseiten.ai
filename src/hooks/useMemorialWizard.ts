@@ -40,7 +40,7 @@ interface WizardState {
     breed_id?: number;
 
     // Avatar
-    avatar_type?: 'initials' | 'icon' | 'image';
+    avatar_type?: 'initials' | 'image';
     avatar_url?: string;
     avatar_file?: File;
 

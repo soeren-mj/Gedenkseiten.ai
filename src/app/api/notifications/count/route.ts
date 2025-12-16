@@ -8,6 +8,9 @@ import type { Database } from '@/lib/supabase';
  * Returns the count of unread notifications for the current user.
  * Used for the notification badge in the header.
  *
+ * Query Parameters:
+ * - memorial_id: string (optional) - Filter by memorial ID
+ *
  * Response:
  * {
  *   success: boolean;
@@ -52,12 +55,22 @@ export async function GET(request: Request) {
       );
     }
 
-    // 2. Count unread notifications
-    const { count, error } = await supabase
+    // 2. Parse query parameters
+    const url = new URL(request.url);
+    const memorialId = url.searchParams.get('memorial_id');
+
+    // 3. Count unread notifications
+    let query = supabase
       .from('notifications')
       .select('*', { count: 'exact', head: true })
       .eq('recipient_id', user.id)
       .eq('is_read', false);
+
+    if (memorialId) {
+      query = query.eq('memorial_id', memorialId);
+    }
+
+    const { count, error } = await query;
 
     if (error) {
       console.error('Error counting notifications:', error);

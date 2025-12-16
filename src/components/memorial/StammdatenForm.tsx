@@ -39,6 +39,7 @@ type StammdatenFormProps = {
   initialData?: Partial<PersonBasicInfo>;
   onSubmit: (data: PersonBasicInfo) => void | Promise<void>;
   onChange?: (data: Partial<PersonBasicInfo>) => void;
+  onValidityChange?: (isValid: boolean) => void;
   formId?: string;
   error?: string | null; // Error message to display near save button
 };
@@ -55,6 +56,7 @@ export function StammdatenForm({
   initialData = {},
   onSubmit,
   onChange,
+  onValidityChange,
   formId = 'stammdaten-form',
   error = null,
 }: StammdatenFormProps) {
@@ -150,6 +152,11 @@ export function StammdatenForm({
 
     return () => subscription.unsubscribe();
   }, [watch, setValue]);
+
+  // Report validity changes to parent (for wizard mode button state)
+  useEffect(() => {
+    onValidityChange?.(isValid);
+  }, [isValid, onValidityChange]);
 
   // Handle form submission
   const handleFormSubmit = async (data: PersonBasicInfo) => {
@@ -308,7 +315,7 @@ export function StammdatenForm({
   };
 
   return (
-    <div className="max-w-[611px] mx-auto">
+    <div className="">
       {/* Edit Button (only in edit mode, when not editing) */}
       {mode === 'edit' && !isEditing && (
         <div className="mb-4 flex justify-end">
@@ -334,7 +341,7 @@ export function StammdatenForm({
                   <button
                     type="button"
                     onClick={() => setIsPickerOpen(true)}
-                    className="flex items-center px-3 py-2 w-full text-left text-body-s text-interactive-link-default hover:bg-tertiary/50 transition-colors"
+                    className="flex items-center px-3 py-2 w-full text-left text-body-s text-link-default hover:bg-tertiary/50 transition-colors"
                   >
                     Weitere Felder hinzufügen
                   </button>
@@ -366,7 +373,7 @@ export function StammdatenForm({
                 <button
                   type="button"
                   onClick={() => setIsPickerOpen(false)}
-                  className="flex items-center justify-center px-3 py-2 w-full text-body-s text-interactive-link-default hover:bg-tertiary/50 transition-colors"
+                  className="flex items-center justify-center px-3 py-2 w-full text-body-s text-link-default hover:bg-tertiary/50 transition-colors"
                 >
                   Fertig
                 </button>

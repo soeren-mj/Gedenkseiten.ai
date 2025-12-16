@@ -1,9 +1,12 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { Pencil, Settings, ExternalLink } from 'lucide-react';
 import InitialsAvatar from '@/components/ui/InitialsAvatar';
 import { formatFullName } from '@/lib/utils/nameFormatter';
+import BellNotificationIcon from '@/components/icons/BellNotificationIcon';
+import BellNotificationActiveIcon from '@/components/icons/BellNotificationActiveIcon';
+import SettingsIcon from '@/components/icons/SettingsIcon';
+import ExternalLinkIcon from '@/components/icons/ExternalLinkIcon';
 
 interface MemorialCardProps {
   memorial: {
@@ -11,12 +14,13 @@ interface MemorialCardProps {
     type: 'person' | 'pet' | 'tier'; // DB uses 'pet', routes use 'tier'
     first_name: string;
     last_name: string | null;
-    avatar_type: 'initials' | 'icon' | 'image';
+    avatar_type: 'initials' | 'image';
     avatar_url: string | null;
     privacy_level: 'public' | 'private';
   };
   visitorCount?: number;
-  onEdit?: () => void;
+  hasUnreadNotifications?: boolean;
+  onNotifications?: () => void;
   onSettings?: () => void;
   onViewPublic?: () => void;
 }
@@ -30,7 +34,8 @@ interface MemorialCardProps {
 export function MemorialCard({
   memorial,
   visitorCount = 0,
-  onEdit,
+  hasUnreadNotifications = false,
+  onNotifications,
   onSettings,
   onViewPublic,
 }: MemorialCardProps) {
@@ -46,12 +51,16 @@ export function MemorialCard({
   const typeLabel = isPerson ? 'Personenseite' : 'Tierseite';
 
   // Default click handlers if not provided
-  const handleEdit = onEdit || (() => router.push(`/gedenkseite/${memorial.id}/verwalten`));
+  const handleNotifications = onNotifications || (() => router.push(`/gedenkseite/${memorial.id}/verwalten/benachrichtigungen`));
   const handleSettings = onSettings || (() => router.push(`/gedenkseite/${memorial.id}/verwalten`));
   const handleViewPublic = onViewPublic || (() => window.open(`/gedenkseite/${memorial.id}`, '_blank'));
 
   return (
-    <div className="w-[247px] h-[247px] bg-bw-opacity-80 rounded-md shadow-card p-4 flex flex-col items-center justify-between">
+    <div className="min-w-[247px] max-w-full aspect-square bg-bw-opacity-40 rounded-md shadow-card flex flex-col items-center p-1 justify-center">
+     
+      {/* Card content */}
+      <div className="w-full h-full bg-light-dark-mode px-4 pt-4 pb-2 rounded-sm flex flex-col items-center justify-between">
+
       {/* Gedenkseite: Avatar + Name + Type */}
       <div className='flex items-start gap-4 w-full'>
       
@@ -61,7 +70,6 @@ export function MemorialCard({
            name={displayName}
            imageUrl={memorial.avatar_url}
            avatarType={memorial.avatar_type}
-           memorialType={memorial.type === 'pet' || memorial.type === 'tier' ? 'pet' : 'person'}
            size="md"
          />
          {/* Green Dot Indicator */}
@@ -76,7 +84,7 @@ export function MemorialCard({
          </p>
 
          {/* Type Badge */}
-         <span className="text-xs text-secondary">
+         <span className="text-body-xs text-secondary">
            {typeLabel}
          </span>
         </div>
@@ -84,7 +92,7 @@ export function MemorialCard({
 
         {/* Middle Section: Visitor Count */}
       <div className="flex flex-col items-center justify-center w-full ">
-          <div className="text-display-number text-gradient-accent">
+          <div className="text-display-number text-secondary">
             {visitorCount}
           </div>
           <div className="text-body-s text-secondary">
@@ -93,16 +101,20 @@ export function MemorialCard({
       </div>
 
       {/* Bottom Section: Action Icons */}
-      <div className="flex items-center justify-between gap-4 w-full px-4">
+      <div className="flex items-center justify-between w-full px-2">
         <button
           onClick={(e) => {
             e.stopPropagation();
-            handleEdit();
+            handleNotifications();
           }}
-          aria-label="Bearbeiten"
+          aria-label="Benachrichtigungen"
           className="p-2 hover:bg-secondary rounded-md transition-colors group"
         >
-          <Pencil className="w-5 h-5 text-secondary group-hover:text-primary transition-colors" />
+          {hasUnreadNotifications ? (
+            <BellNotificationActiveIcon className="w-6 h-6 text-interactive-info" />
+          ) : (
+            <BellNotificationIcon className="w-6 h-6 text-secondary group-hover:text-primary transition-colors" />
+          )}
         </button>
 
         <button
@@ -113,7 +125,7 @@ export function MemorialCard({
           aria-label="Einstellungen"
           className="p-2 hover:bg-secondary rounded-md transition-colors group"
         >
-          <Settings className="w-5 h-5 text-secondary group-hover:text-primary transition-colors" />
+          <SettingsIcon className="w-6 h-6 text-secondary group-hover:text-primary transition-colors" />
         </button>
 
         <button
@@ -124,8 +136,9 @@ export function MemorialCard({
           aria-label="Öffentlich ansehen"
           className="p-2 hover:bg-secondary rounded-md transition-colors group"
         >
-          <ExternalLink className="w-5 h-5 text-secondary group-hover:text-primary transition-colors" />
+          <ExternalLinkIcon className="w-6 h-6 text-secondary group-hover:text-primary transition-colors" />
         </button>
+      </div>
       </div>
     </div>
   );

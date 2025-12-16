@@ -220,7 +220,7 @@ function TimelineSection() {
               label={
                 <>
                   Ich stimme den{' '}
-                  <Link href="/datenschutz" className="text-interactive-link-default hover:underline">
+                  <Link href="/datenschutz" className="text-link-default hover:underline">
                     Datenschutzbestimmungen
                   </Link>{' '}
                   zu.
@@ -279,7 +279,7 @@ function FaqSection() {
                 <li key={item.id}>
                   <a 
                     href={`#${item.id}`}
-                    className="text-body-m text-interactive-link-default hover:text-interactive-link-hover transition-colors"
+                    className="text-body-m text-link-default hover:text-link-hover transition-colors"
                     style={{ fontFamily: 'Inter' }}
                     onClick={(e) => {
                       e.preventDefault();

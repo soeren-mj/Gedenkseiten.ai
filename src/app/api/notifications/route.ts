@@ -64,6 +64,7 @@ export async function GET(request: Request) {
     const url = new URL(request.url);
     const unreadOnly = url.searchParams.get('unread_only') === 'true';
     const type = url.searchParams.get('type');
+    const memorialId = url.searchParams.get('memorial_id');
     const limit = Math.min(parseInt(url.searchParams.get('limit') || '20'), 50);
     const offset = parseInt(url.searchParams.get('offset') || '0');
 
@@ -81,6 +82,10 @@ export async function GET(request: Request) {
 
     if (type) {
       query = query.eq('type', type);
+    }
+
+    if (memorialId) {
+      query = query.eq('memorial_id', memorialId);
     }
 
     const { data: notifications, error, count } = await query;

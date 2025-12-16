@@ -79,9 +79,9 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         focus:ring-blue
       `,
       secondary: `
-        bg-interactive-secondary-default text-interactive-secondary-default
-        hover:bg-interactive-secondary-hover
-        active:bg-interactive-secondary-active
+        bg-button-secondary-default !text-button-secondary-default
+        hover:bg-button-secondary-hover
+        active:bg-button-secondary-active
         focus:ring-blue
       `,
       tertiary: `
@@ -101,7 +101,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       `,
       text: `
         bg-transparent text-interactive-tertiary-text
-        hover:text-interactive-link-hover active:text-interactive-link-active
+        hover:text-link-hover active:text-link-active
         focus:ring-blue
       `
     };

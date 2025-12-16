@@ -5,12 +5,10 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState, useRef } from 'react';
 import { format } from 'date-fns';
-import { WizardLayout } from '@/components/memorial/WizardLayout';
-import { ProgressIndicator } from '@/components/memorial/ProgressIndicator';
+import WizardStepLayout from '@/components/memorial/WizardStepLayout';
 import { Select } from '@/components/forms/Select';
 import { InlineAutocomplete, InlineAutocompleteList } from '@/components/forms/InlineAutocomplete';
 import { InlineDatePicker } from '@/components/forms/InlineDatePicker';
-import { Button } from '@/components/ui/Button';
 import { petBasicInfoSchema, type PetBasicInfo } from '@/lib/validation/memorial-schema';
 import { useMemorialWizard } from '@/hooks/useMemorialWizard';
 import { useLocalStorageDraft } from '@/hooks/useLocalStorageDraft';
@@ -420,24 +418,15 @@ export default function PetBasicInfoPage() {
   };
 
   return (
-    <WizardLayout
-      greetingText="hier kannst du den Namen, sowie die Geburts- und Sterbeinformationen angeben."
-      backButtonText="Zurück"
+    <WizardStepLayout
+      currentStep={1}
+      totalSteps={3}
+      title="Angaben zum Tier hinzufügen"
+      description="Für welches Tier legst du diese Gedenkseite an?"
       onBack={handleBack}
-      footerContent={
-        <Button type="submit" form="pet-basic-info-form" disabled={!isValid}>
-          Weiter
-        </Button>
-      }
+      formId="pet-basic-info-form"
+      nextDisabled={!isValid}
     >
-      <ProgressIndicator currentStep={1} totalSteps={3} className="mb-8" />
-
-      <div className="mb-12 text-center">
-        <h1 className="text-webapp-subsection text-bw mb-8">
-          Für wen möchtest du eine Gedenkseite anlegen?
-        </h1>
-      </div>
-
       {/* API Error Message */}
       {apiError && (
         <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg dark:bg-yellow-900/20 dark:border-yellow-800">
@@ -445,7 +434,7 @@ export default function PetBasicInfoPage() {
         </div>
       )}
 
-      <form id="pet-basic-info-form" onSubmit={handleSubmit(onSubmit)} className="max-w-[611px] mx-auto gap-3 flex flex-col">
+      <form id="pet-basic-info-form" onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-3">
         {/* Name Section */}
         <div>
           <h3 className="text-webapp-group text-primary px-2 mb-2">Name</h3>
@@ -459,7 +448,7 @@ export default function PetBasicInfoPage() {
                 <button
                   type="button"
                   onClick={() => setIsPickerOpen(true)}
-                  className="flex items-center px-3 py-2 w-full text-left text-body-s text-interactive-link-default hover:bg-tertiary/50 transition-colors"
+                  className="flex items-center px-3 py-2 w-full text-left text-body-s text-link-default hover:bg-tertiary/50 transition-colors"
                 >
                   Weitere Felder hinzufügen
                 </button>
@@ -490,7 +479,7 @@ export default function PetBasicInfoPage() {
                 <button
                   type="button"
                   onClick={() => setIsPickerOpen(false)}
-                  className="flex items-center justify-center px-3 py-2 w-full text-body-s text-interactive-link-default hover:bg-tertiary/50 transition-colors"
+                  className="flex items-center justify-center px-3 py-2 w-full text-body-s text-link-default hover:bg-tertiary/50 transition-colors"
                 >
                   Fertig
                 </button>
@@ -797,6 +786,6 @@ export default function PetBasicInfoPage() {
           </div>
         </div>
       </form>
-    </WizardLayout>
+    </WizardStepLayout>
   );
 }

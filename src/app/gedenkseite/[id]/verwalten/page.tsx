@@ -1,157 +1,230 @@
 'use client';
 
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useMemorial } from '@/contexts/MemorialContext';
+import { useToast } from '@/contexts/ToastContext';
 import { formatFullName } from '@/lib/utils/nameFormatter';
-import { ContentOption } from '@/components/memorial/ContentOption';
-import { DashboardCard } from '@/components/cards/DashboardCard';
-import InitialsAvatar from '@/components/ui/InitialsAvatar';
+import { createClient } from '@/lib/supabase/client-legacy';
+import type { ReactionType } from '@/lib/supabase';
+
+// Components
+import { UserMemorialCard } from '@/components/memorial/UserMemorialCard';
+import { MemorialToDoCard } from '@/components/memorial/MemorialToDoCard';
+import { HubCard } from '@/components/memorial/HubCard';
+
+// Icons
 import ArrowUpRightIcon from '@/components/icons/ArrowUpRightIcon';
-import { Heart } from 'lucide-react';
+import WissenswertesIcon from '@/components/icons/WissenswertesIcon';
+import KondolenzbuchIcon from '@/components/icons/KondolenzbuchIcon';
+import TermineIcon from '@/components/icons/TermineIcon';
+import VisuelleErinnerungenIcon from '@/components/icons/VisuelleErinnerungenIcon';
+
+type ReactionCounts = { [key in ReactionType]: number };
 
 /**
- * Memorial Management Page
+ * Memorial Management Overview Page
  *
- * Dashboard for managing a memorial page with sidebar navigation.
- * Memorial data is provided by MemorialContext (fetched in layout).
- * Shows welcome banner when redirected from creation (welcome=true query param).
+ * Dashboard for managing a memorial page with:
+ * - UserMemorialCard (left) - Avatar, name, dates, privacy, reactions
+ * - MemorialToDoCard (middle) - Dynamic checklist items
+ * - Hub-Cards grid - Quick access to content sections
+ * - Settings Overlay - Memorial settings modal
+ * - Welcome Toast - First-time user greeting
  */
 export default function MemorialManagementPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const { memorial } = useMemorial(); // Get memorial from context (already fetched in layout)
+  const { memorial } = useMemorial();
+  const { showSuccess } = useToast();
 
-  const showWelcome = searchParams.get('welcome') === 'true';
+  // State
+  const [wissenswertesCount, setWissenswertesCount] = useState(0);
+  const [kondolenzbuchCount, setKondolenzbuchCount] = useState(0);
+  const [reactions, setReactions] = useState<ReactionCounts | null>(null);
+  const welcomeShownRef = useRef(false);
+
   const displayName = formatFullName(memorial);
 
-  return (
-    <div className="max-w-3xl mx-auto">
-      {/* Welcome Banner (shown only after initial creation) */}
-      {showWelcome && (
-        <div className="mb-8 p-6 bg-green-50 border border-green-200 rounded-lg dark:bg-green-900/20 dark:border-green-800">
-          <h2 className="text-section-h2 text-green-800 dark:text-green-200 mb-2">
-            Gedenkseite erfolgreich erstellt! 🎉
-          </h2>
-          <p className="text-body-m text-green-700 dark:text-green-300">
-            Deine Gedenkseite für {displayName} ist jetzt online.
-          </p>
-        </div>
-      )}
+  // Fetch counts on mount
+  useEffect(() => {
+    const fetchCounts = async () => {
+      const supabase = createClient();
+      const { data: { session } } = await supabase.auth.getSession();
 
-      {/* Page Header */}
-      <div className="mb-8">
-        <h1 className="text-webapp-title text-primary mb-2">
-          Übersicht für {displayName}
+      // Fetch wissenswertes count
+      const { count: wissenswertesTotal } = await supabase
+        .from('wissenswertes')
+        .select('*', { count: 'exact', head: true })
+        .eq('memorial_id', memorial.id);
+
+      setWissenswertesCount(wissenswertesTotal || 0);
+
+      // Fetch kondolenzbuch count (if table exists)
+      // TODO: Implement when kondolenzbuch table is created
+      setKondolenzbuchCount(0);
+
+      // Fetch reactions
+      if (session?.access_token) {
+        try {
+          const response = await fetch(`/api/memorials/${memorial.id}/reactions`, {
+            headers: {
+              'Authorization': `Bearer ${session.access_token}`,
+            },
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            if (data.success) {
+              setReactions(data.data.counts);
+            }
+          }
+        } catch (error) {
+          console.error('Error fetching reactions:', error);
+        }
+      }
+    };
+
+    fetchCounts();
+  }, [memorial.id]);
+
+  // Show welcome toast on first visit
+  useEffect(() => {
+    const showWelcome = searchParams.get('welcome') === 'true';
+
+    // Use ref for synchronous check to prevent double-firing in Strict Mode
+    if (showWelcome && !welcomeShownRef.current) {
+      welcomeShownRef.current = true;
+
+      // Show success toast
+      showSuccess(
+        `Glückwunsch, deine Gedenkseite ist nun erstellt.`,
+        `Füge weitere Inhalte hinzu und personalisiere die Gedenkseite von ${memorial.first_name}. Lade gern Verwandte und Bekannte ein, mit Gedenkbotschaften wird die Seite zu einer dauerhaften Erinnerung.`
+      );
+
+      // Clean URL by removing welcome parameter
+      const url = new URL(window.location.href);
+      url.searchParams.delete('welcome');
+      router.replace(url.pathname, { scroll: false });
+    }
+  }, [searchParams, showSuccess, memorial.first_name, router]);
+
+  // Calculate total reactions count
+  const getTotalReactions = useCallback(() => {
+    if (!reactions) return 0;
+    return Object.values(reactions).reduce((sum, count) => sum + count, 0);
+  }, [reactions]);
+
+  // Content state checks
+  const hasSpruchOrNachruf = !!(memorial.memorial_quote || memorial.obituary);
+  const hasWissenswertes = wissenswertesCount > 0;
+  const hasKondolenzbuch = kondolenzbuchCount > 0;
+  const hasTermine = false; // TODO: Implement when termine table is created
+  const hasReactions = getTotalReactions() > 0;
+
+  return (
+    <div className="flex flex-col gap-2 mb-10">
+      {/* Headline Section */}
+      <div className="flex flex-col gap-2 py-10 text-center items-center">
+        <h1 className="text-webapp-section text-primary">
+          Willkommen in deiner Gedenkseiten-Übersicht
         </h1>
-        <p className="text-body-m text-secondary">
-        Willkommen im Dashboard! Hier kannst du deine Inhalte verwalten und deine Seite weiter verbessern.
+        <p className="text-body-m text-secondary max-w-[685px]">
+          Hier findest du alle Möglichkeiten die Gedenkseite von <span className="font-semibold">{displayName}</span> zu personalisieren und zu verwalten.
         </p>
       </div>
 
-      {/* Status Cards */}
-      <div className="flex gap-6 my-12">
-        <DashboardCard
-          headline="Profil-Fortschritt"
-          description="Du kannst noch Inhalte nutzen und deine Seite gestalten."
-          icon={
-            <InitialsAvatar
-              name={`${memorial.first_name} ${memorial.last_name || ''}`}
-              imageUrl={memorial.avatar_url}
-              avatarType={memorial.avatar_type}
-              memorialType={memorial.type}
-              size="xl"
+      {/* Hub Container */}
+      <div className="flex flex-col gap-8 pt-4 items-center overflow-visible">
+        <div className="flex flex-col md:flex-row gap-8 max-w-7xl w-full overflow-visible">
+        {/* a) UserMemorialCard - Outside grid, left side */}
+        <div className="overflow-visible">
+          <UserMemorialCard
+            memorial={memorial}
+            reactions={reactions || undefined}
+          />
+        </div>
+
+        {/* b) Grid Container - Right side */}
+        <div className="flex-1">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* MemorialToDoCard - spans 2 columns */}
+            <MemorialToDoCard
+              memorial={memorial}
+              wissenswertesCount={wissenswertesCount}
+              kondolenzbuchCount={kondolenzbuchCount}
+              className="md:col-span-2"
             />
-          }
-          clickable={false}
-        />
 
-        <DashboardCard
-          headline="Besucher"
-          description="Anzahl wie oft deine Seite aufgerufen wurde"
-          icon={
-            <div className="text-[2rem] sm:text-[3rem] h-10 sm:h-16 font-satoshi font-semibold text-accent-red">
-              {memorial.view_count || 0}
-            </div>
-          }
-          clickable={false}
-        />
+            {/* Seite ansehen - Always visible */}
+            <HubCard
+              icon={<ArrowUpRightIcon className="w-12 h-12" />}
+              iconAlign="end"
+              title="Seite ansehen"
+              description="Hier gelangst du zur Gedenkseite wie jeder Besucher sie sieht."
+              onClick={() => window.open(`/gedenkseite/${memorial.id}`, '_blank')}
+            />
 
-        <DashboardCard
-          headline="Seite ansehen"
-          description="Hier gelangst du zur Gedenkseite wie jeder Besucher sie sieht."
-          icon={<ArrowUpRightIcon className="w-10 h-10 sm:w-16 sm:h-16 text-interactive-link-default" color="currentColor" />}
-          onClick={() => window.open(`/gedenkseite/${memorial.id}`, '_blank')}
-          clickable={true}
-        />
+            {/* Neue Reaktionen - Only if reactions exist */}
+            {hasReactions && (
+              <HubCard
+                textIcon={String(getTotalReactions())}
+                title="Neue Reaktionen"
+                description="Besucher haben auf die Gedenkseite reagiert."
+                href={`/gedenkseite/${memorial.id}/verwalten/reaktionen`}
+              />
+            )}
 
-        <DashboardCard
-          headline="Reaktionen"
-          description="Alle Reaktionen der Besucher auf einen Blick."
-          icon={<Heart className="w-10 h-10 sm:w-16 sm:h-16 text-accent-red" />}
-          onClick={() => router.push(`/gedenkseite/${memorial.id}/verwalten/reaktionen`)}
-          clickable={true}
-        />
-      </div>
+            {/* Spruch und Nachruf - Only if content exists */}
+            {hasSpruchOrNachruf && (
+              <HubCard
+                textIcon="ABC"
+                title="Spruch und Nachruf"
+                description="Bearbeite den Gedenkspruch und Nachruf."
+                href={`/gedenkseite/${memorial.id}/verwalten/spruch-nachruf`}
+              />
+            )}
 
-      {/* Content Options */}
-      <div className="w-full mx-auto flex flex-col gap-4">
-        {/* Free Content Section */}
-        <div className="flex flex-col gap-1 mt-4">
-          <h2 className="text-webapp-body text-bw">Weitere Inhalte für deine Gedenkseite</h2>
-          <div className="border-b border-main"></div>
+            {/* Wissenswertes - Only if content exists */}
+            {hasWissenswertes && (
+              <HubCard
+                icon={<WissenswertesIcon size={48} />}
+                title="Wissenswertes"
+                description={`${wissenswertesCount} Einträge über ${memorial.first_name}`}
+                href={`/gedenkseite/${memorial.id}/verwalten/wissenswertes`}
+              />
+            )}
+
+            {/* Kondolenzbuch - Only if content exists */}
+            {hasKondolenzbuch && (
+              <HubCard
+                icon={<KondolenzbuchIcon size={48} />}
+                title="Kondolenzbuch"
+                description={`${kondolenzbuchCount} Einträge im Kondolenzbuch`}
+                href={`/gedenkseite/${memorial.id}/verwalten/kondolenzbuch`}
+              />
+            )}
+
+            {/* Termine - Only if content exists */}
+            {hasTermine && (
+              <HubCard
+                icon={<TermineIcon size={48} />}
+                title="Termine"
+                description="Verwalte Gedenktermine und Jahrestage."
+                href={`/gedenkseite/${memorial.id}/verwalten/termine`}
+              />
+            )}
+
+            {/* Visuelle Erinnerungen - Coming Soon */}
+            <HubCard
+              icon={<VisuelleErinnerungenIcon size={48} />}
+              title="Visuelle Erinnerungen"
+              description="Lade Fotos und Videos hoch, um Erinnerungen zu teilen."
+              disabled
+              badge="inPlanung"
+            />
+          </div>
         </div>
-
-        <div className="flex flex-col gap-3">
-          <ContentOption
-            title="Spruch"
-            description="Als dezentes Element ist der Spruch die erste persönliche Note (max. 160 Zeichen). Für Besucher ist der Spruch meinst einfacher zu lesen als der Nachruf."
-            badge="EMPFEHLUNG"
-            buttonText="Bald verfügbar"
-            disabled
-          />
-          <ContentOption
-            title="Nachruf"
-            description="Mit dem Nachruf hast du die Möglichkeit eine ausführliche Würdigung des Lebens und der Leistungen zu hinterlassen."
-            badge="EMPFEHLUNG"
-            buttonText="Bald verfügbar"
-            disabled
-          />
-          <ContentOption
-            title="Wissenswertes"
-            description="Du kannst hier interessante Details zum Leben der Person festhalten wie zum Beispiel besondere Leistungen oder Hobbys."
-            badge="EMPFEHLUNG"
-            buttonText="Bald verfügbar"
-            disabled
-          />
-          <ContentOption
-            title="Kondolenzbuch"
-            description="Erstelle eine Möglichkeit für Gäste ihre Anteilnahme und persönlichen Worte zu verewigen."
-            badge="EMPFEHLUNG"
-            buttonText="Bald verfügbar"
-            disabled
-          />
-          <ContentOption
-            title="Termine"
-            description="Jahrestage, Beerdigung, Gedenkfeiern"
-            buttonText="Bald verfügbar"
-            disabled
-          />
-        </div>
-
-        {/* Premium Content Section */}
-        <div className="flex flex-col gap-1 mt-4">
-          <h2 className="text-webapp-body text-bw">Premium Inhalte</h2>
-          <div className="border-b border-main"></div>
-        </div>
-
-        <div className="flex flex-col gap-3">
-          <ContentOption
-            title="Erinnerungen"
-            description="Erinnerungen sind Foto und Video Rückblicke die du erstellen kannst."
-            buttonText="Bald verfügbar"
-            disabled
-            premium
-          />
         </div>
       </div>
     </div>

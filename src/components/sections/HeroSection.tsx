@@ -154,7 +154,7 @@ export function HeroSection({
                       {secondaryAction.text}
                     </Button>
                   ) : (
-                    <Link href={secondaryAction.href} className="text-interactive-link-default hover:underline self-center sm:self-end">
+                    <Link href={secondaryAction.href} className="text-link-default hover:underline self-center sm:self-end">
                       {secondaryAction.text}
                     </Link>
                   )

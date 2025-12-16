@@ -8,16 +8,16 @@ import InitialsAvatar from '@/components/ui/InitialsAvatar'
 import { CookieSettingsDropdown } from '@/components/ui/CookieSettingsDropdown'
 import { EmailChangeModal } from '@/components/settings/EmailChangeModal'
 import { AccountDeletionModal } from '@/components/settings/AccountDeletionModal'
+import { ThemeModeToggle } from '@/components/ui/theme-mode-toggle'
 import { useState, useEffect, useRef } from 'react'
-import { useTheme } from 'next-themes'
 import { replaceAvatar, deleteAvatar as deleteAvatarFromStorage } from '@/lib/services/avatar-upload'
 import { savePendingEmailChange, getPendingEmailChange, removePendingEmailChange } from '@/lib/pendingEmailStorage'
 import { createClient } from '@/lib/supabase/client-legacy'
+import Link from 'next/link'
+import { ChevronLeft } from 'lucide-react'
 
 export default function SettingsPage() {
   const { user, authUser, updateUserName, updateUserAvatar, deleteUserAvatar, updateUserEmail, refreshUser } = useAuth()
-  const { theme, setTheme } = useTheme()
-  const [darkMode, setDarkMode] = useState(theme === 'dark')
   const [userName, setUserName] = useState('')
   const [savingName, setSavingName] = useState(false)
   const [uploadingAvatar, setUploadingAvatar] = useState(false)
@@ -104,11 +104,6 @@ export default function SettingsPage() {
       document.removeEventListener('mousedown', handleClickOutside)
     }
   }, [showCookieDropdown])
-
-  const handleThemeToggle = (checked: boolean) => {
-    setDarkMode(checked)
-    setTheme(checked ? 'dark' : 'light')
-  }
 
   const handleCookieSettings = () => {
     setShowCookieDropdown(!showCookieDropdown)
@@ -257,296 +252,301 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="mx-auto max-w-4xl gap-8 flex flex-col">
-     
-     {/* Header */}
-     <div className="flex flex-col gap-3">
-      <h1 className="text-webapp-subsection">Einstellungen</h1>
-     </div>
+    <div className="max-w-3xl mx-auto flex flex-col gap-3 pt-4">
+      {/* Back Button */}
+      <Link
+        href="/dashboard"
+        className="flex items-center gap-1 text-body-s text-tertiary hover:text-primary transition-colors w-fit"
+      >
+        <ChevronLeft className="w-4 h-4" />
+        <span>Zurück zum Dashboard</span>
+      </Link>
 
-      {/* Avatar and Name */}
-      <div className="flex flex-col gap-3 mb-4">
-      
+      {/* Page Header */}
+      <div className="w-full p-5 pb-7 flex flex-col gap-2">
+        <h1 className="text-webapp-subsection text-primary">Einstellungen</h1>
+        <p className="text-body-m text-secondary">
+          Hier kannst du deine persönlichen Einstellungen anpassen.
+        </p>
+      </div>
 
-        <div className="flex gap-4 items-center">
-          <InitialsAvatar
-            name={user?.name || user?.email || 'U'}
-            size="xl"
-            imageUrl={user?.avatar_url}
-            editable={true}
-            onUpload={handleAvatarUpload}
-            onDelete={handleAvatarDelete}
-            isUploading={uploadingAvatar}
-          />
-          <div className="flex-1">
-            <NameInput
-              value={userName}
-              onChange={setUserName}
-              onSave={handleNameSave}
-              loading={savingName}
-              label="Name"
-              placeholder="Gib deinen Namen ein"
+      {/* Entry Panel */}
+      <div className="px-4">
+        <div className="flex flex-col gap-8 p-4 border border-card rounded-xs bg-primary">
+
+          {/* Avatar and Name */}
+          <div className="flex gap-4 items-center">
+            <InitialsAvatar
+              name={user?.name || user?.email || 'U'}
+              size="xl"
+              imageUrl={user?.avatar_url}
+              editable={true}
+              onUpload={handleAvatarUpload}
+              onDelete={handleAvatarDelete}
+              isUploading={uploadingAvatar}
             />
-          </div>
-        </div>
-      </div>
-
-      {/* Zugriffseinstellungen Section */}
-      <div className="flex flex-col gap-3">
-      
-       <div className="flex flex-col gap-1">
-          <h2 className="text-webapp-body text-bw">Zugriffseinstellungen</h2>
-          <div className="border-b border-main"></div>
-        </div>
-
-          {/* E-Mail-Adresse */}
-          <div className="flex items-center justify-between">
-            <div className="flex-1 max-w-[40rem]">
-              <p className="text-webapp-group text-primary">
-                E-Mail-Adresse
-              </p>
-              <p className="text-tertiary text-body-s">
-                {user?.email || 'peter.williams@guugleemails.com'}
-              </p>
+            <div className="flex-1">
+              <NameInput
+                value={userName}
+                onChange={setUserName}
+                onSave={handleNameSave}
+                loading={savingName}
+                label="Name"
+                placeholder="Gib deinen Namen ein"
+              />
             </div>
-            <Button variant="tertiary" size="sm" onClick={handleEmailChangeClick}>
-              E-Mail-Adresse ändern
-            </Button>
           </div>
 
-          {/* Email Change Success Message */}
-          {emailChangeSuccess && (
-            <div className={`p-5 rounded-md border ${
-              isEmailChangeConfirmed
-                ? 'bg-message-success border-message-success'
-                : 'bg-interactive-info border-interactive-info'
-            }`}>
-              <p className={`text-body-m ${
-                isEmailChangeConfirmed
-                  ? 'text-message-success'
-                  : 'text-interactive-info'
-              }`}>
-                {isEmailChangeConfirmed ? (
-                  <>
-                    ✅ Deine E-Mail-Adresse wurde erfolgreich zu <strong>{emailChangeSuccess}</strong> geändert.
-                  </>
-                ) : (
-                  <>
-                    Wir haben eine Bestätigungs-E-Mail an <strong>{emailChangeSuccess}</strong> gesendet. Bitte überprüfe dein Postfach und klicke auf den Link, um die Änderung abzuschließen.
-                  </>
-                )}
-              </p>
+          {/* Zugriffseinstellungen Section */}
+          <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-1">
+              <h2 className="text-webapp-body text-bw">Zugriffseinstellungen</h2>
+              <div className="border-b border-main"></div>
             </div>
-          )}
 
-          {/* Passkey */}
-          <div className="flex items-center justify-between">
-            <div className="flex-1 max-w-[40rem] opacity-50">
-              <p className="text-webapp-group text-primary">
-                Passkey
-              </p>
-              <p className="text-tertiary text-body-s">
-                Mit Passkey logst du dich zukünftig schneller und sicherer ein
-              </p>
-            </div>
-            <Button variant="tertiary" size="sm" disabled>
-              Bald verfügbar
-            </Button>
-          </div>
-      </div>
-
-      {/* Privatsphäre Section */}
-      <div className="flex flex-col gap-3">
-
-      <div className="flex flex-col gap-1">
-          <h2 className="text-webapp-body text-bw">Privatsphäre</h2>
-          <div className="border-b border-main"></div>
-        </div>
-
-         {/* Cookie Einstellungen */}
-        <div className="relative" ref={cookieDropdownRef}>
-          <div
-            className="flex items-center justify-between cursor-pointer hover:opacity-80 transition-opacity"
-            onClick={handleCookieSettings}
-          >
+            {/* E-Mail-Adresse */}
+            <div className="flex items-center justify-between">
               <div className="flex-1 max-w-[40rem]">
                 <p className="text-webapp-group text-primary">
-                Cookie Einstellungen
+                  E-Mail-Adresse
                 </p>
                 <p className="text-tertiary text-body-s">
-                  Stelle deine Cookies ein. Mehr Details findest du in den{' '}
-                <a
-                  href="/datenschutz"
-                  className="text-interactive-primary-default underline"
-                  onClick={(e) => e.stopPropagation()}
+                  {user?.email || 'peter.williams@guugleemails.com'}
+                </p>
+              </div>
+              <Button variant="tertiary" size="sm" onClick={handleEmailChangeClick}>
+                E-Mail-Adresse ändern
+              </Button>
+            </div>
+
+            {/* Email Change Success Message */}
+            {emailChangeSuccess && (
+              <div className={`p-5 rounded-md border ${
+                isEmailChangeConfirmed
+                  ? 'bg-message-success border-message-success'
+                  : 'bg-interactive-info border-interactive-info'
+              }`}>
+                <p className={`text-body-m ${
+                  isEmailChangeConfirmed
+                    ? 'text-message-success'
+                    : 'text-interactive-info'
+                }`}>
+                  {isEmailChangeConfirmed ? (
+                    <>
+                      Deine E-Mail-Adresse wurde erfolgreich zu <strong>{emailChangeSuccess}</strong> geändert.
+                    </>
+                  ) : (
+                    <>
+                      Wir haben eine Bestätigungs-E-Mail an <strong>{emailChangeSuccess}</strong> gesendet. Bitte überprüfe dein Postfach und klicke auf den Link, um die Änderung abzuschließen.
+                    </>
+                  )}
+                </p>
+              </div>
+            )}
+
+            {/* Passkey */}
+            <div className="flex items-center justify-between">
+              <div className="flex-1 max-w-[40rem] opacity-50">
+                <p className="text-webapp-group text-primary">
+                  Passkey
+                </p>
+                <p className="text-tertiary text-body-s">
+                  Mit Passkey logst du dich zukünftig schneller und sicherer ein
+                </p>
+              </div>
+              <Button variant="tertiary" size="sm" disabled>
+                Bald verfügbar
+              </Button>
+            </div>
+          </div>
+
+          {/* Privatsphäre Section */}
+          <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-1">
+              <h2 className="text-webapp-body text-bw">Privatsphäre</h2>
+              <div className="border-b border-main"></div>
+            </div>
+
+            {/* Cookie Einstellungen */}
+            <div className="relative" ref={cookieDropdownRef}>
+              <div
+                className="flex items-center justify-between cursor-pointer hover:opacity-80 transition-opacity"
+                onClick={handleCookieSettings}
+              >
+                <div className="flex-1 max-w-[40rem]">
+                  <p className="text-webapp-group text-primary">
+                    Cookie Einstellungen
+                  </p>
+                  <p className="text-tertiary text-body-s">
+                    Stelle deine Cookies ein. Mehr Details findest du in den{' '}
+                    <a
+                      href="/datenschutz"
+                      className="text-interactive-primary-default underline"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      Datenschutzbestimmungen
+                    </a>
+                  </p>
+                </div>
+                <svg
+                  className="w-5 h-5 text-tertiary flex-shrink-0 ml-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
                 >
-                  Datenschutzbestimmungen
-                </a>
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </div>
+
+              <CookieSettingsDropdown
+                isOpen={showCookieDropdown}
+                onClose={() => setShowCookieDropdown(false)}
+              />
+            </div>
+          </div>
+
+          {/* E-Mail-Benachrichtigungen Section */}
+          <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-1">
+              <h2 className="text-webapp-body text-bw">E-Mail-Benachrichtigungen</h2>
+              <div className="border-b border-main"></div>
+            </div>
+
+            {/* Aktivitäten */}
+            <div className="flex items-center justify-between hidden">
+              <div className="flex-1 max-w-[40rem]">
+                <p className="text-webapp-group text-primary">
+                  Aktivitäten auf deinen Gedenkseiten
+                </p>
+                <p className="text-tertiary text-body-s">
+                  Erhalte E-Mails über neue Einträge, Verknüpfungsanfragen, Kontaktanfragen
+                </p>
+              </div>
+              <Switch
+                checked={emailNotifications.activities}
+                onCheckedChange={(checked) =>
+                  setEmailNotifications(prev => ({ ...prev, activities: checked }))
+                }
+              />
+            </div>
+
+            {/* Freigaben */}
+            <div className="flex items-center justify-between hidden">
+              <div className="flex-1 max-w-[40rem]">
+                <p className="text-webapp-group text-primary">
+                  Freigaben
+                </p>
+                <p className="text-tertiary text-body-s">
+                  Erhalte E-Mails über Einträge die noch von dir freizugeben sind
+                </p>
+              </div>
+              <Switch
+                checked={emailNotifications.releases}
+                onCheckedChange={(checked) =>
+                  setEmailNotifications(prev => ({ ...prev, releases: checked }))
+                }
+              />
+            </div>
+
+            {/* Erinnerungen */}
+            <div className="flex items-center justify-between hidden">
+              <div className="flex-1 max-w-[40rem]">
+                <p className="text-webapp-group text-primary">
+                  Erinnerungen
+                </p>
+                <p className="text-tertiary text-body-s">
+                  Erhalte E-Mails über Erinnerungen zu Terminen und Jahrestagen
+                </p>
+              </div>
+              <Switch
+                checked={emailNotifications.reminders}
+                onCheckedChange={(checked) =>
+                  setEmailNotifications(prev => ({ ...prev, reminders: checked }))
+                }
+              />
+            </div>
+
+            {/* Neue Funktionen */}
+            <div className="flex items-center justify-between">
+              <div className="flex-1 max-w-[40rem]">
+                <p className="text-webapp-group text-primary">
+                  Neue Funktionen
+                </p>
+                <p className="text-tertiary text-body-s">
+                  Erhalte E-Mails über neue Funktionen
+                </p>
+              </div>
+              <Switch
+                checked={emailNotifications.features}
+                onCheckedChange={(checked) =>
+                  setEmailNotifications(prev => ({ ...prev, features: checked }))
+                }
+              />
+            </div>
+          </div>
+
+          {/* Darstellung Section */}
+          <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-1">
+              <h2 className="text-webapp-body text-bw">Darstellung</h2>
+              <div className="border-b border-main"></div>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div className="flex-1 max-w-[40rem]">
+                <p className="text-webapp-group text-primary">
+                  Dark Mode
+                </p>
+                <p className="text-tertiary text-body-s">
+                  Die Darstellung wird anhand der Browser-Einstellung gewählt. Die Standard-Einstellung ist Light Mode. Du kannst die Einstellung hier nach belieben anpassen.
+                </p>
+              </div>
+              <ThemeModeToggle />
+            </div>
+          </div>
+
+          {/* Support Section */}
+          <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-1">
+              <h2 className="text-webapp-body text-bw">Support</h2>
+              <div className="border-b border-main"></div>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div className="flex-1 max-w-[40rem]">
+                <p className="text-webapp-group text-primary">
+                  Konto-ID
+                </p>
+                <p className="text-tertiary text-body-s font-mono">
+                  {user?.id || 'a1b2c3d4-e5f6-7890-abcd-ef1234567890'}
+                </p>
+              </div>
+            </div>
+
+            {/* Konto löschen */}
+            <div
+              className="flex items-center justify-between cursor-pointer hover:opacity-80 transition-opacity"
+              onClick={handleAccountDeletionClick}
+            >
+              <div className="flex-1 max-w-[40rem]">
+                <p className="text-webapp-group text-accent-red">
+                  Konto löschen
+                </p>
+                <p className="text-tertiary text-body-s">
+                  Achtung: Hier löst du deinen Account dauerhaft und alle damit verbundenen Einträge und Seiten. Alternativ kannst du Seiten übertragen, wenn du das willst.
                 </p>
               </div>
               <svg
-              className="w-5 h-5 text-tertiary flex-shrink-0 ml-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
+                className="w-5 h-5 text-tertiary flex-shrink-0 ml-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </div>
           </div>
 
-          <CookieSettingsDropdown
-            isOpen={showCookieDropdown}
-            onClose={() => setShowCookieDropdown(false)}
-          />
-        </div>
-        </div>
-
-      {/* E-Mail-Benachrichtigungen Section */}
-      <div className="flex flex-col gap-3">
-
-        <div className="flex flex-col gap-1">
-          <h2 className="text-webapp-body text-bw">E-Mail-Benachrichtigungen</h2>
-          <div className="border-b border-main"></div>
-        </div>
-
-        {/* Aktivitäten */}
-        <div className="flex items-center justify-between hidden">
-          <div className="flex-1 max-w-[40rem]">
-            <p className="text-webapp-group text-primary">
-              Aktivitäten auf deinen Gedenkseiten
-            </p>
-            <p className="text-tertiary text-body-s">
-              Erhalte E-Mails über neue Einträge, Verknüpfungsanfragen, Kontaktanfragen
-            </p>
-          </div>
-          <Switch
-            checked={emailNotifications.activities}
-            onCheckedChange={(checked) =>
-              setEmailNotifications(prev => ({ ...prev, activities: checked }))
-            }
-          />
-        </div>
-
-        {/* Freigaben */}
-        <div className="flex items-center justify-between hidden">
-          <div className="flex-1 max-w-[40rem]">
-            <p className="text-webapp-group text-primary">
-              Freigaben
-            </p>
-            <p className="text-tertiary text-body-s">
-              Erhalte E-Mails über Einträge die noch von dir freizugeben sind
-            </p>
-          </div>
-          <Switch
-            checked={emailNotifications.releases}
-            onCheckedChange={(checked) =>
-              setEmailNotifications(prev => ({ ...prev, releases: checked }))
-            }
-          />
-        </div>
-
-        {/* Erinnerungen */}
-        <div className="flex items-center justify-between hidden">
-          <div className="flex-1 max-w-[40rem]">
-            <p className="text-webapp-group text-primary">
-              Erinnerungen
-            </p>
-            <p className="text-tertiary text-body-s">
-              Erhalte E-Mails über Erinnerungen zu Terminen und Jahrestagen
-            </p>
-          </div>
-          <Switch
-            checked={emailNotifications.reminders}
-            onCheckedChange={(checked) =>
-              setEmailNotifications(prev => ({ ...prev, reminders: checked }))
-            }
-          />
-        </div>
-
-        {/* Neue Funktionen */}
-        <div className="flex items-center justify-between">
-          <div className="flex-1 max-w-[40rem]">
-            <p className="text-webapp-group text-primary">
-              Neue Funktionen
-            </p>
-            <p className="text-tertiary text-body-s">
-              Erhalte E-Mails über neue Funktionen
-            </p>
-          </div>
-          <Switch
-            checked={emailNotifications.features}
-            onCheckedChange={(checked) =>
-              setEmailNotifications(prev => ({ ...prev, features: checked }))
-            }
-          />
-        </div>
-      </div>
-
-      {/* Darstellung Section */}
-      <div className="flex flex-col gap-3">
-
-        <div className="flex flex-col gap-1">
-          <h2 className="text-webapp-body text-bw">Darstellung</h2>
-          <div className="border-b border-main"></div>
-        </div>
-
-        <div className="flex items-center justify-between">
-          <div className="flex-1 max-w-[40rem]">
-            <p className="text-webapp-group text-primary">
-              Dark Mode
-            </p>
-            <p className="text-tertiary text-body-s">
-              Die Darstellung wird anhand der Browser-Einstellung gewählt. Die Standard-Einstellung ist Light Mode. Du kannst die Einstellung hier nach belieben anpassen.
-            </p>
-          </div>
-          <Switch
-            variant="theme"
-            checked={darkMode}
-            onCheckedChange={handleThemeToggle}
-          />
-        </div>
-      </div>
-
-      {/* Support Section */}
-      <div className="flex flex-col gap-3">
-
-        <div className="flex flex-col gap-1">
-          <h2 className="text-webapp-body text-bw">Support</h2>
-          <div className="border-b border-main"></div>
-        </div>
-
-        <div className="flex items-center justify-between">
-          <div className="flex-1 max-w-[40rem]">
-            <p className="text-webapp-group text-primary">
-              Konto-ID
-            </p>
-            <p className="text-tertiary text-body-s font-mono">
-              {user?.id || 'a1b2c3d4-e5f6-7890-abcd-ef1234567890'}
-            </p>
-          </div>
-        </div>
-
-        {/* Konto löschen */}
-        <div
-          className="flex items-center justify-between cursor-pointer hover:opacity-80 transition-opacity"
-          onClick={handleAccountDeletionClick}
-        >
-          <div className="flex-1 max-w-[40rem]">
-            <p className="text-webapp-group text-accent-red">
-              Konto löschen
-            </p>
-            <p className="text-tertiary text-body-s">
-              Achtung: Hier löst du deinen Account dauerhaft und alle damit verbundenen Einträge und Seiten. Alternativ kannst du Seiten übertragen, wenn du das willst.
-            </p>
-          </div>
-          <svg
-            className="w-5 h-5 text-tertiary flex-shrink-0 ml-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-          </svg>
         </div>
       </div>
 
@@ -568,7 +568,6 @@ export default function SettingsPage() {
         onClose={() => setShowAccountDeletionModal(false)}
         onConfirm={handleAccountDeletion}
       />
-
     </div>
   )
 }

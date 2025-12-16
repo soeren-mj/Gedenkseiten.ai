@@ -3,16 +3,13 @@
 import React, { useState, useRef } from 'react'
 import { Tooltip } from './Tooltip'
 import Image from 'next/image'
-import PersonIcon from '@/components/icons/PersonIcon'
-import AnimalIcon from '@/components/icons/AnimalIcon'
 
 interface InitialsAvatarProps {
   name: string
   size?: 'sm' | 'md' | 'lg' | 'xl'
   className?: string
   imageUrl?: string | null
-  avatarType?: 'initials' | 'icon' | 'image'
-  memorialType?: 'person' | 'pet'
+  avatarType?: 'initials' | 'image'
   editable?: boolean
   onUpload?: (file: File) => void
   onDelete?: () => void
@@ -24,8 +21,7 @@ const InitialsAvatar: React.FC<InitialsAvatarProps> = ({
   size = 'md',
   className = '',
   imageUrl = null,
-  avatarType = 'initials',
-  memorialType = 'person',
+  // avatarType is kept in props for backward compatibility but display is based on imageUrl presence
   editable = false,
   onUpload,
   onDelete,
@@ -109,7 +105,7 @@ const InitialsAvatar: React.FC<InitialsAvatarProps> = ({
             h-full
             rounded-full
             relative
-            ${avatarType === 'image' && imageUrl ? 'bg-transparent' : 'bg-[#92A1FC]'}
+            ${imageUrl ? 'bg-transparent' : 'bg-[#92A1FC]'}
             text-white
             flex
             items-center
@@ -119,7 +115,7 @@ const InitialsAvatar: React.FC<InitialsAvatarProps> = ({
             ${isUploading ? 'opacity-50' : ''}
           `}
         >
-          {avatarType === 'image' && imageUrl ? (
+          {imageUrl ? (
             <Image
               src={imageUrl}
               alt={name}
@@ -127,14 +123,6 @@ const InitialsAvatar: React.FC<InitialsAvatarProps> = ({
               className="object-cover"
               unoptimized // For Supabase storage URLs
             />
-          ) : avatarType === 'icon' ? (
-            <div className="w-3/5 h-3/5">
-              {memorialType === 'person' ? (
-                <PersonIcon className="w-full h-full" color="white" />
-              ) : (
-                <AnimalIcon className="w-full h-full" color="white" />
-              )}
-            </div>
           ) : (
             getInitials(name)
           )}

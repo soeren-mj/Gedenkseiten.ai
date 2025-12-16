@@ -77,7 +77,7 @@ export async function POST(request: Request) {
       death_date: payload.death_date,
       birth_place: payload.birth_place || null,
       death_place: payload.death_place || null,
-      avatar_type: (payload.avatar_type || 'initials') as 'initials' | 'image' | 'icon',
+      avatar_type: (payload.avatar_type || 'initials') as 'initials' | 'image',
       avatar_url: payload.avatar_url || null,
       privacy_level: (payload.privacy_level || 'public') as 'public' | 'private',
       is_active: true,

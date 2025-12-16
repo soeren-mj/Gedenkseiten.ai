@@ -35,7 +35,7 @@ export default function LoginModal({
       onClick={handleBackdropClick}
     >
       <div
-        className="max-w-[400px] p-3 rounded-lg backdrop-blur-xl relative"
+        className="max-w-[611px] p-3 rounded-lg backdrop-blur-xl relative"
         style={{ boxShadow: '0 8px 16px 0 rgba(0, 0, 0, 0.1)' }}
       >
         {/* Close Button */}
@@ -57,7 +57,7 @@ export default function LoginModal({
           </svg>
         </button>
 
-        <div className="rounded-[1rem] overflow-hidden p-6 bg-primary inline-flex flex-col justify-start items-center gap-4">
+        <div className="rounded-[1rem] overflow-hidden p-6 bg-primary flex flex-col justify-start items-center gap-4 w-full min-w-xs max-w-md">
           {/* Title */}
           <div className="text-center mb-2">
             <h3 className="text-primary text-xl font-semibold mb-2">{title}</h3>

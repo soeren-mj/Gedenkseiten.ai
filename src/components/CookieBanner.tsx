@@ -20,15 +20,38 @@ declare global {
   }
 }
 
+// Helper functions for cookie management
+const COOKIE_NAME = 'cookie-consent';
+const COOKIE_MAX_AGE = 15768000; // 6 months in seconds (DSGVO-konform)
+
+function getCookieConsent(): CookieConsent | null {
+  if (typeof document === 'undefined') return null;
+  const match = document.cookie.match(new RegExp(`${COOKIE_NAME}=([^;]+)`));
+  if (!match) return null;
+  try {
+    return JSON.parse(decodeURIComponent(match[1]));
+  } catch {
+    return null;
+  }
+}
+
+function setCookieConsent(consent: CookieConsent): void {
+  if (typeof document === 'undefined') return;
+  const value = encodeURIComponent(JSON.stringify(consent));
+  document.cookie = `${COOKIE_NAME}=${value}; max-age=${COOKIE_MAX_AGE}; path=/; SameSite=Lax`;
+}
 
 export function CookieBanner() {
   const [showBanner, setShowBanner] = useState(false);
   const [consent, setConsent] = useState<CookieConsent>(defaultConsent);
 
   useEffect(() => {
-    const savedConsent = localStorage.getItem('cookie-consent');
+    // Check cookie instead of localStorage
+    const savedConsent = getCookieConsent();
     if (!savedConsent) {
       setShowBanner(true);
+    } else {
+      setConsent(savedConsent);
     }
   }, []);
 
@@ -36,7 +59,7 @@ export function CookieBanner() {
   const handleAnalyticsSwitch = (checked: boolean) => {
     setConsent((prev) => {
       const updated = { ...prev, analytics: checked };
-      localStorage.setItem('cookie-consent', JSON.stringify(updated));
+      setCookieConsent(updated);
       if (checked && typeof window !== 'undefined' && window.dataLayer) {
         window.dataLayer.push({ event: 'analytics_consent_granted' });
       }
@@ -48,7 +71,7 @@ export function CookieBanner() {
   const handleDecline = () => {
     const onlyNecessary: CookieConsent = { analytics: false, necessary: true };
     setConsent(onlyNecessary);
-    localStorage.setItem('cookie-consent', JSON.stringify(onlyNecessary));
+    setCookieConsent(onlyNecessary);
     setShowBanner(false);
   };
 
@@ -56,7 +79,7 @@ export function CookieBanner() {
   const handleAccept = () => {
     const fullConsent: CookieConsent = { analytics: true, necessary: true };
     setConsent(fullConsent);
-    localStorage.setItem('cookie-consent', JSON.stringify(fullConsent));
+    setCookieConsent(fullConsent);
     setShowBanner(false);
     if (typeof window !== 'undefined' && window.dataLayer) {
       window.dataLayer.push({ event: 'analytics_consent_granted' });

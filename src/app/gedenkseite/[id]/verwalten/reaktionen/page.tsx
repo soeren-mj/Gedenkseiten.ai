@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+import { ChevronLeft } from 'lucide-react';
 import InitialsAvatar from '@/components/ui/InitialsAvatar';
 import { useParams } from 'next/navigation';
 import { useMemorial } from '@/contexts/MemorialContext';
@@ -140,8 +141,9 @@ export default function ReaktionenPage() {
 
   if (isLoading) {
     return (
-      <div className="max-w-3xl mx-auto">
+      <div className="max-w-3xl mx-auto flex flex-col gap-3 pt-4">
         <div className="animate-pulse">
+          <div className="h-4 bg-tertiary rounded w-32 mb-4" />
           <div className="h-8 bg-tertiary rounded w-1/3 mb-4" />
           <div className="h-20 bg-tertiary rounded mb-6" />
           <div className="space-y-4">
@@ -155,87 +157,100 @@ export default function ReaktionenPage() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto">
+    <div className="max-w-3xl mx-auto flex flex-col gap-3 pt-4 mb-10">
       {/* Back Link */}
       <Link
         href={`/gedenkseite/${memorialId}/verwalten`}
-        className="inline-flex items-center gap-1 text-body-m text-secondary hover:text-primary transition-colors mb-6"
+        className="flex items-center gap-1 text-body-s text-tertiary hover:text-primary transition-colors w-fit"
       >
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M10 12L6 8L10 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
-        Zurück zur Übersicht
+        <ChevronLeft className="w-4 h-4" />
+        <span>Zurück zur Übersicht</span>
       </Link>
 
       {/* Page Header */}
-      <div className="mb-8">
-        <h1 className="text-webapp-subsection text-primary mb-2">Reaktionen</h1>
-        <p className="text-body-l text-secondary">
+      <div className="w-full p-5 pb-7 flex flex-col gap-2">
+        <h1 className="text-webapp-subsection text-primary">Reaktionen</h1>
+        <p className="text-body-m text-secondary">
           Hier findest du eine Liste aller Personen, die auf die Gedenkseite von {fullName} reagiert haben.
         </p>
       </div>
 
-      {/* Summary Card */}
-      <div className="bg-primary rounded-xl p-6 mb-8 border border-main">
-        <h2 className="text-body-m font-semibold text-primary mb-4">Alle Reaktionen</h2>
-        <div className="flex items-center gap-8">
-          {REACTION_ORDER.map((type) => (
-            <div key={type} className="flex items-center gap-2">
-              {FilledReactionIcons[type]}
-              <span className="text-body-l font-medium text-primary">{counts[type]}</span>
+      {/* Main Panel */}
+      <div className="px-4">
+        {/* Summary Section */}
+        <div className="flex flex-col gap-3 px-4 mb-10">
+            <div className="flex flex-col gap-1">
+              <h2 className="text-webapp-body text-bw">Übersicht</h2>
+              <div className="border-b border-main"></div>
             </div>
-          ))}
+            <div className="flex items-center gap-8">
+              {REACTION_ORDER.map((type) => (
+                <div key={type} className="flex items-center gap-2">
+                  {FilledReactionIcons[type]}
+                  <span className="text-body-l font-medium text-primary">{counts[type]}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        <div className="flex flex-col gap-8 p-4 border border-card rounded-xs bg-primary">
+
+          {/* Reactions List Section */}
+          <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-1">
+              <h2 className="text-webapp-body text-bw">Personen</h2>
+              <div className="border-b border-main"></div>
+            </div>
+
+            {reactions.length === 0 ? (
+              <div className="py-8 text-center">
+                <p className="text-secondary">Noch keine Reaktionen vorhanden.</p>
+              </div>
+            ) : (
+              <div className="divide-y divide-main -mx-4">
+                {reactions.map((reaction) => (
+                  <div
+                    key={reaction.user_id}
+                    className="flex items-center justify-between px-4 py-3 hover:bg-secondary/30 transition-colors"
+                  >
+                    {/* User Info */}
+                    <div className="flex items-center gap-3">
+                      <InitialsAvatar
+                        name={reaction.user_name}
+                        size="md"
+                        imageUrl={reaction.user_avatar_url}
+                      />
+                      <span className="text-body-m font-medium text-primary">
+                        {reaction.user_name}
+                      </span>
+                    </div>
+
+                    {/* Reaction Icons + Timestamp */}
+                    <div className="flex items-center gap-4">
+                      {/* Reaction Icons */}
+                      <div className="flex items-center gap-2 text-secondary">
+                        {reaction.reaction_types.map((type) => (
+                          <span key={type}>{OutlineReactionIcons[type]}</span>
+                        ))}
+                      </div>
+                      {/* Timestamp */}
+                      <span className="text-body-s text-tertiary min-w-[100px] text-right">
+                        {formatRelativeTime(reaction.latest_reaction_at)}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Total Count */}
+          {totalReactions > 0 && (
+            <p className="text-body-s text-tertiary text-center">
+              Insgesamt {totalReactions} Reaktion{totalReactions !== 1 ? 'en' : ''} von {reactions.length} Person{reactions.length !== 1 ? 'en' : ''}
+            </p>
+          )}
         </div>
       </div>
-
-      {/* Reactions List */}
-      {reactions.length === 0 ? (
-        <div className="bg-primary rounded-xl p-12 text-center border border-main">
-          <p className="text-secondary">Noch keine Reaktionen vorhanden.</p>
-        </div>
-      ) : (
-        <div className="bg-primary rounded-xl border border-main divide-y divide-main">
-          {reactions.map((reaction) => (
-            <div
-              key={reaction.user_id}
-              className="flex items-center justify-between p-4 hover:bg-secondary/30 transition-colors"
-            >
-              {/* User Info */}
-              <div className="flex items-center gap-3">
-                <InitialsAvatar
-                  name={reaction.user_name}
-                  size="md"
-                  imageUrl={reaction.user_avatar_url}
-                />
-                <span className="text-body-m font-medium text-primary">
-                  {reaction.user_name}
-                </span>
-              </div>
-
-              {/* Reaction Icons + Timestamp */}
-              <div className="flex items-center gap-4">
-                {/* Reaction Icons */}
-                <div className="flex items-center gap-2 text-secondary">
-                  {reaction.reaction_types.map((type) => (
-                    <span key={type}>{OutlineReactionIcons[type]}</span>
-                  ))}
-                </div>
-                {/* Timestamp */}
-                <span className="text-body-s text-tertiary min-w-[100px] text-right">
-                  {formatRelativeTime(reaction.latest_reaction_at)}
-                </span>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Total Count */}
-      {totalReactions > 0 && (
-        <p className="text-body-s text-tertiary text-center mt-4">
-          Insgesamt {totalReactions} Reaktion{totalReactions !== 1 ? 'en' : ''} von {reactions.length} Person{reactions.length !== 1 ? 'en' : ''}
-        </p>
-      )}
     </div>
   );
 }

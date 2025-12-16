@@ -11,10 +11,11 @@ export interface ToastProps {
   title: string
   message: string
   duration?: number
+  showIcon?: boolean
   onClose: (id: string) => void
 }
 
-export function Toast({ id, type, title, message, duration = 10000, onClose }: ToastProps) {
+export function Toast({ id, type, title, message, duration = 10000, showIcon = true, onClose }: ToastProps) {
   useEffect(() => {
     const timer = setTimeout(() => {
       onClose(id)
@@ -52,25 +53,36 @@ export function Toast({ id, type, title, message, duration = 10000, onClose }: T
   }
 
   return (
+    // Outer container (frame effect like HubCard)
     <div
       className={`
-        flex items-start gap-3 p-4 rounded-xs border backdrop-blur-md
-        shadow-lg max-w-md w-full
-        animate-in slide-in-from-top duration-300
+        relative rounded-md shadow-card p-2 border border-main
+        max-w-md w-full pointer-events-auto
+        animate-in slide-in-from-top duration-3000
         ${getStyles()}
       `}
       role="alert"
     >
-      <div className="flex-shrink-0 text-xl mt-0.5">{getIcon()}</div>
+      {/* Inner container */}
+      <div
+        className={`
+          flex flex-col items-start gap-4 p-3 rounded-sm
+          
+        `}
+      >
+        {showIcon && <div className="flex-shrink-0 text-xl mt-0.5">{getIcon()}</div>}
 
-      <div className="flex-1 min-w-0">
-        <h3 className="text-body-m font-semibold mb-1">{title}</h3>
-        <p className="text-body-s opacity-90">{message}</p>
+        <div className="flex flex-col gap-2 min-w-0">
+          <h3 className="text-webapp-subsection">{title}</h3>
+          <p className="text-body-m">{message}</p>
+        </div>
+
       </div>
 
+      {/* Close button - absolute top right */}
       <button
         onClick={() => onClose(id)}
-        className="flex-shrink-0 p-1 rounded-xxs hover:bg-bw-opacity-10 transition-colors"
+        className="absolute top-3 right-3 p-1 rounded-xxs hover:bg-bw-opacity-10 transition-colors"
         aria-label="Schließen"
       >
         <XIcon variant="sm" className="w-4 h-4" />

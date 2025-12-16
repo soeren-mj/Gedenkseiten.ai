@@ -143,6 +143,7 @@
     --bg-bw-opacity-40: rgba(255, 255, 255, 0.4); /* white/40 */
     --bg-bw-opacity-60: rgba(255, 255, 255, 0.6); /* white/60 */
     --bg-bw-opacity-80: rgba(255, 255, 255, 0.86); /* white/86 */
+    --bg-light-dark-mode: #F0F0F2;
     --bg-primary: #F0F0F2;
     --bg-secondary: #E0E1E5;
     --bg-tertiary: #D2D3D9;
@@ -151,21 +152,22 @@
     --bg-interactive-primary-default: #0928f5;
     --bg-interactive-primary-hover: #0822CC;
     --bg-interactive-primary-active: #031AA8;
+    --bg-interactive-primary-disabled: #E0E1E5;
     --bg-interactive-disabled: #E0E1E5;
     --bg-interactive-primary-opacity-10: rgba(9, 40, 245, 0.10);
     --bg-interactive-info: rgba(23, 92, 210, 0.10); /* info-400 with 10% opacity */
     --bg-interactive-info-hover: rgba(23, 92, 210, 0.20); /* info-400 with 20% opacity */
     --bg-interactive-positive-default: #1E9B4C;
     --bg-interactive-positive-hover: #1B7A3E;
-    --bg-interactive-positive-active: #1A6134;
-    --bg-message-success: rgba(108, 220, 149, 0.10); /* green-400 with 10% opacity */
-    --bg-error-message: rgba(255, 89, 92, 0.10); /* red-400 with 10% opacity */
-    --bg-interactive-error-default: #A01417;
-    --bg-interactive-error-hover: #84181A;
-    --bg-interactive-error-active: #480708;
-    --bg-interactive-secondary-default: #FFFFFF;
-    --bg-interactive-secondary-hover: #F0F0F2;
-    --bg-interactive-secondary-active: #E0E1E5;
+    --bg-interactive-positive-active: #17502C;
+    --bg-message-success: #95E9B4;
+    --bg-error-message: #FFA0A2; /* red-300 */
+    --bg-interactive-error-default: #C11417;
+    --bg-interactive-error-hover: #A01417;
+    --bg-interactive-error-active: #84181A;
+    --bg-button-secondary-default: #000000;
+    --bg-button-secondary-hover: #1F2024;
+    --bg-button-secondary-active: #2F2F30;
     --bg-interactive-tertiary-hover: #F0F0F2;
     --bg-interactive-tertiary-active: #E0E1E5;
 
@@ -182,23 +184,23 @@
     --text-interactive-active: #FFFFFF;
     --text-interactive-disabled: #AAADBF;
     --text-interactive-info: #175CD2; /* info-400 */
-    --text-interactive-link-default: #0928F5;
-    --text-interactive-link-hover: #0822CC;
-    --text-interactive-link-active: #031AA8;
-    --text-interactive-positive-default: #213EFF;
-    --text-interactive-positive-hover: #0822CC;
-    --text-interactive-positive-active: #031AA8;
+    --text-link-default: #213EFF;
+    --text-link-hover: #0822CC;
+    --text-link-active: #031AA8;
+    --text-interactive-positive-default: #F1FCF5;
+    --text-interactive-positive-hover: #DEFAE8;
+    --text-interactive-positive-active: #BEF4D2;
     --text-interactive-error-default: #FFC7C8;
-    --text-interactive-secondary-default: #000000;
+    --text-button-secondary-default: #FFFFFF;
     --text-interactive-tertiary-text: #0928F5;
     --text-interactive-positive-text: #FFFFFF;
-    --text-interactive-error-text: #FFFFFF;
-    --text-message-success: #17502C; /* green-900 */
+    --text-interactive-error-text: #FFE1E1;
+    --text-message-success: #1A6134;
     --text-message-error: #A01417; /* red-800 */
     --text-interactive-primary-disabled: #AAADBF; /* neutral-400 */
 
     /* Accent colors */
-    --accent-blue: #0928F5;
+    --accent-blue: #0928F5; /* primary-700 */
     --accent-red: #FF595C;
     --accent-orange: #E59617;
     --accent-green: #6CDC95;
@@ -213,10 +215,12 @@
     --text-chip-premium: #041738; /* blue-950 */
     --bg-chip-soon: #AAADBF; /* neutral-400 */
     --text-chip-soon: #1F2024; /* neutral-900 */
-    --bg-chip-public: #6CDC95; /* green-400 */
-    --text-chip-public: #0A2914; /* green-950 */
+    --bg-chip-green: #6CDC95; /* green-400 */
+    --text-chip-green: #0A2914; /* green-950 */
     --bg-chip-private: #AAADBF; /* neutral-400 */
-    --text-chip-private: #1F2024; /* neutral-900 */
+    --text-chip-private: #1F2024; /* neutral-900 */ 
+    --bg-chip-yellow: #EDDB16; /* yellow-400 */
+    --text-chip-yellow: #3F2609; /* yellow-950 */
 
     /* Border colors */
     --border-main: #D2D3D9; /* neutral-200 */
@@ -224,13 +228,13 @@
     --border-card-inverted: #000000;
     --border-hover: #C0C1CC; /* neutral-300 */
     --border-active: #2F2F30; /* neutral-800 */
-    --border-interactive-default: #213EFF;
-    --border-interactive-hover: #0928F5;
-    --border-interactive-active: #0822CC;
+    --border-interactive-default: #213EFF; /* primary-600 */
+    --border-interactive-hover: #0928F5; /* primary-700 */
+    --border-interactive-active: #0822CC; /* primary-800 */
     --border-interactive-disabled: #E0E1E5;
     --border-interactive-info: #175CD2; /* info-400 */
     --border-interactive-info-hover: #9AB6FD; /* primary-300 */
-    --border-message-success: #6CDC95; /* accent-green / green-400 */
+    --border-message-success: #95E9B4; /* accent-green / green-300 */
     --border-message-error: #FF595C; /* accent-red / red-400 */
   }
 
@@ -241,6 +245,7 @@
     --bg-bw-opacity-40: rgba(0, 0, 0, 0.4); /* black/40 */
     --bg-bw-opacity-60: rgba(0, 0, 0, 0.6); /* black/60 */
     --bg-bw-opacity-80: rgba(0, 0, 0, 0.86); /* black/86 */
+    --bg-light-dark-mode: #050509;
     --bg-primary: #1F2024;
     --bg-secondary: #2F2F30;
     --bg-tertiary: #636573;
@@ -249,21 +254,22 @@
     --bg-interactive-primary-default: #4C63F7;
     --bg-interactive-primary-hover: #213EFF;
     --bg-interactive-primary-active: #0928F5;
+    --bg-interactive-primary-disabled: #1F2024;
     --bg-interactive-disabled: #636573;
     --bg-interactive-primary-opacity-10: rgba(9, 40, 245, 0.10);
     --bg-interactive-info: rgba(4, 23, 56, 0.20); /* info-900 with 20% opacity */
     --bg-interactive-info-hover: rgba(4, 23, 56, 0.30); /* info-900 with 30% opacity */
-    --bg-interactive-positive-default: #8CE9AE;
+    --bg-interactive-positive-default: #95E9B4;
     --bg-interactive-positive-hover: #6CDC95;
-    --bg-interactive-positive-active: #1E9B4C;
-    --bg-message-success: rgba(108, 220, 149, 0.10); /* green-400 with 10% opacity */
-    --bg-error-message: rgba(255, 89, 92, 0.10); /* red-400 with 10% opacity */
-    --bg-interactive-error-default: #FFC7C8;
-    --bg-interactive-error-hover: #FFA0A2;
-    --bg-interactive-error-active: #FF595C;
-    --bg-interactive-secondary-default: #000000;
-    --bg-interactive-secondary-hover: #2F2F30;
-    --bg-interactive-secondary-active: #636573;
+    --bg-interactive-positive-active: #2BBC60;
+    --bg-message-success: #072C15;
+    --bg-error-message: #F83B3E; /* red-950 */
+    --bg-interactive-error-default: #FFA0A2;
+    --bg-interactive-error-hover: #FF595C;
+    --bg-interactive-error-active: #F83B3E;
+    --bg-button-secondary-default: #ffffff;
+    --bg-button-secondary-hover: #F0F0F2;
+    --bg-button-secondary-active: #E0E1E5;
     --bg-interactive-tertiary-hover: #2F2F30;
     --bg-interactive-tertiary-active: #636573;
 
@@ -280,22 +286,22 @@
     --text-interactive-active: #DAE8FF;
     --text-interactive-disabled: #AAADBF; /* neutral-400 */
     --text-interactive-info: #BBD3FC; /* info-100 */
-    --text-interactive-link-default: #6B89FF;
-    --text-interactive-link-hover: #4C63F7;
-    --text-interactive-link-active: #213EFF;
-    --text-interactive-positive-default: #17502C;
-    --text-interactive-positive-active: #DEFAE8;
-    --text-interactive-error-default: #84181A;
-    --text-message-success: #DEFAE8; /* green-100 */
-    --text-message-error: #FFE1E1; /* red-100 */
-    --text-interactive-secondary-default: #FFFFFF;
+    --text-link-default: #6B89FF;
+    --text-link-hover: #4C63F7;
+    --text-link-active: #213EFF;
+    --text-interactive-positive-default: #072C15;
+    --text-interactive-positive-active: #072C15;
+    --text-interactive-error-default: #480708;
+    --text-message-success: #95E9B4;
+    --text-message-error: #FFA0A2; /* red-300 */
+    --text-button-secondary-default: #000000;
     --text-interactive-tertiary-text: #9AB6FD;
     --text-interactive-positive-text: #17502C;
     --text-interactive-error-text: #84181A;
     --text-interactive-primary-disabled: #636573;
 
     /* Accent colors (same as light mode) */
-    --accent-blue: #0928F5;
+    --accent-blue: #0928F5; /* primary-700 */
     --accent-red: #FF595C;
     --accent-orange: #E59617;
     --accent-green: #6CDC95;
@@ -310,10 +316,12 @@
     --text-chip-premium: #4C92F7; /* blue-400 */
     --bg-chip-soon: #1F2024; /* neutral-900 */
     --text-chip-soon: #AAADBF; /* neutral-400 */
-    --bg-chip-public: #0A2914; /* green-950 */
-    --text-chip-public: #6CDC95; /* green-400 */
+    --bg-chip-green: #0A2914; /* green-950 */
+    --text-chip-green: #6CDC95; /* green-400 */
     --bg-chip-private: #1F2024; /* neutral-900 */
     --text-chip-private: #AAADBF; /* neutral-400 */
+    --bg-chip-yellow: #3F2609; /* yellow-950 */
+    --text-chip-yellow: #EDDB16; /* yellow-400 */
 
     /* Border colors */
     --border-main: #2F2F30; /* neutral-800 */
@@ -321,13 +329,13 @@
     --border-card-inverted: #FFFFFF;
     --border-hover: #8B8FA5; /* neutral-500 */
     --border-active: #D2D3D9; /* neutral-200 */  
-    --border-interactive-default: #6B89FF;
-    --border-interactive-hover: #4C63F7;
-    --border-interactive-active: #213EFF;
+    --border-interactive-default: #6B89FF; /* primary-400 */
+    --border-interactive-hover: #4C63F7; /* primary-500 */
+    --border-interactive-active: #213EFF; /* primary-600 */
     --border-interactive-disabled: #636573;
     --border-interactive-info: #175CD2; /* info-400 */
     --border-interactive-info-hover: #9AB6FD; /* primary-300 */
-    --border-message-success: #6CDC95; /* accent-green / green-400 */
+    --border-message-success: #95E9B4; /* accent-green / green-300 */
     --border-message-error: #FF595C; /* accent-red / red-400 */
   }
 }
@@ -507,9 +515,9 @@
   
   .text-chip {
     font-family: 'Inter', sans-serif;
-    font-weight: 600;
-    font-size: 0.625rem;
-    line-height: 100%;
+    font-weight: 500;
+    font-size: 0.75rem;
+    line-height: 150%;
     letter-spacing: 0.02em;
   }
 
@@ -530,16 +538,20 @@
     color: var(--text-chip-soon);
   }
 
-  .chip-public {
-    background-color: var(--bg-chip-public);
-    color: var(--text-chip-public);
+  .chip-green {
+    background-color: var(--bg-chip-green);
+    color: var(--text-chip-green);
   }
 
   .chip-private {
     background-color: var(--bg-chip-private);
     color: var(--text-chip-private);
   }
-  
+
+  .chip-yellow {
+    background-color: var(--bg-chip-yellow);
+    color: var(--text-chip-yellow);
+  }
   /* Webapp Styles (Dashboard) */
   .text-webapp-title {
     font-family: 'Satoshi', sans-serif;
@@ -584,9 +596,9 @@
   /* Design Element Styles */
   .text-display-number {
     font-family: 'Satoshi', sans-serif;
-    font-weight: 500;
+    font-weight: 400;
     font-size: 3rem;
-    line-height: 135.42%;
+    line-height: 3.375rem;
     letter-spacing: 0;
   }
 
@@ -879,4 +891,11 @@
 
   .memorial-content {
     @apply lg:col-span-2 space-y-6;
+  }
+
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }

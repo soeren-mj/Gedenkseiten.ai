@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useCallback } from 'react';
+import Link from 'next/link';
+import { ChevronLeft } from 'lucide-react';
 import { useMemorial } from '@/contexts/MemorialContext';
 import { SpruchInput } from '@/components/memorial/SpruchInput';
 import { NachrufInput } from '@/components/memorial/NachrufInput';
@@ -107,41 +109,56 @@ export default function SpruchNachrufPage() {
   }, [memorial.obituary, saveField, showSuccess]);
 
   return (
-    <div className="max-w-3xl mx-auto">
+    <div className="max-w-3xl mx-auto flex flex-col gap-3 pt-4 mb-10">
+      {/* Back Link */}
+      <Link
+        href={`/gedenkseite/${memorial.id}/verwalten`}
+        className="flex items-center gap-1 text-body-s text-tertiary hover:text-primary transition-colors w-fit"
+      >
+        <ChevronLeft className="w-4 h-4" />
+        <span>Zurück zur Übersicht</span>
+      </Link>
+
       {/* Page Header */}
-      <div className="mb-8">
-        <Badge variant="empfehlung" className="mb-2">
+      <div className="w-full p-5 pb-7 flex flex-col gap-2">
+        <Badge variant="empfehlung" className="w-fit">
           Empfehlung
         </Badge>
-        <h1 className="text-webapp-subsection text-primary mb-2">
+        <h1 className="text-webapp-subsection text-primary">
           Spruch und Nachruf
         </h1>
-        <p className="text-body-l text-secondary">
+        <p className="text-body-m text-secondary">
           Verleihe deiner Gedenkseite eine persönliche Note.
         </p>
       </div>
 
-      {/* Content */}
-      <div className="space-y-8">
-        {/* Spruch Section */}
-        <section>
-          <SpruchInput
-            value={spruch}
-            onChange={setSpruch}
-            onSave={handleSpruchSave}
-            disabled={isSavingSpruch}
-          />
-        </section>
+      {/* Main Panel */}
+      <div className="px-4">
+        <div className="flex flex-col gap-8 p-4 border border-card rounded-xs bg-primary">
+          {/* Spruch Section */}
+          <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-1">
+            </div>
+            <SpruchInput
+              value={spruch}
+              onChange={setSpruch}
+              onSave={handleSpruchSave}
+              disabled={isSavingSpruch}
+            />
+          </div>
 
-        {/* Nachruf Section */}
-        <section>
-          <NachrufInput
-            value={nachruf}
-            onChange={setNachruf}
-            onSave={handleNachrufSave}
-            disabled={isSavingNachruf}
-          />
-        </section>
+          {/* Nachruf Section */}
+          <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-1">
+            </div>
+            <NachrufInput
+              value={nachruf}
+              onChange={setNachruf}
+              onSave={handleNachrufSave}
+              disabled={isSavingNachruf}
+            />
+          </div>
+        </div>
       </div>
     </div>
   );

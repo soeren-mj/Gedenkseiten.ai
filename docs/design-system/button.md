@@ -50,10 +50,10 @@ interface SecondaryButtonProps {
 **CSS Implementation**:
 ```css
 .btn-secondary {
-  @apply bg-interactive-secondary-default 
-         text-interactive-secondary-default
-         hover:bg-interactive-secondary-hover
-         active:bg-interactive-secondary-active
+  @apply bg-button-secondary-default
+         text-button-secondary-default
+         hover:bg-button-secondary-hover
+         active:bg-button-secondary-active
          disabled:bg-interactive-primary-disabled disabled:text-interactive-primary-disabled
          transition-all duration-200;
 }
@@ -240,12 +240,12 @@ export const Button: React.FC<ButtonProps> = ({
       disabled:bg-interactive-primary-disabled disabled:text-interactive-disabled
     `,
     secondary: `
-      bg-interactive-secondary-default border-2 border-interactive-secondary-border
-      text-interactive-secondary-text
-      hover:bg-interactive-secondary-hover hover:border-interactive-secondary-hover-border
-      active:bg-interactive-secondary-active active:border-interactive-secondary-active-border
+      bg-button-secondary-default border-2 border-button-secondary-border
+      text-button-secondary-text
+      hover:bg-button-secondary-hover hover:border-button-secondary-hover-border
+      active:bg-button-secondary-active active:border-button-secondary-active-border
       focus:ring-accent-blue
-      disabled:bg-interactive-secondary-disabled disabled:border-interactive-secondary-disabled-border
+      disabled:bg-button-secondary-disabled disabled:border-button-secondary-disabled-border
       disabled:text-interactive-disabled
     `,
     tertiary: `
@@ -621,10 +621,10 @@ module.exports = {
         'interactive-primary-hover': 'var(--background-interactive-primary-hover)',
         'interactive-primary-active': 'var(--background-interactive-primary-active)',
         'interactive-primary-disabled': 'var(--background-interactive-primary-disabled)',
-        'interactive-secondary-default': 'var(--background-interactive-secondary-default)',
-        'interactive-secondary-hover': 'var(--background-interactive-secondary-hover)',
-        'interactive-secondary-active': 'var(--background-interactive-secondary-active)',
-        'interactive-secondary-disabled': 'var(--background-interactive-secondary-disabled)',
+        'button-secondary-default': 'var(--bg-button-secondary-default)',
+        'button-secondary-hover': 'var(--bg-button-secondary-hover)',
+        'button-secondary-active': 'var(--bg-button-secondary-active)',
+        'button-secondary-disabled': 'var(--bg-button-secondary-disabled)',
         'interactive-tertiary-hover': 'var(--background-interactive-tertiary-hover)',
         'interactive-tertiary-active': 'var(--background-interactive-tertiary-active)',
         'interactive-info': 'var(--background-interactive-info)',
@@ -652,8 +652,8 @@ module.exports = {
         'interactive-positive-default': 'var(--foreground-interactive-positive-default)',
         'interactive-positive-active': 'var(--foreground-interactive-positive-active)',
         'interactive-error-default': 'var(--foreground-interactive-error-default)',
-        'interactive-secondary-default': 'var(--foreground-interactive-secondary-default)',
-        'interactive-secondary-text': 'var(--foreground-interactive-secondary-text)',
+        'button-secondary-default': 'var(--text-button-secondary-default)',
+        'button-secondary-text': 'var(--text-button-secondary-text)',
         'interactive-tertiary-text': 'var(--foreground-interactive-tertiary-text)',
         'interactive-positive-text': 'var(--foreground-interactive-positive-text)',
         'interactive-error-text': 'var(--foreground-interactive-error-text)',

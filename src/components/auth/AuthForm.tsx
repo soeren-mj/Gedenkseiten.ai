@@ -101,11 +101,15 @@ export default function AuthForm({
         setShowEmailForm(false);
       } else {
         // Send magic link for new users or users without password
+        // Use current pathname as fallback (fixes SSR issue where redirectUrl prop is undefined)
+        const finalRedirectUrl = redirectUrl ||
+          (window.location.pathname !== '/auth/login' ? window.location.pathname : undefined);
+
         const { error } = await supabase.auth.signInWithOtp({
           email,
           options: {
-            emailRedirectTo: redirectUrl
-              ? `${window.location.origin}/auth/callback?redirect=${encodeURIComponent(redirectUrl)}`
+            emailRedirectTo: finalRedirectUrl
+              ? `${window.location.origin}/auth/callback?redirect=${encodeURIComponent(finalRedirectUrl)}`
               : `${window.location.origin}/auth/callback`,
           },
         });
@@ -162,11 +166,15 @@ export default function AuthForm({
       setLoading(true);
       setError(null);
 
+      // Use current pathname as fallback (fixes SSR issue where redirectUrl prop is undefined)
+      const finalRedirectUrl = redirectUrl ||
+        (window.location.pathname !== '/auth/login' ? window.location.pathname : undefined);
+
       const { error } = await supabase.auth.signInWithOtp({
         email,
         options: {
-          emailRedirectTo: redirectUrl
-            ? `${window.location.origin}/auth/callback?redirect=${encodeURIComponent(redirectUrl)}`
+          emailRedirectTo: finalRedirectUrl
+            ? `${window.location.origin}/auth/callback?redirect=${encodeURIComponent(finalRedirectUrl)}`
             : `${window.location.origin}/auth/callback`,
         },
       });
@@ -196,7 +204,7 @@ export default function AuthForm({
   // Success state after email sent
   if (emailSent) {
     return (
-      <div className={`flex flex-col items-center gap-${compact ? '4' : '6'}`}>
+      <div className={`flex flex-col items-center gap-4 ${compact ? 'w-full' : 'w-full min-w-xs max-w-md'}`}>
         <div className="flex flex-col gap-2 items-center">
           {/* Success Icon */}
           <div className="w-10 h-10 bg-interactive-positive-default rounded-full flex items-center justify-center">
@@ -243,7 +251,7 @@ export default function AuthForm({
   // Password form state (existing user)
   if (showPasswordForm) {
     return (
-      <div className={`flex flex-col items-center gap-${compact ? '4' : '6'} w-full`}>
+      <div className={`flex flex-col items-center gap-4 ${compact ? 'w-full' : 'w-full min-w-xs max-w-md'}`}>
         <div className="text-center">
           <h3 className="text-title-body-h4 text-primary mb-2">Willkommen zurück!</h3>
           <p className="text-body-s text-secondary">{email}</p>
@@ -296,7 +304,7 @@ export default function AuthForm({
 
         <button
           onClick={handleBackToOptions}
-          className="text-body-s text-interactive-link-default hover:text-interactive-link-hover underline"
+          className="text-body-s text-link-default hover:text-link-hover underline"
           disabled={loading}
         >
           Andere E-Mail verwenden
@@ -309,7 +317,7 @@ export default function AuthForm({
   if (showEmailForm) {
     return (
       <div
-        className={`flex flex-col items-center gap-${compact ? '5' : '7'} w-full ${compact ? '' : 'min-w-[320px]'}`}
+        className={`flex flex-col items-center gap-4 ${compact ? 'w-full' : 'w-full min-w-xs max-w-md'}`}
       >
         {/* Error Message */}
         {error && (
@@ -365,18 +373,16 @@ export default function AuthForm({
 
   // Default state - Auth options
   return (
-    <div className="flex flex-col items-center w-full">
+    <div className={`flex flex-col items-center ${compact ? 'w-full' : 'w-full min-w-xs max-w-md'}`}>
       {/* Error Message */}
       {error && (
-        <div className={`w-full p-3 bg-negative-subtle rounded-md ${compact ? 'mb-4' : 'mb-6'}`}>
+        <div className="w-full p-3 bg-negative-subtle rounded-md mb-4">
           <p className="text-negative text-sm">{error}</p>
         </div>
       )}
 
       {/* Auth Options */}
-      <div
-        className={`flex flex-col justify-center gap-${compact ? '3' : '7'} w-full ${compact ? '' : 'min-w-[320px] my-4'}`}
-      >
+      <div className="flex flex-col justify-center gap-4 w-full">
         {/* Google OAuth */}
         <Button
           variant="secondary"
@@ -455,19 +461,19 @@ export default function AuthForm({
 
       {/* Legal Text */}
       {showLegalText && !showEmailForm && (
-        <div className={`text-center ${compact ? 'mt-4' : 'mt-0'}`}>
+        <div className="text-center mt-4">
           <p className="text-body-xs text-tertiary">
             Mit der Anmeldung akzeptierst du unsere{' '}
             <Link
               href="/agb"
-              className="text-interactive-link-default hover:text-interactive-link-hover underline"
+              className="text-link-default hover:text-link-hover underline"
             >
               AGB
             </Link>{' '}
             und{' '}
             <Link
               href="/datenschutz"
-              className="text-interactive-link-default hover:text-interactive-link-hover underline"
+              className="text-link-default hover:text-link-hover underline"
             >
               Datenschutzbestimmungen
             </Link>

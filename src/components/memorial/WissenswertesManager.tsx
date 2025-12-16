@@ -346,8 +346,8 @@ export function WissenswertesManager({ memorialId, firstName, lastName }: Wissen
             w-full py-2 px-3
             flex items-center justify-center gap-2
             bg-bw-opacity-40 border-2 border-dashed border-interactive-default
-            rounded-xs text-interactive-link-default text-body-m
-            hover:bg-bw-opacity-60 hover:text-interactive-link-hover transition-colors
+            rounded-xs text-link-default text-body-m
+            hover:bg-bw-opacity-60 hover:text-link-hover transition-colors
           "
         >
           <Plus className="w-5 h-5" />

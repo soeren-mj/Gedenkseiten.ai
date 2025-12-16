@@ -3,7 +3,7 @@
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ThemeToggle } from '@/components/ui/theme-toggle';
+import { ThemeModeToggle } from '@/components/ui/theme-mode-toggle';
 import AuthForm from '@/components/auth/AuthForm';
 
 export default function LoginPage() {
@@ -29,7 +29,7 @@ export default function LoginPage() {
               />
               <span className="font-satoshi text-xl font-medium">Gedenkseiten.ai</span>
             </Link>
-            <ThemeToggle />
+            <ThemeModeToggle />
           </div>
         </div>
       </nav>

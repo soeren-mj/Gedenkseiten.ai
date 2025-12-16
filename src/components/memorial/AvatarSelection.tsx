@@ -7,16 +7,14 @@ import { InitialsPreview } from '@/components/memorial/InitialsPreview';
 import { CircularIconButton } from '@/components/ui/CircularIconButton';
 import { useAuth } from '@/contexts/AuthContext';
 import { createClient } from '@/lib/supabase/client-legacy';
-import PersonIcon from '@/components/icons/PersonIcon';
-import AnimalIcon from '@/components/icons/AnimalIcon';
 
-type AvatarType = 'initials' | 'icon' | 'image';
+type AvatarType = 'initials' | 'image';
 
 export interface AvatarSelectionProps {
-  memorialType: 'person' | 'pet';
+  memorialType?: 'person' | 'pet'; // Kept for backward compatibility, no longer used
   firstName: string;
   lastName?: string;
-  initialAvatarType?: 'initials' | 'icon' | 'image';
+  initialAvatarType?: 'initials' | 'image';
   initialAvatarUrl?: string | null;
   onChange: (data: { avatar_type: AvatarType; avatar_url?: string }) => Promise<void>;
 }
@@ -26,15 +24,13 @@ export interface AvatarSelectionProps {
  *
  * Reusable component for selecting memorial avatar:
  * - Initials (auto-generated from name)
- * - Icon (default person/animal icon)
  * - Image (user upload)
  *
  * Used in:
  * - Wizard: /gedenkseite/neu/[type]/avatar
- * - Management: /gedenkseite/[id]/verwalten/darstellung
  */
 export function AvatarSelection({
-  memorialType,
+  // memorialType is kept in props for backward compatibility but no longer used
   firstName,
   lastName = '',
   initialAvatarType = 'initials',
@@ -137,8 +133,8 @@ export function AvatarSelection({
     }
   };
 
-  // Handle selection of initials or icon
-  const handleTypeSelect = async (type: 'initials' | 'icon') => {
+  // Handle selection of initials
+  const handleTypeSelect = async (type: 'initials') => {
     setSelectedType(type);
     setPreviewUrl(null);
 
@@ -153,26 +149,11 @@ export function AvatarSelection({
   const renderPreview = (size: 'large' | 'small') => {
     const dimensions = size === 'large' ? 'w-[350px] h-[350px]' : 'w-16 h-16';
     const initialsSize = size === 'large' ? 120 : 64;
-    const iconSize = size === 'large' ? 'w-24 h-24' : 'w-8 h-8';
 
     if (selectedType === 'initials') {
       return (
         <div className={`${dimensions} flex items-center justify-center bg-accent border border-main rounded-${size === 'large' ? 'md' : 'full'}`}>
           <InitialsPreview firstName={firstName} lastName={lastName} size={initialsSize} showBackground={false} />
-        </div>
-      );
-    }
-
-    if (selectedType === 'icon') {
-      return (
-        <div className={`${dimensions} flex items-center justify-center bg-accent border border-main rounded-${size === 'large' ? 'md' : 'full'}`}>
-          <div className={iconSize}>
-            {memorialType === 'person' ? (
-              <PersonIcon className="w-full h-full" color="white" />
-            ) : (
-              <AnimalIcon className="w-full h-full" color="white" />
-            )}
-          </div>
         </div>
       );
     }
@@ -225,7 +206,7 @@ export function AvatarSelection({
       </div>
 
       {/* CircularIconButtons */}
-      <div className="flex justify-between px-3 gap-8 max-w-[280px] mx-auto">
+      <div className="flex justify-center px-3 gap-12 max-w-[280px] mx-auto">
         <CircularIconButton
           icon={
             <div className="flex items-center justify-center w-full h-full">
@@ -235,22 +216,6 @@ export function AvatarSelection({
           label="Initialen"
           selected={selectedType === 'initials'}
           onClick={() => handleTypeSelect('initials')}
-          size="md"
-        />
-
-        <CircularIconButton
-          icon={
-            <div className="w-full h-full">
-              {memorialType === 'person' ? (
-                <PersonIcon className="w-full h-full" />
-              ) : (
-                <AnimalIcon className="w-full h-full" />
-              )}
-            </div>
-          }
-          label="Icon"
-          selected={selectedType === 'icon'}
-          onClick={() => handleTypeSelect('icon')}
           size="md"
         />
 

@@ -5,6 +5,10 @@ import { createBrowserClient } from '@supabase/ssr';
 import type { Database } from '@/lib/supabase';
 import { NotificationFlyout } from './NotificationFlyout';
 
+interface NotificationBellProps {
+  memorialId?: string;
+}
+
 /**
  * NotificationBell - Bell icon with unread badge and flyout
  *
@@ -12,8 +16,9 @@ import { NotificationFlyout } from './NotificationFlyout';
  * - Shows unread count badge (up to 9+)
  * - Opens flyout on click
  * - Fetches count on mount and periodically
+ * - Supports memorial-specific filtering
  */
-export function NotificationBell() {
+export function NotificationBell({ memorialId }: NotificationBellProps) {
   const [unreadCount, setUnreadCount] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -33,7 +38,12 @@ export function NotificationBell() {
         return;
       }
 
-      const response = await fetch('/api/notifications/count', {
+      const params = new URLSearchParams();
+      if (memorialId) {
+        params.set('memorial_id', memorialId);
+      }
+
+      const response = await fetch(`/api/notifications/count?${params}`, {
         headers: {
           'Authorization': `Bearer ${session.access_token}`,
         },
@@ -58,7 +68,7 @@ export function NotificationBell() {
     // Refresh count every 30 seconds
     const interval = setInterval(fetchUnreadCount, 30000);
     return () => clearInterval(interval);
-  }, []);
+  }, [memorialId]);
 
   // Close flyout when clicking outside
   useEffect(() => {
@@ -122,6 +132,7 @@ export function NotificationBell() {
       {isOpen && (
         <NotificationFlyout
           onNotificationsRead={handleNotificationsRead}
+          memorialId={memorialId}
         />
       )}
     </div>

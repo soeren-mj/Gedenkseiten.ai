@@ -1,13 +1,15 @@
 'use client';
 
-import { Globe, Lock, Settings } from 'lucide-react';
 import { RadioButton } from '@/components/ui/RadioButton';
-import { Badge } from '@/components/ui/Badge';
+import { PublicIcon } from '@/components/icons/PublicIcon';
+import { PrivateIcon } from '@/components/icons/PrivateIcon';
+import { FullControlIcon } from '@/components/icons/FullControlIcon';
 
 type PrivacyLevel = 'public' | 'private';
 
 interface PrivacySelectionProps {
-  mode: 'wizard' | 'management';
+  /** @deprecated No longer used - component is now identical for both wizard and management */
+  mode?: 'wizard' | 'management';
   value: PrivacyLevel;
   onChange: (value: PrivacyLevel) => void;
   disabled?: boolean;
@@ -25,11 +27,13 @@ interface PrivacySelectionProps {
  * - Full Control: (disabled) Premium feature for advanced privacy settings
  */
 export function PrivacySelection({
-  mode,
+  mode: _mode,
   value,
   onChange,
   disabled = false,
 }: PrivacySelectionProps) {
+  // _mode is deprecated and no longer used - component is now identical for both wizard and management
+  void _mode;
   const handleChange = (newValue: PrivacyLevel) => {
     if (disabled) return;
     onChange(newValue);
@@ -37,23 +41,17 @@ export function PrivacySelection({
 
   return (
     <div className="flex flex-col gap-3">
-      {/* Section Header */}
-      <div className="flex flex-col gap-1">
-        <h2 className="text-webapp-body text-bw">Sichtbarkeit der Gedenkseite</h2>
-        <div className="border-b border-main"></div>
-      </div>
-
       {/* Public Option */}
       <div className="flex items-center justify-between">
         <div className="flex-1">
           <div className="flex items-center gap-2">
-            <Globe className={`w-5 h-5 ${value === 'public' ? 'text-primary' : 'text-secondary'}`} />
+            <PublicIcon className={value === 'public' ? 'text-primary' : 'text-secondary'} />
             <p className={`text-webapp-group ${value === 'public' ? 'text-primary' : 'text-secondary'}`}>
               Öffentlich
             </p>
           </div>
           <p className="text-secondary text-body-s">
-            Deine Gedenkseite ist öffentlich zu finden und erscheint auch in der Suche
+            Deine Gedenkseite ist öffentlich zu finden und erscheint in unserer Suche
           </p>
         </div>
         <RadioButton
@@ -67,13 +65,13 @@ export function PrivacySelection({
       <div className="flex items-center justify-between">
         <div className="flex-1">
           <div className="flex items-center gap-2">
-            <Lock className={`w-5 h-5 ${value === 'private' ? 'text-primary' : 'text-secondary'}`} />
+            <PrivateIcon className={value === 'private' ? 'text-primary' : 'text-secondary'} />
             <p className={`text-webapp-group ${value === 'private' ? 'text-primary' : 'text-secondary'}`}>
               Privat
             </p>
           </div>
           <p className="text-secondary text-body-s">
-            Deine Seite ist privat und nur über einen Einladungs-Link zu erreichen. In unserer Suche erscheint nur der Name, Personen dürfen dich um Zugriff bitten. Du kannst diese Einstellung jederzeit ändern.
+            Du entscheidest wer Zugriff erhält. Personen haben nur über einen Einladungs-Link die Möglichkeit deine Gedenkseite zu besuchen. In unserer Suche erscheint der Name der Gedenkseite mit der Informationen dich als verwaltende Personen um Zugriffe zu bitten.
           </p>
         </div>
         <RadioButton
@@ -87,26 +85,16 @@ export function PrivacySelection({
       <div className="flex items-center justify-between">
         <div className="flex-1">
           <div className="flex items-center gap-2">
-            <Settings className="w-5 h-5 text-interactive-disabled" />
+            <FullControlIcon className="text-interactive-disabled" />
             <p className="text-webapp-group text-interactive-disabled">Volle Kontrolle</p>
-            <Badge variant="soon">Bald verfügbar</Badge>
           </div>
           <p className="text-interactive-disabled text-body-s">
-            Du hast die volle Kontrolle. Entscheide in den Einstellungen, wie deine Seite zu finden ist und wer Zugriff erhält. Zusätzlich zum Einladungs-Link kannst du deine Seite mit einem Passwort sichern.
+            Du hast die volle Kontrolle über die Sichtbarkeit und den Zugriff. Entscheide wie deine Seite zu finden ist und wer Zugriff erhält. Zusätzlich zum Einladungs-Link kannst du deine Seite auch mit einem Passwort sichern.
           </p>
         </div>
-        <RadioButton
-          checked={false}
-          disabled={true}
-        />
+        <span className="text-body-s text-interactive-disabled whitespace-nowrap">bald verfügbar</span>
       </div>
 
-      {/* Mode-specific hint */}
-      {mode === 'management' && (
-        <p className="text-body-xs text-tertiary mt-2">
-          Änderungen werden automatisch gespeichert.
-        </p>
-      )}
     </div>
   );
 }

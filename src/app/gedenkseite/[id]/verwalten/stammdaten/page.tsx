@@ -1,10 +1,14 @@
 'use client';
 
+import Link from 'next/link';
+import { ChevronLeft } from 'lucide-react';
 import { useMemorial } from '@/contexts/MemorialContext';
 import { StammdatenForm } from '@/components/memorial/StammdatenForm';
 import { type PersonBasicInfo } from '@/lib/validation/memorial-schema';
 import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client-legacy';
+import { useToast } from '@/contexts/ToastContext';
+import type { Memorial } from '@/lib/supabase';
 
 /**
  * Memorial Stammdaten Management Page
@@ -13,7 +17,8 @@ import { createClient } from '@/lib/supabase/client-legacy';
  * Memorial data is provided by MemorialContext (fetched in layout).
  */
 export default function StammdatenPage() {
-  const { memorial } = useMemorial();
+  const { memorial, updateMemorial } = useMemorial();
+  const { showSuccess, showError } = useToast();
   const [error, setError] = useState<string | null>(null);
 
   // Convert memorial data to form format
@@ -71,33 +76,50 @@ export default function StammdatenPage() {
         throw new Error(errorMessage);
       }
 
-      // Success - form component will show success message
+      // Success - update context and show toast
+      updateMemorial(data as Partial<Memorial>);
+      showSuccess('Gespeichert', 'Stammdaten wurden erfolgreich gespeichert.');
     } catch (err) {
       console.error('Error saving memorial:', err);
-      setError(err instanceof Error ? err.message : 'Ein unbekannter Fehler ist aufgetreten');
+      const errorMessage = err instanceof Error ? err.message : 'Ein unbekannter Fehler ist aufgetreten';
+      setError(errorMessage);
+      showError('Fehler', errorMessage);
       throw err; // Re-throw to let form component handle loading state
     }
   };
 
   return (
-    <div className="max-w-3xl mx-auto">
+    <div className="max-w-3xl mx-auto flex flex-col gap-3 pt-4 mb-10">
+      {/* Back Link */}
+      <Link
+        href={`/gedenkseite/${memorial.id}/verwalten`}
+        className="flex items-center gap-1 text-body-s text-tertiary hover:text-primary transition-colors w-fit"
+      >
+        <ChevronLeft className="w-4 h-4" />
+        <span>Zurück zur Übersicht</span>
+      </Link>
+
       {/* Page Header */}
-      <div className="mb-8">
-        <h1 className="text-webapp-subsection text-primary mb-2">
+      <div className="w-full p-5 pb-7 flex flex-col gap-2">
+        <h1 className="text-webapp-subsection text-primary">
           Stammdaten
         </h1>
         <p className="text-body-m text-secondary">
-          Hier kannst du die grundlegenden Informationen zur Gedenkseite bearbeiten.
+          Hier kannst du die personenbezogenen Informationen des Verstorbenen bearbeiten.
         </p>
       </div>
 
-      {/* Stammdaten Form */}
-      <StammdatenForm
-        mode="edit"
-        initialData={initialData}
-        onSubmit={handleSubmit}
-        error={error}
-      />
+      {/* Main Panel */}
+      <div className="px-4">
+        <div className="flex flex-col gap-8 p-4 border border-card rounded-xs bg-primary">
+          <StammdatenForm
+            mode="edit"
+            initialData={initialData}
+            onSubmit={handleSubmit}
+            error={error}
+          />
+        </div>
+      </div>
     </div>
   );
 }

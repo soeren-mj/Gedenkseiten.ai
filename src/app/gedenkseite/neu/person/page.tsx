@@ -1,10 +1,8 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
-import { WizardLayout } from '@/components/memorial/WizardLayout';
-import { ProgressIndicator } from '@/components/memorial/ProgressIndicator';
-import { Button } from '@/components/ui/Button';
+import { useEffect, useState } from 'react';
+import WizardStepLayout from '@/components/memorial/WizardStepLayout';
 import { StammdatenForm } from '@/components/memorial/StammdatenForm';
 import { type PersonBasicInfo } from '@/lib/validation/memorial-schema';
 import { useMemorialWizard } from '@/hooks/useMemorialWizard';
@@ -20,6 +18,7 @@ export default function PersonBasicInfoPage() {
   const router = useRouter();
   const { user } = useAuth();
   const { formData, updateFormData, setMemorialType } = useMemorialWizard();
+  const [isFormValid, setIsFormValid] = useState(false);
 
   // Auto-save draft
   const { setData: setDraftData } = useLocalStorageDraft<Partial<PersonBasicInfo>>(
@@ -52,34 +51,26 @@ export default function PersonBasicInfoPage() {
   };
 
   return (
-    <WizardLayout
-      greetingText="hier kannst du den Namen, sowie die Geburts- und Sterbeinformationen angeben."
-      backButtonText="Zurück"
+    <WizardStepLayout
+      currentStep={1}
+      totalSteps={3}
+      title="Angaben zur Person hinzufügen"
+      description="Für wen legst du diese Gedenkseite an?"
       onBack={handleBack}
-      footerContent={
-        <Button type="submit" form="person-basic-info-form">
-          Weiter
-        </Button>
-      }
+      formId="person-basic-info-form"
+      nextDisabled={!isFormValid}
     >
-      {/* Progress Indicator */}
-      <ProgressIndicator currentStep={1} totalSteps={3} className="mb-6" />
-
-      {/* Headline */}
-      <div className="mb-12 text-center">
-        <h1 className="text-webapp-subsection text-bw mb-8">
-          Für wen möchtest du eine Gedenkseite anlegen?
-        </h1>
-      </div>
-
       {/* Stammdaten Form */}
-      <StammdatenForm
-        mode="wizard"
-        initialData={formData as Partial<PersonBasicInfo>}
-        onSubmit={onSubmit}
-        onChange={handleChange}
-        formId="person-basic-info-form"
-      />
-    </WizardLayout>
+      <div className="flex flex-col gap-8 p-4 border border-card rounded-xs bg-primary">
+        <StammdatenForm
+          mode="wizard"
+          initialData={formData as Partial<PersonBasicInfo>}
+          onSubmit={onSubmit}
+          onChange={handleChange}
+          onValidityChange={setIsFormValid}
+          formId="person-basic-info-form"
+        />
+      </div>
+    </WizardStepLayout>
   );
 }

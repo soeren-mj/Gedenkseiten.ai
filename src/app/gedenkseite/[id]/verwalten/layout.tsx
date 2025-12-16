@@ -2,10 +2,9 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
-import { Sidebar } from '@/components/dashboard/Sidebar';
+import BackendHeader from '@/components/dashboard/BackendHeader';
+import FeedbackButton from '@/components/ui/FeedbackButton';
 import { MemorialProvider } from '@/contexts/MemorialContext';
-import { MemorialSidebarSkeleton } from '@/components/memorial/MemorialSidebarSkeleton';
 import { useAuth } from '@/contexts/AuthContext';
 import { createClient } from '@/lib/supabase/client-legacy';
 import type { Memorial } from '@/lib/supabase';
@@ -13,9 +12,9 @@ import type { Memorial } from '@/lib/supabase';
 /**
  * Memorial Management Layout
  *
- * Layout for memorial management pages with sidebar navigation.
- * Uses same styling as dashboard (background blur, sidebar + content split).
- * Fetches memorial data for sidebar display.
+ * Layout for memorial management pages.
+ * Uses same styling as dashboard (BackendHeader + FeedbackButton).
+ * Fetches memorial data for context.
  * Client-side authorization check ensures only creator can access.
  */
 export default function MemorialManagementLayout({
@@ -74,72 +73,33 @@ export default function MemorialManagementLayout({
     setMemorial(updatedMemorial);
   }, []);
 
-  // Show skeleton while waiting for auth or loading memorial
+  // Show loading state
   if (!user || loading || !memorial || !memorialId) {
     return (
-      <div className="h-screen flex flex-col">
-        {/* Background Blur Image */}
-        <div className="fixed inset-0 -z-1">
-          <Image
-            src="/images/blur-default-0.75.webp"
-            alt=""
-            fill
-            className="object-cover"
-            priority
-          />
-        </div>
-
-        {/* Main Content Container with Skeleton */}
-        <div className="flex-1 flex overflow-hidden z-10">
-          {/* Sidebar with Skeleton */}
-          <aside className="hidden md:block w-1/4">
-            <div className="w-full bg-bw-opacity-40 h-full flex flex-col p-6 backdrop-blur-md">
-              <MemorialSidebarSkeleton />
-            </div>
-          </aside>
-
-          {/* Main Content Area with Loading */}
-          <main className="w-full md:w-3/4 h-full p-10 bg-bw-opacity-60 overflow-y-auto backdrop-blur-lg">
-            <div className="max-w-3xl mx-auto">
+      <div className="min-h-screen bg-light-dark-mode flex flex-col">
+        <BackendHeader />
+        <main className="flex-1 overflow-x-visible overflow-y-auto px-6">
+          <div className="max-w-3xl mx-auto flex flex-col gap-3 pt-4">
+            <div className="text-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-interactive-default mx-auto mb-4"></div>
               <p className="text-body-m text-secondary">Laden...</p>
             </div>
-          </main>
-        </div>
+          </div>
+        </main>
+        <FeedbackButton />
       </div>
     );
   }
 
   return (
-    <div className="h-screen flex flex-col">
-      {/* Background Blur Image */}
-      <div className="fixed inset-0 -z-1">
-        <Image
-          src="/images/blur-default-0.75.webp"
-          alt=""
-          fill
-          className="object-cover"
-          priority
-        />
-      </div>
-
-      {/* Main Content Container */}
-      <div className="flex-1 flex overflow-hidden z-10">
-        {/* Sidebar - Memorial Management Mode */}
-        <aside className="hidden md:block w-1/4">
-          <Sidebar
-            mode="memorial-management"
-            memorialId={memorialId}
-            memorial={memorial}
-          />
-        </aside>
-
-        {/* Main Content Area - Wrapped with MemorialProvider */}
-        <main className="w-full md:w-3/4 h-full p-10 bg-bw-opacity-60 overflow-y-auto backdrop-blur-lg">
-          <MemorialProvider memorial={memorial} onUpdate={handleMemorialUpdate}>
-            {children}
-          </MemorialProvider>
-        </main>
-      </div>
+    <div className="min-h-screen bg-light-dark-mode flex flex-col">
+      <BackendHeader />
+      <main className="flex-1 overflow-x-visible overflow-y-auto px-6">
+        <MemorialProvider memorial={memorial} onUpdate={handleMemorialUpdate}>
+          {children}
+        </MemorialProvider>
+      </main>
+      <FeedbackButton />
     </div>
   );
 }

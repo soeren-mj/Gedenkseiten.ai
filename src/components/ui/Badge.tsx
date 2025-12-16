@@ -1,7 +1,7 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
 
-export type BadgeVariant = 'empfehlung' | 'premium' | 'soon' | 'public' | 'private';
+export type BadgeVariant = 'empfehlung' | 'premium' | 'soon' | 'public' | 'private' | 'yellow';
 
 interface BadgeProps {
   variant: BadgeVariant;
@@ -27,14 +27,15 @@ export const Badge: React.FC<BadgeProps> = ({ variant, children, className }) =>
     empfehlung: 'chip-empfehlung',
     premium: 'chip-premium',
     soon: 'chip-soon',
-    public: 'chip-public',
+    public: 'chip-green',
     private: 'chip-private',
+    yellow: 'chip-yellow',
   };
 
   return (
     <span
       className={cn(
-        'inline-flex items-center px-2 rounded-full text-body-xs-semibold',
+        'inline-flex items-center px-2 rounded-xs text-chip',
         variantClasses[variant],
         className
       )}

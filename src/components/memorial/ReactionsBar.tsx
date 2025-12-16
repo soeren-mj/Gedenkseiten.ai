@@ -119,6 +119,39 @@ export default function ReactionsBar({ memorialId, className = '' }: ReactionsBa
     fetchReactions();
   }, [fetchReactions]);
 
+  // Process pending reaction after login
+  useEffect(() => {
+    if (!user || authLoading) return;
+
+    const pendingStr = localStorage.getItem('pending_reaction');
+    if (!pendingStr) return;
+
+    try {
+      const pending = JSON.parse(pendingStr) as {
+        memorialId: string;
+        reactionType: ReactionType;
+        timestamp: number;
+      };
+
+      // Only process if same memorial and not too old (5 min)
+      const isValidMemorial = pending.memorialId === memorialId;
+      const isNotExpired = Date.now() - pending.timestamp < 5 * 60 * 1000;
+
+      if (isValidMemorial && isNotExpired) {
+        localStorage.removeItem('pending_reaction');
+        // Small delay to ensure session is ready
+        setTimeout(() => {
+          handleReactionClick(pending.reactionType);
+        }, 500);
+      } else {
+        localStorage.removeItem('pending_reaction');
+      }
+    } catch {
+      localStorage.removeItem('pending_reaction');
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, authLoading, memorialId]);
+
   // Handle reaction click
   const handleReactionClick = async (reactionType: ReactionType) => {
     // Wait for auth to load before checking
@@ -132,6 +165,12 @@ export default function ReactionsBar({ memorialId, className = '' }: ReactionsBa
 
     // Check if user is authenticated
     if (!user || !session) {
+      // Save pending reaction to localStorage for after login
+      localStorage.setItem('pending_reaction', JSON.stringify({
+        memorialId,
+        reactionType,
+        timestamp: Date.now()
+      }));
       // Show login modal instead of redirecting
       setShowLoginModal(true);
       return;

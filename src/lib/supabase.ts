@@ -92,7 +92,7 @@ export type Memorial = {
   breed_id: number | null; // numeric FK to Rassen
 
   // Display
-  avatar_type: 'initials' | 'icon' | 'image';
+  avatar_type: 'initials' | 'image';
   avatar_url: string | null;
   memorial_quote: string | null;
   obituary: string | null;

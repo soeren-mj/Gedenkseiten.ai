@@ -9,14 +9,15 @@ interface ToastData {
   title: string
   message: string
   duration?: number
+  showIcon?: boolean
 }
 
 interface ToastContextType {
-  showToast: (type: ToastType, title: string, message: string, duration?: number) => void
-  showError: (title: string, message: string, duration?: number) => void
-  showSuccess: (title: string, message: string, duration?: number) => void
-  showInfo: (title: string, message: string, duration?: number) => void
-  showWarning: (title: string, message: string, duration?: number) => void
+  showToast: (type: ToastType, title: string, message: string, duration?: number, showIcon?: boolean) => void
+  showError: (title: string, message: string, duration?: number, showIcon?: boolean) => void
+  showSuccess: (title: string, message: string, duration?: number, showIcon?: boolean) => void
+  showInfo: (title: string, message: string, duration?: number, showIcon?: boolean) => void
+  showWarning: (title: string, message: string, duration?: number, showIcon?: boolean) => void
 }
 
 const ToastContext = createContext<ToastContextType>({
@@ -35,9 +36,9 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const showToast = useCallback(
-    (type: ToastType, title: string, message: string, duration?: number) => {
+    (type: ToastType, title: string, message: string, duration?: number, showIcon?: boolean) => {
       const id = `toast-${Date.now()}-${Math.random()}`
-      const newToast: ToastData = { id, type, title, message, duration }
+      const newToast: ToastData = { id, type, title, message, duration, showIcon }
 
       setToasts((prev) => [...prev, newToast])
     },
@@ -45,29 +46,29 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   )
 
   const showError = useCallback(
-    (title: string, message: string, duration?: number) => {
-      showToast('error', title, message, duration)
+    (title: string, message: string, duration?: number, showIcon?: boolean) => {
+      showToast('error', title, message, duration, showIcon)
     },
     [showToast]
   )
 
   const showSuccess = useCallback(
-    (title: string, message: string, duration?: number) => {
-      showToast('success', title, message, duration)
+    (title: string, message: string, duration?: number, showIcon?: boolean) => {
+      showToast('success', title, message, duration, showIcon)
     },
     [showToast]
   )
 
   const showInfo = useCallback(
-    (title: string, message: string, duration?: number) => {
-      showToast('info', title, message, duration)
+    (title: string, message: string, duration?: number, showIcon?: boolean) => {
+      showToast('info', title, message, duration, showIcon)
     },
     [showToast]
   )
 
   const showWarning = useCallback(
-    (title: string, message: string, duration?: number) => {
-      showToast('warning', title, message, duration)
+    (title: string, message: string, duration?: number, showIcon?: boolean) => {
+      showToast('warning', title, message, duration, showIcon)
     },
     [showToast]
   )
@@ -76,9 +77,10 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     <ToastContext.Provider value={{ showToast, showError, showSuccess, showInfo, showWarning }}>
       {children}
 
-      {/* Toast Container */}
+      {/* Toast Container - positioned under nav, 24px from right edge */}
       <div
-        className="fixed top-4 right-4 z-50 flex flex-col gap-2 pointer-events-none"
+        className="fixed right-6 z-50 flex flex-col gap-2 pointer-events-none"
+        style={{ top: '64px' }}
         aria-live="polite"
         aria-atomic="true"
       >
@@ -91,6 +93,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
               title={toast.title}
               message={toast.message}
               duration={toast.duration}
+              showIcon={toast.showIcon}
               onClose={removeToast}
             />
           ))}

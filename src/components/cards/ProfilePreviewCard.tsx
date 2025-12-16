@@ -1,13 +1,15 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import Image from 'next/image';
 import Reactions from '../ui/Reactions';
 import { InitialsPreview } from '../memorial/InitialsPreview';
 import { MEMORIAL_REACTIONS, type Reaction } from '@/constants/reactionIcons';
 import { isoDateToGerman } from '@/lib/utils/date-validation';
-import PersonIcon from '@/components/icons/PersonIcon';
-import AnimalIcon from '@/components/icons/AnimalIcon';
+import { Tooltip } from '../ui/Tooltip';
+import { Badge } from '../ui/Badge';
+import PersonIcon from '../icons/PersonIcon';
+import AnimalIcon from '../icons/AnimalIcon';
 
 export interface ProfilePreviewCardProps {
   // Core data
@@ -29,8 +31,14 @@ export interface ProfilePreviewCardProps {
   };
 
   // Avatar configuration
-  avatarType?: 'initials' | 'icon' | 'image';
+  avatarType?: 'initials' | 'image';
   avatarUrl?: string;
+
+  // Editable mode (for darstellung page)
+  editable?: boolean;
+  onAvatarUpload?: (file: File) => void;
+  onAvatarDelete?: () => void;
+  isUploading?: boolean;
 
   // Feature toggles (default: true for full variant, false for compact)
   showReactions?: boolean;
@@ -38,6 +46,10 @@ export interface ProfilePreviewCardProps {
   showBadge?: boolean;
   showCallout?: boolean;
   showBreedInfo?: boolean;
+  showPrivacyBadge?: boolean;
+
+  // Privacy level for badge display
+  privacyLevel?: 'public' | 'private';
 
   // Interaction handlers
   onReactionClick?: (reaction: Reaction) => void;
@@ -123,12 +135,22 @@ const ProfilePreviewCard: React.FC<ProfilePreviewCardProps> = ({
   avatarType = 'image',
   avatarUrl,
 
+  // Editable mode
+  editable = false,
+  onAvatarUpload,
+  onAvatarDelete,
+  isUploading = false,
+
   // Feature toggles
   showReactions = true,
   showObituary = true,
   showBadge = true,
   showCallout = true,
   showBreedInfo = true,
+  showPrivacyBadge = false,
+
+  // Privacy level
+  privacyLevel = 'public',
 
   // Handlers
   onReactionClick,
@@ -145,6 +167,38 @@ const ProfilePreviewCard: React.FC<ProfilePreviewCardProps> = ({
 
   // Use controlled reactions if provided, otherwise use internal state
   const reactions = controlledReactions || internalReactions;
+
+  // Editable mode state
+  const [isHovered, setIsHovered] = useState(false);
+  const [isDeleteHovered, setIsDeleteHovered] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Handlers for editable mode
+  const handleAvatarClick = () => {
+    if (editable && !isUploading) {
+      fileInputRef.current?.click();
+    }
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file && onAvatarUpload) {
+      onAvatarUpload(file);
+      event.target.value = '';
+    }
+  };
+
+  const handleDeleteClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onAvatarDelete && !isUploading) {
+      onAvatarDelete();
+    }
+  };
+
+  // Tooltip text based on state
+  const tooltipText = avatarUrl
+    ? (isDeleteHovered ? 'Foto löschen' : 'Foto ändern')
+    : 'Foto wählen';
 
   const handleReactionClick = (idx: number) => {
     if (!showReactions) return;
@@ -183,10 +237,15 @@ const ProfilePreviewCard: React.FC<ProfilePreviewCardProps> = ({
   if (variant === 'compact') {
     return (
       <div className={`p-2 bg-bw border border-main rounded-lg ${className}`}>
-        {/* Avatar */}
-        <div className="w-full h-72 flex items-center justify-center mb-4">
-          {avatarType === 'initials' && (
-            <div className="w-full h-72 flex items-center justify-center bg-accent rounded-md">
+        {/* Avatar with editable hover pattern */}
+        <div
+          className={`relative w-full h-72 flex items-center justify-center mb-4 ${editable ? 'cursor-pointer' : ''}`}
+          onMouseEnter={() => editable && setIsHovered(true)}
+          onMouseLeave={() => editable && setIsHovered(false)}
+          onClick={handleAvatarClick}
+        >
+          {avatarType === 'initials' || !avatarUrl ? (
+            <div className={`w-full h-72 flex items-center justify-center bg-accent rounded-md ${isUploading ? 'opacity-50' : ''}`}>
               <InitialsPreview
                 firstName={firstName}
                 lastName={lastName || ''}
@@ -194,27 +253,67 @@ const ProfilePreviewCard: React.FC<ProfilePreviewCardProps> = ({
                 showBackground={false}
               />
             </div>
-          )}
-          {avatarType === 'icon' && (
-            <div className="w-full h-72 flex items-center justify-center bg-accent rounded-md text-white">
-              {isAnimal ? (
-                <AnimalIcon className="w-16 h-16" color="white" />
-              ) : (
-                <PersonIcon className="w-16 h-16" color="white" />
-              )}
-            </div>
-          )}
-          {avatarType === 'image' && (
-            <div className="w-full h-72 relative rounded-md overflow-hidden">
+          ) : (
+            <div className={`w-full h-72 relative rounded-md overflow-hidden ${isUploading ? 'opacity-50' : ''}`}>
               <Image
-                src={avatarUrl || defaultAvatarUrl}
+                src={avatarUrl}
                 alt={`${firstName} ${lastName}`}
                 fill
                 className="object-cover"
+                unoptimized
               />
             </div>
           )}
+
+          {/* Loading overlay */}
+          {isUploading && (
+            <div className="absolute inset-0 flex items-center justify-center bg-bw bg-opacity-50 rounded-md">
+              <svg
+                className="animate-spin h-8 w-8 text-primary"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+              </svg>
+            </div>
+          )}
+
+          {/* Delete button - only show when editable, hovered, has image, and not uploading */}
+          {editable && isHovered && avatarUrl && !isUploading && (
+            <button
+              onClick={handleDeleteClick}
+              onMouseEnter={() => setIsDeleteHovered(true)}
+              onMouseLeave={() => setIsDeleteHovered(false)}
+              className="absolute top-2 right-2 w-8 h-8 bg-bw rounded-full flex items-center justify-center shadow-lg hover:bg-secondary transition-colors z-10"
+              aria-label="Foto löschen"
+            >
+              <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          )}
+
+          {/* Tooltip */}
+          {editable && isHovered && !isUploading && (
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20">
+              <Tooltip text={tooltipText} show={true} />
+            </div>
+          )}
         </div>
+
+        {/* Hidden file input */}
+        {editable && (
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            onChange={handleFileChange}
+            className="hidden"
+            disabled={isUploading}
+          />
+        )}
 
         {/* Name */}
         <h1 className="text-[2rem] leading-[120%] tracking-[-0.015em] mb-2 px-2">
@@ -222,7 +321,7 @@ const ProfilePreviewCard: React.FC<ProfilePreviewCardProps> = ({
         </h1>
 
         {/* Dates */}
-        <div className="space-y-1 text-body-m text-secondary px-2 mb-6">
+        <div className="space-y-1 text-body-s-semibold text-secondary px-2 mb-4">
           <div className="flex items-start gap-1">
             <span className="text-secondary text-center w-2.5">*</span>
             <div className="flex-1">
@@ -238,6 +337,24 @@ const ProfilePreviewCard: React.FC<ProfilePreviewCardProps> = ({
             </div>
           </div>
         </div>
+
+        {/* Type Icon + Privacy Badge */}
+        {showPrivacyBadge && (
+          <div className="flex items-center gap-2 px-2 mb-4">
+            {/* Type Icon with native tooltip */}
+            <div title={isAnimal ? 'Tier' : 'Person'} className="cursor-help">
+              {isAnimal ? (
+                <AnimalIcon className="w-5 h-5 text-secondary" />
+              ) : (
+                <PersonIcon className="w-5 h-5 text-secondary" />
+              )}
+            </div>
+            {/* Privacy Badge */}
+            <Badge variant={privacyLevel === 'public' ? 'public' : 'private'}>
+              {privacyLevel === 'public' ? 'Öffentlich' : 'Privat'}
+            </Badge>
+          </div>
+        )}
       </div>
     );
   }

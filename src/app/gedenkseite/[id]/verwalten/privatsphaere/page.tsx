@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useCallback } from 'react';
+import Link from 'next/link';
+import { ChevronLeft } from 'lucide-react';
 import { useMemorial } from '@/contexts/MemorialContext';
 import { PrivacySelection } from '@/components/memorial/PrivacySelection';
 import { createClient } from '@/lib/supabase/client-legacy';
@@ -91,25 +93,42 @@ export default function PrivatsphaerePage() {
   }, [memorial.id, memorial.privacy_level, updateMemorial, showSuccess, showError]);
 
   return (
-    <div className="max-w-3xl mx-auto">
+    <div className="max-w-3xl mx-auto flex flex-col gap-3 pt-4 mb-10">
+      {/* Back Link */}
+      <Link
+        href={`/gedenkseite/${memorial.id}/verwalten`}
+        className="flex items-center gap-1 text-body-s text-tertiary hover:text-primary transition-colors w-fit"
+      >
+        <ChevronLeft className="w-4 h-4" />
+        <span>Zurück zur Übersicht</span>
+      </Link>
+
       {/* Page Header */}
-      <div className="mb-8">
-        <h1 className="text-webapp-subsection text-primary mb-2">
-          Privatsphäre
+      <div className="w-full p-5 pb-7 flex flex-col gap-2">
+        <h1 className="text-webapp-subsection text-primary">
+          Wie soll deine Seite zu finden sein?
         </h1>
-        <p className="text-body-l text-secondary">
-          Bestimme, wer deine Gedenkseite sehen kann.
+        <p className="text-body-m text-secondary">
+          Ändere die Sichtbarkeit deiner Gedenkseite. Du kannst jederzeit zwischen öffentlich und privat wechseln.
         </p>
       </div>
 
-      {/* Privacy Selection */}
-      <div className="max-w-[611px]">
-        <PrivacySelection
-          mode="management"
-          value={privacyLevel}
-          onChange={handlePrivacyChange}
-          disabled={isSaving}
-        />
+      {/* Privacy Selection with Frame */}
+      <div className="px-4">
+        <div className="bg-bw-opacity-40 rounded-md shadow-card p-1">
+          <h2 className="px-4 py-2 text-webapp-body text-bw">Status der Seite</h2>
+          <div className="rounded-sm bg-light-dark-mode p-4">
+            <PrivacySelection
+              mode="management"
+              value={privacyLevel}
+              onChange={handlePrivacyChange}
+              disabled={isSaving}
+            />
+          </div>
+        </div>
+        <p className="text-body-xs text-tertiary mt-3">
+          Änderungen werden automatisch gespeichert.
+        </p>
       </div>
     </div>
   );
