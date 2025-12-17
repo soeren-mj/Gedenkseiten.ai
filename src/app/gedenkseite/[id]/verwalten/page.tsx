@@ -12,6 +12,7 @@ import type { ReactionType } from '@/lib/supabase';
 import { UserMemorialCard } from '@/components/memorial/UserMemorialCard';
 import { MemorialToDoCard } from '@/components/memorial/MemorialToDoCard';
 import { HubCard } from '@/components/memorial/HubCard';
+import { SettingsHubCard } from '@/components/memorial/SettingsHubCard';
 
 // Icons
 import ArrowUpRightIcon from '@/components/icons/ArrowUpRightIcon';
@@ -153,8 +154,11 @@ export default function MemorialManagementPage() {
               memorial={memorial}
               wissenswertesCount={wissenswertesCount}
               kondolenzbuchCount={kondolenzbuchCount}
-              className="md:col-span-2"
+              className="md:col-span-2 md:row-span-2"
             />
+
+            {/* Einstellungen */}
+            <SettingsHubCard memorialId={memorial.id} />
 
             {/* Seite ansehen - Always visible */}
             <HubCard

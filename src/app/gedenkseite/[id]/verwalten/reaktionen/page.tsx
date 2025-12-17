@@ -120,6 +120,12 @@ export default function ReaktionenPage() {
         headers,
       });
 
+      // Check for HTTP errors before parsing JSON
+      if (!response.ok) {
+        console.error('Error fetching reactions:', response.status);
+        return;
+      }
+
       const result = await response.json();
       if (result.success) {
         setCounts(result.data.counts);

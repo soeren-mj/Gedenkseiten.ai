@@ -208,7 +208,7 @@ export default function DarstellungPage() {
           birthPlace={memorial.birth_place || ''}
           deathPlace={memorial.death_place || ''}
           type={memorial.type === 'pet' ? 'animal' : 'human'}
-          avatarType={memorial.avatar_type as 'initials' | 'image' || 'initials'}
+          avatarType={memorial.avatar_type}
           avatarUrl={memorial.avatar_url || undefined}
           variant="compact"
           showReactions={false}

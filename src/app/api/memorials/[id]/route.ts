@@ -187,3 +187,151 @@ export async function PATCH(
     );
   }
 }
+
+/**
+ * DELETE /api/memorials/[id]
+ *
+ * Permanently deletes a memorial and all associated data.
+ * Requires authentication, ownership, and name confirmation.
+ *
+ * Request body: { nameConfirmation: string }
+ * The nameConfirmation must match "{first_name} {last_name}" exactly.
+ */
+export async function DELETE(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id: memorialId } = await params;
+
+    // 1. Get auth token from request headers
+    const authHeader = request.headers.get('authorization');
+
+    if (!authHeader) {
+      return NextResponse.json(
+        { success: false, error: 'Nicht authentifiziert - Kein Auth Header' },
+        { status: 401 }
+      );
+    }
+
+    const token = authHeader.replace('Bearer ', '');
+
+    // Create client with user's session token
+    const supabase = createSupabaseClient<Database>(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        global: {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      }
+    );
+
+    // Get user from token
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+
+    if (authError || !user) {
+      return NextResponse.json(
+        { success: false, error: 'Nicht authentifiziert - Ungültiger Token' },
+        { status: 401 }
+      );
+    }
+
+    // 2. Verify memorial exists and user has permission
+    const { data: memorial, error: fetchError } = await supabase
+      .from('memorials')
+      .select('id, creator_id, first_name, last_name, avatar_url')
+      .eq('id', memorialId)
+      .single();
+
+    if (fetchError || !memorial) {
+      return NextResponse.json(
+        { success: false, error: 'Gedenkseite nicht gefunden' },
+        { status: 404 }
+      );
+    }
+
+    // Check if user is the creator
+    if (memorial.creator_id !== user.id) {
+      return NextResponse.json(
+        { success: false, error: 'Keine Berechtigung zum Löschen' },
+        { status: 403 }
+      );
+    }
+
+    // 3. Parse and validate name confirmation
+    const payload = await request.json();
+    const { nameConfirmation } = payload;
+
+    if (!nameConfirmation) {
+      return NextResponse.json(
+        { success: false, error: 'Namensbestätigung erforderlich' },
+        { status: 400 }
+      );
+    }
+
+    // Build expected name (first_name + last_name if exists)
+    const expectedName = `${memorial.first_name}${memorial.last_name ? ' ' + memorial.last_name : ''}`.trim();
+
+    if (nameConfirmation !== expectedName) {
+      return NextResponse.json(
+        { success: false, error: 'Der eingegebene Name stimmt nicht überein' },
+        { status: 400 }
+      );
+    }
+
+    // 4. Delete storage files (memorial avatar)
+    if (memorial.avatar_url) {
+      try {
+        // Extract filename from URL
+        const url = new URL(memorial.avatar_url);
+        const pathParts = url.pathname.split('/');
+        const fileName = pathParts[pathParts.length - 1];
+
+        if (fileName) {
+          await supabase.storage
+            .from('memorial-avatars')
+            .remove([fileName]);
+        }
+      } catch (storageError) {
+        // Log but don't fail - storage cleanup is non-critical
+        console.error('Failed to delete avatar from storage:', storageError);
+      }
+    }
+
+    // 5. Delete memorial (CASCADE will handle related data:
+    //    - beitrag_posts
+    //    - condolence_entries
+    //    - memorial_invitations
+    //    - memorial_reactions
+    //    - post_reactions
+    // )
+    const { error: deleteError } = await supabase
+      .from('memorials')
+      .delete()
+      .eq('id', memorialId);
+
+    if (deleteError) {
+      console.error('Memorial deletion error:', deleteError);
+      return NextResponse.json(
+        { success: false, error: 'Fehler beim Löschen der Gedenkseite' },
+        { status: 500 }
+      );
+    }
+
+    // 6. Return success
+    return NextResponse.json({
+      success: true,
+      message: 'Gedenkseite erfolgreich gelöscht'
+    });
+
+  } catch (error) {
+    console.error('Unexpected error during memorial deletion:', error);
+    return NextResponse.json(
+      { success: false, error: 'Ein unerwarteter Fehler ist aufgetreten' },
+      { status: 500 }
+    );
+  }
+}

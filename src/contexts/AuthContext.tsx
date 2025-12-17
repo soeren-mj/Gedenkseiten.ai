@@ -385,10 +385,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const supabase = createClient()
     try {
       await supabase.auth.signOut()
-      setUser(null)
+      router.push('/')        // Erst navigieren (kein Flackern)
+      setUser(null)           // Dann State leeren
       setAuthUser(null)
       setInvitations([])
-      router.push('/')
     } catch (error) {
       console.error('[AuthContext] Error signing out:', error)
     }

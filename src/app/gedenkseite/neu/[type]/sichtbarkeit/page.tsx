@@ -135,6 +135,19 @@ export default function PrivacyPage() {
         body: JSON.stringify(payload),
       });
 
+      // Check for HTTP errors before parsing JSON
+      if (!response.ok) {
+        let errorMessage = 'Ein Fehler ist aufgetreten';
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.error || errorMessage;
+        } catch {
+          // Ignore JSON parse errors on error responses
+        }
+        setError(errorMessage);
+        return;
+      }
+
       const data = await response.json();
 
       if (data.success) {

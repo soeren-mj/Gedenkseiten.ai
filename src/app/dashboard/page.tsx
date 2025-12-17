@@ -36,7 +36,6 @@ export default function DashboardPage() {
     // Prevent double-firing in React Strict Mode
     if (welcomeToastShown.current) return
 
-    // TODO: Remove true || after testing - original condition: searchParams.get('welcome') === 'true'
     if (searchParams.get('welcome') === 'true') {
       welcomeToastShown.current = true
       showSuccess(

@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { format } from 'date-fns';
@@ -9,10 +8,7 @@ import { ChevronRight } from 'lucide-react';
 import { InitialsPreview } from '@/components/memorial/InitialsPreview';
 import PersonIcon from '@/components/icons/PersonIcon';
 import AnimalIcon from '@/components/icons/AnimalIcon';
-import SettingsIcon from '@/components/icons/SettingsIcon';
 import { Badge } from '@/components/ui/Badge';
-import { Button } from '@/components/ui/Button';
-import { SettingsOverlay } from '@/components/memorial/SettingsOverlay';
 import { formatFullName } from '@/lib/utils/nameFormatter';
 import type { Memorial, ReactionType } from '@/lib/supabase';
 
@@ -84,14 +80,12 @@ interface UserMemorialCardProps {
  * - Privacy badge (Öffentlich/Privat)
  * - Reactions row (if any)
  * - "Reaktionen >" link (if reactions exist)
- * - "Einstellungen >" button (opens overlay)
  */
 export function UserMemorialCard({
   memorial,
   reactions,
   className = '',
 }: UserMemorialCardProps) {
-  const [settingsOpen, setSettingsOpen] = useState(false);
   const displayName = formatFullName(memorial);
   const isPerson = memorial.type === 'person';
 
@@ -232,24 +226,6 @@ export function UserMemorialCard({
           </div>
         )}
 
-        {/* Settings Button + Dropdown */}
-        <div className="mt-auto pb-1 relative">
-          <Button
-            variant="text"
-            size="sm"
-            onClick={() => setSettingsOpen(true)}
-            leftIcon={<SettingsIcon className="w-4 h-4" />}
-          >
-            Einstellungen
-          </Button>
-
-          {/* Settings Dropdown */}
-          <SettingsOverlay
-            isOpen={settingsOpen}
-            onClose={() => setSettingsOpen(false)}
-            memorialId={memorial.id}
-          />
-        </div>
       </div>
     </div>
   );

@@ -1,11 +1,14 @@
 'use client'
 
-import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { InitialsPreview } from '@/components/memorial/InitialsPreview'
 import PersonIcon from '@/components/icons/PersonIcon'
 import SettingsIcon from '@/components/icons/SettingsIcon'
+import LogoutIcon from '@/components/icons/LogoutIcon'
 import { Badge } from '@/components/ui/Badge'
+import { Button } from '@/components/ui/Button'
+import { useAuth } from '@/contexts/AuthContext'
 
 interface UserProfileCardProps {
   name?: string | null
@@ -22,12 +25,18 @@ export default function UserProfileCard({
   accountType = 'free',
   className = '',
 }: UserProfileCardProps) {
+  const router = useRouter()
+  const { signOut } = useAuth()
   const displayName = name || email || 'Benutzer'
   const isPremium = accountType === 'premium'
 
   // Determine avatar type
   const hasImage = !!avatarUrl
   const hasName = !!name
+
+  const handleLogout = async () => {
+    await signOut()  // signOut navigiert bereits zu '/'
+  }
 
   return (
     <div className={`relative overflow-visible ${className}`}>
@@ -90,15 +99,25 @@ export default function UserProfileCard({
       </div>
       </div>
 
-        {/* Settings Link */}
-        <div className="mt-auto px-2 pb-2">
-          <Link
-            href="/dashboard/settings"
-            className="flex items-center gap-1 text-body-s text-primary hover:text-primary transition-colors"
+        {/* Footer Actions */}
+        <div className="mt-auto px-2 pb-2 flex justify-between items-center w-full">
+          <Button
+            variant="text"
+            size="xs"
+            onClick={handleLogout}
+            leftIcon={<LogoutIcon className="w-4 h-4" />}
+            className="bg-transparent !text-message-error hover:bg-interactive-error-default hover:!text-interactive-error-default"
           >
-            <SettingsIcon className="w-4 h-4" />
-            <span>Einstellungen</span>
-          </Link>
+            Abmelden
+          </Button>
+          <Button
+            variant="text"
+            size="xs"
+            onClick={() => router.push('/dashboard/settings')}
+            leftIcon={<SettingsIcon className="w-4 h-4" />}
+          >
+            Einstellungen
+          </Button>
         </div>
       </div>
     </div>
