@@ -123,6 +123,9 @@ export default function MemorialManagementPage() {
   const hasTermine = false; // TODO: Implement when termine table is created
   const hasReactions = getTotalReactions() > 0;
 
+  // Check if any content exists (determines card order)
+  const hasAnyContent = hasSpruchOrNachruf || hasWissenswertes || hasKondolenzbuch || hasTermine || hasReactions;
+
   return (
     <div className="flex flex-col gap-2 mb-10">
       {/* Headline Section */}
@@ -149,84 +152,121 @@ export default function MemorialManagementPage() {
         {/* b) Grid Container - Right side */}
         <div className="flex-1">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* MemorialToDoCard - spans 2 columns */}
-            <MemorialToDoCard
-              memorial={memorial}
-              wissenswertesCount={wissenswertesCount}
-              kondolenzbuchCount={kondolenzbuchCount}
-              className="md:col-span-2 md:row-span-2"
-            />
+            {hasAnyContent ? (
+              <>
+                {/* WITH CONTENT: Content Cards first */}
+                {/* Neue Reaktionen - Only if reactions exist */}
+                {hasReactions && (
+                  <HubCard
+                    textIcon={String(getTotalReactions())}
+                    title="Neue Reaktionen"
+                    description="Besucher haben auf die Gedenkseite reagiert."
+                    href={`/gedenkseite/${memorial.id}/verwalten/reaktionen`}
+                  />
+                )}
 
-            {/* Einstellungen */}
-            <SettingsHubCard memorialId={memorial.id} />
+                {/* Spruch und Nachruf - Only if content exists */}
+                {hasSpruchOrNachruf && (
+                  <HubCard
+                    textIcon="ABC"
+                    title="Spruch und Nachruf"
+                    description="Bearbeite den Gedenkspruch und Nachruf."
+                    href={`/gedenkseite/${memorial.id}/verwalten/spruch-nachruf`}
+                  />
+                )}
 
-            {/* Seite ansehen - Always visible */}
-            <HubCard
-              icon={<ArrowUpRightIcon className="w-12 h-12" />}
-              iconAlign="end"
-              title="Seite ansehen"
-              description="Hier gelangst du zur Gedenkseite wie jeder Besucher sie sieht."
-              onClick={() => window.open(`/gedenkseite/${memorial.id}`, '_blank')}
-            />
+                {/* Wissenswertes - Only if content exists */}
+                {hasWissenswertes && (
+                  <HubCard
+                    icon={<WissenswertesIcon size={48} />}
+                    title="Wissenswertes"
+                    description={`${wissenswertesCount} Einträge über ${memorial.first_name}`}
+                    href={`/gedenkseite/${memorial.id}/verwalten/wissenswertes`}
+                  />
+                )}
 
-            {/* Neue Reaktionen - Only if reactions exist */}
-            {hasReactions && (
-              <HubCard
-                textIcon={String(getTotalReactions())}
-                title="Neue Reaktionen"
-                description="Besucher haben auf die Gedenkseite reagiert."
-                href={`/gedenkseite/${memorial.id}/verwalten/reaktionen`}
-              />
+                {/* Kondolenzbuch - Only if content exists */}
+                {hasKondolenzbuch && (
+                  <HubCard
+                    icon={<KondolenzbuchIcon size={48} />}
+                    title="Kondolenzbuch"
+                    description={`${kondolenzbuchCount} Einträge im Kondolenzbuch`}
+                    href={`/gedenkseite/${memorial.id}/verwalten/kondolenzbuch`}
+                  />
+                )}
+
+                {/* Termine - Only if content exists */}
+                {hasTermine && (
+                  <HubCard
+                    icon={<TermineIcon size={48} />}
+                    title="Termine"
+                    description="Verwalte Gedenktermine und Jahrestage."
+                    href={`/gedenkseite/${memorial.id}/verwalten/termine`}
+                  />
+                )}
+
+                {/* Seite ansehen */}
+                <HubCard
+                  icon={<ArrowUpRightIcon className="w-12 h-12" />}
+                  iconAlign="end"
+                  title="Seite ansehen"
+                  description="Hier gelangst du zur Gedenkseite wie jeder Besucher sie sieht."
+                  onClick={() => window.open(`/gedenkseite/${memorial.id}`, '_blank')}
+                />
+
+                {/* Einstellungen */}
+                <SettingsHubCard memorialId={memorial.id} />
+
+                {/* MemorialToDoCard - spans 2 columns */}
+                <MemorialToDoCard
+                  memorial={memorial}
+                  wissenswertesCount={wissenswertesCount}
+                  kondolenzbuchCount={kondolenzbuchCount}
+                  className="md:col-span-2 md:row-span-2"
+                />
+
+                {/* Visuelle Erinnerungen - Coming Soon */}
+                <HubCard
+                  icon={<VisuelleErinnerungenIcon size={48} />}
+                  title="Visuelle Erinnerungen"
+                  description="Lade Fotos und Videos hoch, um Erinnerungen zu teilen."
+                  disabled
+                  badge="inPlanung"
+                />
+              </>
+            ) : (
+              <>
+                {/* NO CONTENT: To-Do first, then Settings, then View Page */}
+                {/* MemorialToDoCard - spans 2 columns */}
+                <MemorialToDoCard
+                  memorial={memorial}
+                  wissenswertesCount={wissenswertesCount}
+                  kondolenzbuchCount={kondolenzbuchCount}
+                  className="md:col-span-2 md:row-span-2"
+                />
+
+                {/* Einstellungen */}
+                <SettingsHubCard memorialId={memorial.id} />
+
+                {/* Seite ansehen */}
+                <HubCard
+                  icon={<ArrowUpRightIcon className="w-12 h-12" />}
+                  iconAlign="end"
+                  title="Seite ansehen"
+                  description="Hier gelangst du zur Gedenkseite wie jeder Besucher sie sieht."
+                  onClick={() => window.open(`/gedenkseite/${memorial.id}`, '_blank')}
+                />
+
+                {/* Visuelle Erinnerungen - Coming Soon */}
+                <HubCard
+                  icon={<VisuelleErinnerungenIcon size={48} />}
+                  title="Visuelle Erinnerungen"
+                  description="Lade Fotos und Videos hoch, um Erinnerungen zu teilen."
+                  disabled
+                  badge="inPlanung"
+                />
+              </>
             )}
-
-            {/* Spruch und Nachruf - Only if content exists */}
-            {hasSpruchOrNachruf && (
-              <HubCard
-                textIcon="ABC"
-                title="Spruch und Nachruf"
-                description="Bearbeite den Gedenkspruch und Nachruf."
-                href={`/gedenkseite/${memorial.id}/verwalten/spruch-nachruf`}
-              />
-            )}
-
-            {/* Wissenswertes - Only if content exists */}
-            {hasWissenswertes && (
-              <HubCard
-                icon={<WissenswertesIcon size={48} />}
-                title="Wissenswertes"
-                description={`${wissenswertesCount} Einträge über ${memorial.first_name}`}
-                href={`/gedenkseite/${memorial.id}/verwalten/wissenswertes`}
-              />
-            )}
-
-            {/* Kondolenzbuch - Only if content exists */}
-            {hasKondolenzbuch && (
-              <HubCard
-                icon={<KondolenzbuchIcon size={48} />}
-                title="Kondolenzbuch"
-                description={`${kondolenzbuchCount} Einträge im Kondolenzbuch`}
-                href={`/gedenkseite/${memorial.id}/verwalten/kondolenzbuch`}
-              />
-            )}
-
-            {/* Termine - Only if content exists */}
-            {hasTermine && (
-              <HubCard
-                icon={<TermineIcon size={48} />}
-                title="Termine"
-                description="Verwalte Gedenktermine und Jahrestage."
-                href={`/gedenkseite/${memorial.id}/verwalten/termine`}
-              />
-            )}
-
-            {/* Visuelle Erinnerungen - Coming Soon */}
-            <HubCard
-              icon={<VisuelleErinnerungenIcon size={48} />}
-              title="Visuelle Erinnerungen"
-              description="Lade Fotos und Videos hoch, um Erinnerungen zu teilen."
-              disabled
-              badge="inPlanung"
-            />
           </div>
         </div>
         </div>
