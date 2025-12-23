@@ -16,7 +16,8 @@ export function ConditionalLayout({ children }: ConditionalLayoutProps) {
   const isDashboardPage = pathname.startsWith('/dashboard')
   const isMemorialCreationPage = pathname.startsWith('/gedenkseite/neu')
   const isMemorialManagementPage = pathname.includes('/verwalten')
-  const hideNavAndFooter = isAuthPage || isDashboardPage || isMemorialCreationPage || isMemorialManagementPage
+  const isKondolenzbuchErstellenPage = pathname.includes('/kondolenzbuch/erstellen')
+  const hideNavAndFooter = isAuthPage || isDashboardPage || isMemorialCreationPage || isMemorialManagementPage || isKondolenzbuchErstellenPage
 
   if (hideNavAndFooter) {
     return <>{children}</>

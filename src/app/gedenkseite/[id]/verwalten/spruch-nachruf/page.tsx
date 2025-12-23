@@ -7,7 +7,7 @@ import { useMemorial } from '@/contexts/MemorialContext';
 import { SpruchInput } from '@/components/memorial/SpruchInput';
 import { NachrufInput } from '@/components/memorial/NachrufInput';
 import { Badge } from '@/components/ui/Badge';
-import { createClient } from '@/lib/supabase/client-legacy';
+import { createClient } from '@/lib/supabase/client';
 import { useToast } from '@/contexts/ToastContext';
 
 /**

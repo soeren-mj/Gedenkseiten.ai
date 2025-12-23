@@ -6,7 +6,7 @@ import type { Memorial } from '@/lib/supabase';
 interface MemorialToDoCardProps {
   memorial: Memorial;
   wissenswertesCount: number;
-  kondolenzbuchCount: number;
+  hasCondolenceBook: boolean;
   className?: string;
 }
 
@@ -34,7 +34,7 @@ interface ToDoItem {
 export function MemorialToDoCard({
   memorial,
   wissenswertesCount,
-  kondolenzbuchCount,
+  hasCondolenceBook,
   className = '',
 }: MemorialToDoCardProps) {
   const firstName = memorial.first_name;
@@ -71,7 +71,7 @@ export function MemorialToDoCard({
       description: 'Erstelle eine Möglichkeit Anteilnahme und persönliche Widmungen zu erhalten',
       badge: 'empfehlung',
       href: `/gedenkseite/${memorialId}/verwalten/kondolenzbuch`,
-      isCompleted: kondolenzbuchCount > 0,
+      isCompleted: hasCondolenceBook,
     },
   ];
 

@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { ChevronLeft } from 'lucide-react';
 import { useMemorial } from '@/contexts/MemorialContext';
 import { PrivacySelection } from '@/components/memorial/PrivacySelection';
-import { createClient } from '@/lib/supabase/client-legacy';
+import { createClient } from '@/lib/supabase/client';
 import { useToast } from '@/contexts/ToastContext';
 
 type PrivacyLevel = 'public' | 'private';

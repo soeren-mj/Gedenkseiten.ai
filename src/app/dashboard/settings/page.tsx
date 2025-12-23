@@ -12,7 +12,7 @@ import { ThemeModeToggle } from '@/components/ui/theme-mode-toggle'
 import { useState, useEffect, useRef } from 'react'
 import { replaceAvatar, deleteAvatar as deleteAvatarFromStorage } from '@/lib/services/avatar-upload'
 import { savePendingEmailChange, getPendingEmailChange, removePendingEmailChange } from '@/lib/pendingEmailStorage'
-import { createClient } from '@/lib/supabase/client-legacy'
+import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 import { ChevronLeft } from 'lucide-react'
 

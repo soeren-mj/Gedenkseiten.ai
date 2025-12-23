@@ -6,7 +6,7 @@ import { ImageIcon } from 'lucide-react';
 import { InitialsPreview } from '@/components/memorial/InitialsPreview';
 import { CircularIconButton } from '@/components/ui/CircularIconButton';
 import { useAuth } from '@/contexts/AuthContext';
-import { createClient } from '@/lib/supabase/client-legacy';
+import { createClient } from '@/lib/supabase/client';
 
 type AvatarType = 'initials' | 'image';
 

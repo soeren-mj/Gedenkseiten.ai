@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import type { ReactionType } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
-import { createClient } from '@/lib/supabase/client-legacy';
+import { createClient } from '@/lib/supabase/client';
 import LoginModal from '@/components/auth/LoginModal';
 
 // Note: useRouter removed - using LoginModal instead of redirect

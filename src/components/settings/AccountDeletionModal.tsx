@@ -5,7 +5,7 @@ import { TextInput } from '@/components/ui/text-input'
 import { Button } from '@/components/ui/Button'
 import { XIcon } from '@/components/icons/XIcon'
 import InitialsAvatar from '@/components/ui/InitialsAvatar'
-import { createClient } from '@/lib/supabase/client-legacy'
+import { createClient } from '@/lib/supabase/client'
 
 interface DeletionSummary {
   memorialCount: number

@@ -20,7 +20,7 @@ import { Plus } from 'lucide-react';
 import { WissenswertesItem } from '@/components/memorial/WissenswertesItem';
 import { WissenswertesForm } from '@/components/memorial/WissenswertesForm';
 import { useToast } from '@/contexts/ToastContext';
-import { createClient } from '@/lib/supabase/client-legacy';
+import { createClient } from '@/lib/supabase/client';
 import type { Wissenswertes } from '@/lib/supabase';
 
 const MAX_ENTRIES = 12;

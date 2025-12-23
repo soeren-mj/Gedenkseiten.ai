@@ -119,7 +119,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     // Size styles based on design specs
     const sizeStyles = {
       xs: 'p-1 text-desktop-button-xs rounded-xxs',      // padding: 4px (p-1), border-radius: 8px
-      sm: 'py-2.5 px-3 text-desktop-button-s rounded-xxs', // padding: 10px 12px, border-radius: 8px  
+      sm: 'py-2 px-3 text-desktop-button-s rounded-xxs', // padding: 8px 12px, border-radius: 8px  
       md: 'py-3 px-5 text-desktop-button-m rounded-xs',    // padding: 12px 20px, border-radius: 12px
       lg: 'py-4 px-6 text-desktop-button-l rounded-sm'     // padding: 16px 24px, border-radius: 16px
     };
@@ -147,14 +147,14 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         {...props}
       >
         {leftIcon && (
-          <span className="flex-shrink-0">{leftIcon}</span>
+          <span className="mr-2 flex-shrink-0">{leftIcon}</span>
         )}
-        <span className="flex-grow flex items-center justify-center gap-2 mx-2">
+        <span className="flex-grow flex justify-center gap-2">
           {loading && <LoadingSpinner variant={variant} />}
           <span>{children}</span>
         </span>
         {rightIcon && (
-          <span className="flex-shrink-0">{rightIcon}</span>
+          <span className="ml-2 flex-shrink-0">{rightIcon}</span>
         )}
       </button>
     );

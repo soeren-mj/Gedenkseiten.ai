@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/client-legacy'
+import { createClient } from '@/lib/supabase/client'
 
 const MAX_FILE_SIZE = 3 * 1024 * 1024 // 3 MB in bytes
 const ALLOWED_FILE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']

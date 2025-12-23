@@ -7,7 +7,7 @@ import ProfilePreviewCard from '@/components/cards/ProfilePreviewCard';
 import { PrivacySelection } from '@/components/memorial/PrivacySelection';
 import { useMemorialWizard } from '@/hooks/useMemorialWizard';
 import { useAuth } from '@/contexts/AuthContext';
-import { createClient } from '@/lib/supabase/client-legacy';
+import { createClient } from '@/lib/supabase/client';
 import { logger } from '@/lib/utils/logger';
 
 type PrivacyLevel = 'public' | 'private';

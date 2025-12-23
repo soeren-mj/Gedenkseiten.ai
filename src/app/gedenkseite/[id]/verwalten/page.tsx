@@ -5,7 +5,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { useMemorial } from '@/contexts/MemorialContext';
 import { useToast } from '@/contexts/ToastContext';
 import { formatFullName } from '@/lib/utils/nameFormatter';
-import { createClient } from '@/lib/supabase/client-legacy';
+import { createClient } from '@/lib/supabase/client';
 import type { ReactionType } from '@/lib/supabase';
 
 // Components
@@ -42,6 +42,7 @@ export default function MemorialManagementPage() {
   // State
   const [wissenswertesCount, setWissenswertesCount] = useState(0);
   const [kondolenzbuchCount, setKondolenzbuchCount] = useState(0);
+  const [hasCondolenceBook, setHasCondolenceBook] = useState(false);
   const [reactions, setReactions] = useState<ReactionCounts | null>(null);
   const welcomeShownRef = useRef(false);
 
@@ -61,9 +62,27 @@ export default function MemorialManagementPage() {
 
       setWissenswertesCount(wissenswertesTotal || 0);
 
-      // Fetch kondolenzbuch count (if table exists)
-      // TODO: Implement when kondolenzbuch table is created
-      setKondolenzbuchCount(0);
+      // Fetch kondolenzbuch count
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const db = supabase as any;
+      const { data: condolenceBook } = await db
+        .from('condolence_books')
+        .select('id')
+        .eq('memorial_id', memorial.id)
+        .single();
+
+      if (condolenceBook) {
+        setHasCondolenceBook(true);
+        const { count: entriesCount } = await db
+          .from('condolence_entries')
+          .select('*', { count: 'exact', head: true })
+          .eq('book_id', condolenceBook.id);
+
+        setKondolenzbuchCount(entriesCount || 0);
+      } else {
+        setHasCondolenceBook(false);
+        setKondolenzbuchCount(0);
+      }
 
       // Fetch reactions
       if (session?.access_token) {
@@ -119,7 +138,7 @@ export default function MemorialManagementPage() {
   // Content state checks
   const hasSpruchOrNachruf = !!(memorial.memorial_quote || memorial.obituary);
   const hasWissenswertes = wissenswertesCount > 0;
-  const hasKondolenzbuch = kondolenzbuchCount > 0;
+  const hasKondolenzbuch = hasCondolenceBook;
   const hasTermine = false; // TODO: Implement when termine table is created
   const hasReactions = getTotalReactions() > 0;
 
@@ -185,12 +204,14 @@ export default function MemorialManagementPage() {
                   />
                 )}
 
-                {/* Kondolenzbuch - Only if content exists */}
+                {/* Kondolenzbuch - Only if book exists (has cover) */}
                 {hasKondolenzbuch && (
                   <HubCard
                     icon={<KondolenzbuchIcon size={48} />}
                     title="Kondolenzbuch"
-                    description={`${kondolenzbuchCount} Einträge im Kondolenzbuch`}
+                    description={kondolenzbuchCount === 0
+                      ? 'Noch keine Einträge'
+                      : `${kondolenzbuchCount} ${kondolenzbuchCount === 1 ? 'Eintrag' : 'Einträge'} im Kondolenzbuch`}
                     href={`/gedenkseite/${memorial.id}/verwalten/kondolenzbuch`}
                   />
                 )}
@@ -221,7 +242,7 @@ export default function MemorialManagementPage() {
                 <MemorialToDoCard
                   memorial={memorial}
                   wissenswertesCount={wissenswertesCount}
-                  kondolenzbuchCount={kondolenzbuchCount}
+                  hasCondolenceBook={hasCondolenceBook}
                   className="md:col-span-2 md:row-span-2"
                 />
 
@@ -241,7 +262,7 @@ export default function MemorialManagementPage() {
                 <MemorialToDoCard
                   memorial={memorial}
                   wissenswertesCount={wissenswertesCount}
-                  kondolenzbuchCount={kondolenzbuchCount}
+                  hasCondolenceBook={hasCondolenceBook}
                   className="md:col-span-2 md:row-span-2"
                 />
 

@@ -121,30 +121,47 @@ export type MemorialInvitation = {
   created_at: string;
 };
 
+// Condolence Book Types
+export type CoverType = 'color' | 'preset' | 'custom';
+export type TextColor = 'white' | 'black';
+
 export type CondolenceBook = {
   id: string;
   memorial_id: string;
-  cover_background_type: 'color' | 'image';
-  cover_background_value: string;
-  cover_text: string;
+  cover_type: CoverType;
+  cover_value: string; // hex color, preset name, or image URL
+  cover_title: string;
+  text_color: TextColor;
   show_profile: boolean;
-  is_active: boolean;
   created_at: string;
   updated_at: string;
 };
 
 export type CondolenceEntry = {
   id: string;
-  condolence_book_id: string;
-  memorial_id: string;
+  book_id: string;
   user_id: string;
-  author_name: string;
-  author_avatar: string | null;
-  message: string;
-  images: string[] | null;
-  status: 'pending' | 'approved' | 'rejected';
+  content: string; // max 2000 chars
+  is_read_by_admin: boolean;
   created_at: string;
   updated_at: string;
+};
+
+export type CondolenceEntryImage = {
+  id: string;
+  entry_id: string;
+  image_url: string;
+  sort_order: number;
+  created_at: string;
+};
+
+// Extended entry type with user data and images for display
+export type CondolenceEntryWithDetails = CondolenceEntry & {
+  user: {
+    name: string | null;
+    avatar_url: string | null;
+  } | null;
+  images: CondolenceEntryImage[];
 };
 
 export type BeitragPost = {

@@ -6,7 +6,7 @@ import BackendHeader from '@/components/dashboard/BackendHeader';
 import FeedbackButton from '@/components/ui/FeedbackButton';
 import { MemorialProvider } from '@/contexts/MemorialContext';
 import { useAuth } from '@/contexts/AuthContext';
-import { createClient } from '@/lib/supabase/client-legacy';
+import { createClient } from '@/lib/supabase/client';
 import type { Memorial } from '@/lib/supabase';
 
 /**

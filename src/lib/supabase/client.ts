@@ -1,28 +1,51 @@
-import { createBrowserClient } from '@supabase/ssr'
+import { createClient as createSupabaseClient, SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '../supabase'
 
+/**
+ * Browser Supabase client using @supabase/supabase-js directly
+ * (Required for React 19 compatibility - @supabase/ssr has issues)
+ *
+ * Uses singleton pattern to avoid multiple client instances
+ *
+ * IMPORTANT CONFIGURATION NOTES:
+ * - detectSessionInUrl: false - Only the callback route should process URL tokens
+ *   Setting this to true causes race conditions between AuthContext and callback handler
+ * - storageKey: Use Supabase default (sb-<project-ref>-auth-token) instead of custom key
+ *   Custom keys break session retrieval and cause getSession() to hang
+ */
+
+let browserClient: SupabaseClient<Database> | null = null
+
 export function createClient() {
-  console.log('[Supabase Client] Creating browser client with URL:', process.env.NEXT_PUBLIC_SUPABASE_URL)
+  // Return existing client if already created (singleton pattern)
+  if (browserClient) {
+    return browserClient
+  }
+
+  console.log('[Supabase Client] Creating browser client (singleton)')
 
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
-    console.error('[Supabase Client] Missing NEXT_PUBLIC_SUPABASE_URL')
     throw new Error('Missing NEXT_PUBLIC_SUPABASE_URL')
   }
 
   if (!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-    console.error('[Supabase Client] Missing NEXT_PUBLIC_SUPABASE_ANON_KEY')
     throw new Error('Missing NEXT_PUBLIC_SUPABASE_ANON_KEY')
   }
 
-  try {
-    const client = createBrowserClient<Database>(
-      process.env.NEXT_PUBLIC_SUPABASE_URL,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-    )
-    console.log('[Supabase Client] Browser client created successfully')
-    return client
-  } catch (error) {
-    console.error('[Supabase Client] Error creating browser client:', error)
-    throw error
-  }
+  browserClient = createSupabaseClient<Database>(
+    process.env.NEXT_PUBLIC_SUPABASE_URL,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    {
+      auth: {
+        autoRefreshToken: true,
+        persistSession: true,
+        detectSessionInUrl: false, // Only callback route processes URL tokens
+        storage: typeof window !== 'undefined' ? window.localStorage : undefined,
+        // storageKey removed - using Supabase default: sb-<project-ref>-auth-token
+      },
+    }
+  )
+
+  console.log('[Supabase Client] Browser client created successfully')
+  return browserClient
 }

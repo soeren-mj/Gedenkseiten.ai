@@ -79,6 +79,7 @@ module.exports = {
           950: '#3F2609',
         },
         orange: {
+          100: '#FBDECA',
           200: '#F7BB90',
           400: '#EF8030',
           500: '#E56D17',
@@ -86,6 +87,7 @@ module.exports = {
           950: '#411A07',
         },
         purple: {
+          100: '#F0ECFB',
           200: '#E2DBF9',
           300: '#CDBEF4',
           400: '#B99BF6',

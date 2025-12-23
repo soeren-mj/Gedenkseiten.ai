@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client-legacy'
+import { createClient } from '@/lib/supabase/client'
 import { useToast } from '@/contexts/ToastContext'
 import type { User as AuthUser } from '@supabase/supabase-js'
 import type { User, MemorialInvitation } from '@/lib/supabase'

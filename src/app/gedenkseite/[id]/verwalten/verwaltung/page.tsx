@@ -7,7 +7,7 @@ import { ChevronLeft } from 'lucide-react';
 import { useMemorial } from '@/contexts/MemorialContext';
 import { Button } from '@/components/ui/Button';
 import { MemorialDeletionModal } from '@/components/memorial/MemorialDeletionModal';
-import { createClient } from '@/lib/supabase/client-legacy';
+import { createClient } from '@/lib/supabase/client';
 
 /**
  * Seite verwalten - Memorial Management Page

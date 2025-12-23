@@ -6,7 +6,7 @@ import { useMemorial } from '@/contexts/MemorialContext';
 import { StammdatenForm } from '@/components/memorial/StammdatenForm';
 import { type PersonBasicInfo } from '@/lib/validation/memorial-schema';
 import { useState } from 'react';
-import { createClient } from '@/lib/supabase/client-legacy';
+import { createClient } from '@/lib/supabase/client';
 import { useToast } from '@/contexts/ToastContext';
 import type { Memorial } from '@/lib/supabase';
 

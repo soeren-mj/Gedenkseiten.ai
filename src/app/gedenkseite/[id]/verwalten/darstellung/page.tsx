@@ -7,7 +7,7 @@ import { useMemorial } from '@/contexts/MemorialContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import ProfilePreviewCard from '@/components/cards/ProfilePreviewCard';
-import { createClient } from '@/lib/supabase/client-legacy';
+import { createClient } from '@/lib/supabase/client';
 
 const GENERIC_ERROR = 'Ein unbekannter Fehler ist aufgetreten. Bitte versuche es erneut.';
 

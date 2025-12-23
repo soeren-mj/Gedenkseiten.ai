@@ -8,7 +8,7 @@
 
 **Last Updated:** [DATE]
 
-**Version:** 1.0
+**Version:** 1.2
 
 ---
 
@@ -106,70 +106,38 @@ Response: {
 
 ---
 
-## 2.2 Unified Authentication Flow
+## 2.2 User Registration
 
-**Screenshot:** [Unified login/register page with smart email detection]
+**Screenshot:** [Registration page with multiple sign-up options]
+
+![desktop.png](Gedenkseiten%20ai%20Technical%20Documentation%20209314b1b14781e9ab65fbfcbbe35a47/desktop.png)
 
 **Description:**
 
-Gedenkseiten.ai uses a modern unified authentication flow that intelligently handles both registration and login through a single interface. The system automatically detects whether a user is new or returning and presents the appropriate options.
+Clean registration page with multiple authentication options. Uses passwordless email authentication for email sign-ups, requiring only an email address with verification via magic link. Complies with German DOI (Double Opt-In) requirements.
 
 **Page Elements:**
-- Header: "Gedenkseiten.ai" 
-- Subheader: "Erstelle oder besuche deine Gedenkseite"
-- Multiple authentication methods (social providers + email)
+- Header: “Deine Wahl.” (Your Choice)
+- Subheader: “Erstelle dein persönliches Memorial Journey Konto”
+- Multiple sign-up methods (social providers + email)
+- Login link for existing users
 - Legal compliance notice with links
-- No separate "Login" or "Register" buttons - the system handles this intelligently
 
-**Authentication Methods:**
-1. **Google**: "Mit Google fortfahren"
-2. **Apple**: "Mit Apple fortfahren"
-3. **Microsoft**: "Mit Microsoft fortfahren"
-4. **Passkey**: "Mit Passkey fortfahren"
-5. **Email**: Email input field with arrow button (Unified flow)
+**Sign-up Methods:**
+1. **Google**: “Mit Google fortfahren”
+2. **Apple**: “Mit Apple fortfahren”
 
-**Unified Email Flow:**
-- User enters email address
-- System checks if user exists
-- Appropriate action taken based on user status:
-  - New user → Magic link registration
-  - Existing user without password → Magic link login
-  - Existing user with password → Password prompt with magic link option
-- **After successful authentication → Redirect to Dashboard (Section 2.2.1)**
+3. **Microsoft**: “Mit Microsoft fortfahren”
+4. **Passkey**: “Mit Passkey fortfahren”
+5. **Email**: “Mit E-Mail-Adresse fortfahren” (Passwordless)
 
-**Technical Implementation:**
-
-```typescript
-// Unified authentication check
-interface AuthCheckResult {
-  userExists: boolean;
-  hasPassword: boolean;
-  authMethods: ('magic-link' | 'password' | 'google' | 'apple' | 'microsoft')[];
-}
-
-const handleUnifiedAuth = async (email: string): Promise<void> => {
-  const authStatus = await checkAuthStatus(email);
-  
-  if (!authStatus.userExists) {
-    // New user - send registration magic link
-    await sendMagicLink(email, { type: 'signup' });
-    showMessage('welcome_new_user');
-  } else if (authStatus.hasPassword) {
-    // Existing user with password - show options
-    showPasswordPrompt(email);
-  } else {
-    // Existing user, magic link only
-    await sendMagicLink(email, { type: 'login' });
-    showMessage('welcome_back_magic_link');
-  }
-};
-
-Privacy Consideration:
-To prevent email enumeration attacks, the system shows a generic message regardless of whether the user exists:
-typescript// Privacy-preserving message
-const GENERIC_AUTH_MESSAGE = 
-  "✉️ Wir haben dir eine E-Mail geschickt. " +
-  "Bitte überprüfe dein Postfach und klicke auf den Link.";
+**User Flow:**
+- Select authentication method → Respective OAuth flow or email input
+- Email method → Enter email → Receive magic link → Verify email (DOI)
+- Social auth → OAuth consent → Auto-create account
+- Already registered? → Click “Einloggen” link
+- All methods require accepting Terms & Privacy Policy
+- **After successful registration → Redirect to Dashboard (Section 2.2.1)**
 
 ---
 
@@ -205,153 +173,6 @@ The user dashboard is the first screen users see after successful registration/l
 - From: “Von: [Inviter Name]” (e.g., “BM Birgit Musterfrau”)
 - To: “Zu: [Memorial Name]” (e.g., “MK Michael Korzensländer”)
 - Create memorial option: “+” with “Gedenkseite hinzufügen”
-
----
-
-2.2.2 Authentication States
-State 1: Initial Page Load
-┌─────────────────────────────────┐
-│       Gedenkseiten.ai          │
-│                                │
-│   Erstelle oder besuche deine  │
-│       Gedenkseite              │
-│                                │
-│    [Mit Google fortfahren]     │
-│    [Mit Apple fortfahren]      │
-│    [Mit Microsoft fortfahren]  │
-│    [Mit Passkey fortfahren]    │
-│                                │
-│    ─────── oder ───────        │
-│                                │
-│    E-Mail-Adresse              │
-│    [_____________________] →   │
-│                                │
-│    Mit der Eingabe deiner      │
-│    E-Mail akzeptierst du       │
-│    unsere AGB und              │
-│    Datenschutzrichtlinie       │
-└─────────────────────────────────┘
-State 2: After Email Submission (New User)
-┌─────────────────────────────────┐
-│       Gedenkseiten.ai          │
-│                                │
-│         ✉️                     │
-│                                │
-│    Magic Link verschickt!      │
-│                                │
-│    Wir haben dir eine E-Mail   │
-│    an example@email.com        │
-│    geschickt.                  │
-│                                │
-│    Klicke auf den Link in der  │
-│    E-Mail um fortzufahren.     │
-│                                │
-│    [Andere E-Mail verwenden]   │
-└─────────────────────────────────┘
-State 3: After Email Submission (Existing User with Password)
-┌─────────────────────────────────┐
-│       Gedenkseiten.ai          │
-│                                │
-│    Willkommen zurück!          │
-│    example@email.com           │
-│                                │
-│    Passwort                    │
-│    [_____________________]     │
-│                                │
-│    [Anmelden]                  │
-│                                │
-│    oder                        │
-│                                │
-│    [Magic Link senden]         │
-│    [Andere E-Mail verwenden]   │
-└─────────────────────────────────┘
-
----
-
-2.2.3 Magic Link Email Templates
-Registration Email (New User):
-
-Subject: "Willkommen bei Gedenkseiten.ai - Bestätige deine E-Mail"
-Contains welcome message
-Single-use registration link
-Link expires after 1 hour
-
-Login Email (Existing User):
-
-Subject: "Dein Login-Link für Gedenkseiten.ai"
-Contains login link
-Optional: Shows available auth methods if user has password set
-Link expires after 1 hour
-
-
-2.2.4 Password Management
-Optional Password Addition:
-Users who register via magic link can optionally add a password later through their account settings. This provides flexibility without forcing password creation during registration.
-Parallel Authentication Methods:
-
-Magic link remains active even after password is set
-Users can choose their preferred login method
-Provides fallback option if password is forgotten
-
-API Endpoints:
-typescript// Check authentication status
-POST /api/auth/check
-Body: { email: string }
-Response: {
-  userExists: boolean,
-  authMethods: string[],
-  // Note: hasPassword is not exposed for privacy
-}
-
-// Send magic link
-POST /api/auth/magic-link
-Body: { 
-  email: string,
-  type: 'login' | 'signup' // Determined by backend
-}
-Response: {
-  success: boolean,
-  message: string // Generic message for privacy
-}
-
-// Password login (for existing users with password)
-POST /api/auth/login
-Body: {
-  email: string,
-  password: string
-}
-Response: {
-  user: User,
-  session: Session
-}
-
-// Add password to account (authenticated users only)
-PUT /api/user/password
-Headers: { Authorization: Bearer [token] }
-Body: { password: string }
-Response: {
-  success: boolean
-}
-Database Schema Updates:
-sql-- Users can have multiple auth methods
-CREATE TABLE user_auth_methods (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
-  method VARCHAR(50) NOT NULL, -- 'password', 'magic-link', 'google', etc.
-  is_active BOOLEAN DEFAULT true,
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  UNIQUE(user_id, method)
-);
-
--- Track magic link usage
-CREATE TABLE magic_link_logs (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  email VARCHAR(255) NOT NULL,
-  type VARCHAR(20) NOT NULL, -- 'login' or 'signup'
-  sent_at TIMESTAMPTZ DEFAULT NOW(),
-  used_at TIMESTAMPTZ,
-  expires_at TIMESTAMPTZ DEFAULT NOW() + INTERVAL '1 hour'
-);
 
 ---
 

@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient as createSupabaseClient } from '@supabase/supabase-js'
-import { createClient } from '@/lib/supabase/client-legacy'
+import { createClient } from '@/lib/supabase/client'
 import type { Database } from '@/lib/supabase'
 
 export default function AuthCallbackPage() {
