@@ -2,26 +2,18 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { X, ImagePlus, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { X, ImagePlus } from 'lucide-react';
 import BackendHeader from '@/components/dashboard/BackendHeader';
-import ChevronRightIcon from '@/components/icons/ChevronRightIcon';
 import { useMemorial } from '@/contexts/MemorialContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { Button } from '@/components/ui/Button';
-import InitialsAvatar from '@/components/ui/InitialsAvatar';
+import { EntryCard, UploadedImage } from '@/components/kondolenzbuch/EntryCard';
 import { createClient } from '@/lib/supabase/client';
 import type { CondolenceEntry, CondolenceEntryImage } from '@/lib/supabase';
 
 const MAX_CHARS = 2000;
 const MAX_IMAGES = 12;
-
-interface UploadedImage {
-  id?: string;
-  url: string;
-  file?: File;
-  isNew?: boolean;
-}
 
 /**
  * Eintrag (Entry) Editor Page
@@ -49,8 +41,6 @@ export default function EintragPage() {
   const [isLoading, setIsLoading] = useState(isEditMode);
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
-  const [carouselIndex, setCarouselIndex] = useState(0);
-  const [showCarousel, setShowCarousel] = useState(false);
 
   // User display info
   const userName = user?.name || user?.email?.split('@')[0] || 'Unbekannt';
@@ -118,54 +108,12 @@ export default function EintragPage() {
     fetchData();
   }, [editEntryId, memorial.id, user?.id, router, showToast]);
 
-  const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const value = e.target.value;
+  const handleContentChange = (value: string) => {
     if (value.length <= MAX_CHARS) {
       setContent(value);
     }
   };
 
-  const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    if (files.length === 0) return;
-
-    const remainingSlots = MAX_IMAGES - images.length;
-    if (remainingSlots <= 0) {
-      showToast('error', 'Limit erreicht', `Maximale Anzahl von ${MAX_IMAGES} Bildern erreicht.`);
-      return;
-    }
-
-    const filesToAdd = files.slice(0, remainingSlots);
-
-    // Validate file sizes (max 2MB)
-    const validFiles = filesToAdd.filter((file) => {
-      if (file.size > 2 * 1024 * 1024) {
-        showToast('error', 'Datei zu groß', `${file.name} ist zu groß (max 2MB).`);
-        return false;
-      }
-      return true;
-    });
-
-    // Create preview URLs
-    const newImages: UploadedImage[] = validFiles.map((file) => ({
-      url: URL.createObjectURL(file),
-      file,
-      isNew: true,
-    }));
-
-    setImages((prev) => [...prev, ...newImages]);
-
-    // Open carousel view when images are added
-    if (newImages.length > 0) {
-      setCarouselIndex(images.length); // Go to first new image
-      setShowCarousel(true);
-    }
-
-    // Reset file input
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
-  };
 
   const handleDeleteImage = (index: number) => {
     setImages((prev) => {
@@ -177,30 +125,95 @@ export default function EintragPage() {
       newImages.splice(index, 1);
       return newImages;
     });
-
-    // Adjust carousel index if needed
-    if (carouselIndex >= images.length - 1 && carouselIndex > 0) {
-      setCarouselIndex(carouselIndex - 1);
-    }
-
-    // Close carousel if no images left
-    if (images.length <= 1) {
-      setShowCarousel(false);
-    }
   };
 
-  const handleMoveImage = (direction: 'left' | 'right') => {
-    const newIndex = direction === 'left' ? carouselIndex - 1 : carouselIndex + 1;
+  const handleMoveImage = (fromIndex: number, direction: 'left' | 'right') => {
+    const newIndex = direction === 'left' ? fromIndex - 1 : fromIndex + 1;
     if (newIndex < 0 || newIndex >= images.length) return;
 
     setImages((prev) => {
       const newImages = [...prev];
-      const temp = newImages[carouselIndex];
-      newImages[carouselIndex] = newImages[newIndex];
+      const temp = newImages[fromIndex];
+      newImages[fromIndex] = newImages[newIndex];
       newImages[newIndex] = temp;
       return newImages;
     });
-    setCarouselIndex(newIndex);
+  };
+
+  // State for tracking which image index to replace
+  const [replaceImageIndex, setReplaceImageIndex] = useState<number | null>(null);
+
+  const handleChangeImage = (index: number) => {
+    setReplaceImageIndex(index);
+    fileInputRef.current?.click();
+  };
+
+  const handleImageSelectForReplace = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+
+    const file = files[0];
+
+    // Validate file size (max 2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      showToast('error', 'Datei zu groß', `${file.name} ist zu groß (max 2MB).`);
+      setReplaceImageIndex(null);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      return;
+    }
+
+    // If we're replacing an existing image
+    if (replaceImageIndex !== null) {
+      setImages((prev) => {
+        const newImages = [...prev];
+        // Revoke old object URL if it's a local preview
+        const oldImage = newImages[replaceImageIndex];
+        if (oldImage.isNew && oldImage.url.startsWith('blob:')) {
+          URL.revokeObjectURL(oldImage.url);
+        }
+        // Replace with new image
+        newImages[replaceImageIndex] = {
+          url: URL.createObjectURL(file),
+          file,
+          isNew: true,
+        };
+        return newImages;
+      });
+      setReplaceImageIndex(null);
+    } else {
+      // Adding new images (existing behavior)
+      const remainingSlots = MAX_IMAGES - images.length;
+      if (remainingSlots <= 0) {
+        showToast('error', 'Limit erreicht', `Maximale Anzahl von ${MAX_IMAGES} Bildern erreicht.`);
+        if (fileInputRef.current) fileInputRef.current.value = '';
+        return;
+      }
+
+      const filesToAdd = files.slice(0, remainingSlots);
+
+      // Validate file sizes (max 2MB)
+      const validFiles = filesToAdd.filter((f) => {
+        if (f.size > 2 * 1024 * 1024) {
+          showToast('error', 'Datei zu groß', `${f.name} ist zu groß (max 2MB).`);
+          return false;
+        }
+        return true;
+      });
+
+      // Create preview URLs
+      const newImages: UploadedImage[] = validFiles.map((f) => ({
+        url: URL.createObjectURL(f),
+        file: f,
+        isNew: true,
+      }));
+
+      setImages((prev) => [...prev, ...newImages]);
+    }
+
+    // Reset file input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
 
   const handleSave = async () => {
@@ -359,207 +372,83 @@ export default function EintragPage() {
   }
 
   return (
-    <main className="flex flex-col min-h-screen bg-light-dark-mode">
+    <main className="flex flex-col h-screen bg-light-dark-mode">
       {/* Header */}
       <BackendHeader actionLabel="Digitales Kondolenzbuch erstellen" />
 
       {/* Main Content - Two Column Layout */}
-      <div className="flex-1 overflow-y-auto pb-24">
-        <div className="max-w-6xl mx-auto px-4 py-8">
-          <div className="flex flex-col lg:flex-row gap-8 lg:gap-16">
+      <div className="pt-4 flex-1">
+        <div className="max-w-6xl mx-auto">
+          <div className="flex flex-col lg:flex-row gap-8 lg:h-[80vh]">
             {/* Left Column - Description */}
-            <div className="lg:w-1/3 flex flex-col gap-4">
-              <h1 className="text-webapp-section text-primary">
+            <div className="w-full lg:max-w-xs p-5 flex flex-col items-center lg:items-start justify-center lg:justify-end">
+              <div className="flex flex-col gap-2 max-w-lg">
+              <h1 className="text-webapp-section text-primary text-center lg:text-left">
                 Eintrag verfassen
               </h1>
-              <p className="text-body-m text-secondary">
+              <p className="text-body-m text-secondary text-center lg:text-left">
                 Hallo {user?.name?.split(' ')[0] || 'User'}, schreibe deinen
                 eigenen Kondolenzeintrag.
-              </p>
-              <p className="text-body-m text-tertiary">
-                Du kannst deinem Eintrag einen Text mit maximal 2.000 Wörtern und 12
+              <br />
+              <span className="text-body-m text-secondary">
+                Du kannst deinem Eintrag einen Text mit maximal 2.000 Zeichen und 12
                 Bildern hinzufügen.
+                </span>
               </p>
+              </div>
             </div>
 
-            {/* Right Column - Entry Editor Card */}
-            <div className="lg:w-2/3 flex flex-col items-center gap-6">
-              {/* Entry Card */}
-              <div className="w-full max-w-[450px] bg-bw-opacity-40 rounded-md shadow-card p-1">
-                <div className="bg-light-dark-mode rounded-sm flex flex-col">
-                  {/* User Header */}
-                  <div className="flex items-center gap-3 p-4 pb-0">
-                    <InitialsAvatar
-                      name={userName}
-                      imageUrl={userAvatar}
-                      size="sm"
-                    />
-                    <span className="text-body-m text-primary font-medium">
-                      {userName}
-                    </span>
-                  </div>
-
-                  {/* Image Carousel (when images exist and carousel is open) */}
-                  {showCarousel && images.length > 0 && (
-                    <div className="px-4 pt-4">
-                      {/* Carousel View */}
-                      <div className="relative">
-                        <div className="flex items-center justify-center gap-2">
-                          {/* Previous image preview */}
-                          {carouselIndex > 0 && (
-                            <div className="w-12 h-[200px] flex-shrink-0 overflow-hidden rounded-xs opacity-50">
-                              <img
-                                src={images[carouselIndex - 1].url}
-                                alt=""
-                                className="w-full h-full object-cover"
-                              />
-                            </div>
-                          )}
-
-                          {/* Current image */}
-                          <div className="relative flex-1 max-w-[280px] h-[280px] rounded-sm overflow-hidden">
-                            <img
-                              src={images[carouselIndex].url}
-                              alt={`Bild ${carouselIndex + 1}`}
-                              className="w-full h-full object-cover"
-                            />
-                            {/* Delete button */}
-                            <button
-                              type="button"
-                              onClick={() => handleDeleteImage(carouselIndex)}
-                              className="absolute bottom-3 left-3 p-2 bg-negative/80 hover:bg-negative text-white rounded-full transition-colors"
-                              aria-label="Bild löschen"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          </div>
-
-                          {/* Next image preview */}
-                          {carouselIndex < images.length - 1 && (
-                            <div className="w-12 h-[200px] flex-shrink-0 overflow-hidden rounded-xs opacity-50">
-                              <img
-                                src={images[carouselIndex + 1].url}
-                                alt=""
-                                className="w-full h-full object-cover"
-                              />
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Navigation */}
-                        <div className="flex items-center justify-between mt-3">
-                          <button
-                            type="button"
-                            onClick={() => handleMoveImage('left')}
-                            disabled={carouselIndex === 0}
-                            className="flex items-center gap-1 text-body-s text-interactive-primary-default disabled:text-interactive-disabled disabled:cursor-not-allowed"
-                          >
-                            <ChevronLeft className="w-4 h-4" />
-                            nach links
-                          </button>
-                          <span className="text-body-s text-secondary">
-                            Bild {carouselIndex + 1} verschieben
-                          </span>
-                          <button
-                            type="button"
-                            onClick={() => handleMoveImage('right')}
-                            disabled={carouselIndex === images.length - 1}
-                            className="flex items-center gap-1 text-body-s text-interactive-primary-default disabled:text-interactive-disabled disabled:cursor-not-allowed"
-                          >
-                            nach rechts
-                            <ChevronRight className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Thumbnail Grid (when images exist but carousel is closed) */}
-                  {!showCarousel && images.length > 0 && (
-                    <div className="px-4 pt-4">
-                      <div className="flex gap-2 flex-wrap">
-                        {images.slice(0, 4).map((img, index) => (
-                          <button
-                            key={index}
-                            type="button"
-                            onClick={() => {
-                              setCarouselIndex(index);
-                              setShowCarousel(true);
-                            }}
-                            className="relative w-16 h-16 rounded-xs overflow-hidden bg-secondary"
-                          >
-                            <img
-                              src={img.url}
-                              alt={`Bild ${index + 1}`}
-                              className="w-full h-full object-cover"
-                            />
-                          </button>
-                        ))}
-                        {images.length > 4 && (
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setCarouselIndex(4);
-                              setShowCarousel(true);
-                            }}
-                            className="w-16 h-16 rounded-xs border border-card flex items-center justify-center bg-secondary"
-                          >
-                            <span className="text-body-m text-interactive-primary-default font-medium">
-                              +{images.length - 4}
-                            </span>
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Text Area */}
-                  <div className="p-4 flex-1">
-                    <textarea
-                      value={content}
-                      onChange={handleContentChange}
-                      placeholder="Schreibe etwas..."
-                      className="w-full min-h-[200px] bg-transparent text-body-m text-primary placeholder:text-tertiary resize-none focus:outline-none"
-                      autoFocus={!isEditMode}
-                    />
-                  </div>
-
-                  {/* Add Images Button */}
-                  {canAddMoreImages ? (
-                    <div className="px-4 pb-4">
-                      <input
-                        ref={fileInputRef}
-                        type="file"
-                        accept="image/jpeg,image/png,image/webp"
-                        multiple
-                        onChange={handleImageSelect}
-                        className="hidden"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => fileInputRef.current?.click()}
-                        disabled={isUploading}
-                        className="w-full flex items-center justify-center gap-2 py-3 bg-primary text-primary border border-card rounded-sm hover:bg-secondary transition-colors disabled:opacity-50"
-                      >
-                        <ImagePlus className="w-5 h-5" />
-                        <span className="text-body-m">
-                          Bilder hinzufügen (Optional)
-                        </span>
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="px-4 pb-4">
-                      <div className="w-full py-3 text-center text-body-s text-tertiary bg-secondary rounded-sm">
-                        Maximale Anzahl von {MAX_IMAGES} Bilder erreicht
-                      </div>
-                    </div>
-                  )}
+            {/* Right Column - Entry Editor */}
+            <div className="max-w-lg flex w-full justify-center mx-auto lg:mx-0 pb-10">
+              {/* Content Wrapper */}
+              <div className="inline-flex flex-col items-center gap-6">
+                {/* Entry Card Container */}
+                <div className="">
+                  <EntryCard
+                    editMode
+                    userName={userName}
+                    userAvatar={userAvatar}
+                    content={content}
+                    onContentChange={handleContentChange}
+                    images={images}
+                    onDeleteImage={handleDeleteImage}
+                    onMoveImage={handleMoveImage}
+                    onChangeImage={handleChangeImage}
+                    maxChars={MAX_CHARS}
+                  />
                 </div>
-              </div>
 
-              {/* Character Counter */}
-              <div className="text-body-s text-tertiary">
-                {content.length}/{MAX_CHARS} Zeichen
+                {/* Character Counter */}
+                <div className="text-body-s text-tertiary">
+                  {content.length}/{MAX_CHARS} Zeichen
+                </div>
+
+                {/* Hidden file input */}
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  multiple
+                  onChange={handleImageSelectForReplace}
+                  className="hidden"
+                />
+
+                {/* Add Images Button - AUSSERHALB der Card */}
+                {canAddMoreImages ? (
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    leftIcon={<ImagePlus className="w-4 h-4" />}
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={isUploading}
+                  >
+                    Bilder hinzufügen (Optional)
+                  </Button>
+                ) : (
+                  <div className="text-body-s text-tertiary">
+                    Maximale Anzahl von {MAX_IMAGES} Bildern erreicht
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -581,11 +470,10 @@ export default function EintragPage() {
             </Button>
           </div>
           {/* Fertig Button - farbiger Hintergrund */}
-          <div className={`rounded-full ${!isValid || isSaving ? 'bg-interactive-disabled' : 'bg-interactive-primary-default hover:bg-interactive-primary-hover'}`}>
+          <div className={`rounded-full px-2 ${!isValid || isSaving ? 'bg-interactive-disabled' : 'bg-interactive-primary-default hover:bg-interactive-primary-hover'}`}>
             <Button
               variant="text"
               size="sm"
-              rightIcon={<ChevronRightIcon size={16} />}
               onClick={handleSave}
               disabled={!isValid || isSaving}
               loading={isSaving}

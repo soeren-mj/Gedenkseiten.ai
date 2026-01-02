@@ -148,6 +148,7 @@
     --bg-secondary: #E0E1E5;
     --bg-tertiary: #D2D3D9;
     --bg-inverted: #000000;
+    --bg-inverted-opacity-80: rgba(0, 0, 0, 0.8);
     --bg-accent: #9AB6FD;
     --bg-interactive-primary-default: #0928f5;
     --bg-interactive-primary-hover: #0822CC;
@@ -211,8 +212,8 @@
     /* Chip colors */
     --bg-chip-empfehlung: #C5A3F5; /* purple-400 */
     --text-chip-empfehlung: #2D0A52; /* purple-950 */
-    --bg-chip-premium: #4C92F7; /* blue-400 */
-    --text-chip-premium: #041738; /* blue-950 */
+    --bg-chip-blue: #9AB6FD; /* primary-300 */
+    --text-chip-blue: #06115A; /* primary-950 */
     --bg-chip-soon: #AAADBF; /* neutral-400 */
     --text-chip-soon: #1F2024; /* neutral-900 */
     --bg-chip-green: #6CDC95; /* green-400 */
@@ -221,6 +222,8 @@
     --text-chip-private: #1F2024; /* neutral-900 */ 
     --bg-chip-yellow: #EDDB16; /* yellow-400 */
     --text-chip-yellow: #3F2609; /* yellow-950 */
+    --bg-chip-orange: #EF8030; /* orange-400 */
+    --text-chip-orange: #411A07; /* orange-950 */
 
     /* Border colors */
     --border-main: #D2D3D9; /* neutral-200 */
@@ -250,6 +253,7 @@
     --bg-secondary: #2F2F30;
     --bg-tertiary: #636573;
     --bg-inverted: #FFFFFF;
+    --bg-inverted-opacity-80: rgba(255, 255, 255, 0.8);
     --bg-accent: #0822CC;
     --bg-interactive-primary-default: #4C63F7;
     --bg-interactive-primary-hover: #213EFF;
@@ -312,8 +316,8 @@
     /* Chip colors (inverted from light mode) */
     --bg-chip-empfehlung: #2D0A52; /* purple-950 */
     --text-chip-empfehlung: #C5A3F5; /* purple-400 */
-    --bg-chip-premium: #041738; /* blue-950 */
-    --text-chip-premium: #4C92F7; /* blue-400 */
+    --bg-chip-blue: #06115A; /* primary-950 */
+    --text-chip-blue: #9AB6FD; /* primary-300 */
     --bg-chip-soon: #1F2024; /* neutral-900 */
     --text-chip-soon: #AAADBF; /* neutral-400 */
     --bg-chip-green: #0A2914; /* green-950 */
@@ -322,6 +326,8 @@
     --text-chip-private: #AAADBF; /* neutral-400 */
     --bg-chip-yellow: #3F2609; /* yellow-950 */
     --text-chip-yellow: #EDDB16; /* yellow-400 */
+    --bg-chip-orange: #411A07; /* orange-950 */
+    --text-chip-orange: #EF8030; /* orange-400 */
 
     /* Border colors */
     --border-main: #2F2F30; /* neutral-800 */
@@ -528,9 +534,9 @@
     color: var(--text-chip-empfehlung);
   }
 
-  .chip-premium {
-    background-color: var(--bg-chip-premium);
-    color: var(--text-chip-premium);
+  .chip-blue {
+    background-color: var(--bg-chip-blue);
+    color: var(--text-chip-blue);
   }
 
   .chip-soon {
@@ -551,6 +557,11 @@
   .chip-yellow {
     background-color: var(--bg-chip-yellow);
     color: var(--text-chip-yellow);
+  }
+
+  .chip-orange {
+    background-color: var(--bg-chip-orange);
+    color: var(--text-chip-orange);
   }
   /* Webapp Styles (Dashboard) */
   .text-webapp-title {

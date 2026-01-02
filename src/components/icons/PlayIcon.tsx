@@ -1,11 +1,11 @@
 import React from 'react';
 
-interface ChevronRightIconProps {
+interface PlayIconProps {
   size?: number;
   className?: string;
 }
 
-export default function ChevronRightIcon({ size = 16, className = '' }: ChevronRightIconProps) {
+export default function PlayIcon({ size = 16, className = '' }: PlayIconProps) {
   return (
     <svg
       width={size}
@@ -16,7 +16,7 @@ export default function ChevronRightIcon({ size = 16, className = '' }: ChevronR
       className={className}
     >
       <path
-        d="M22.107 19.9829L14.1582 12.0234L15.6495 10.5321L25.0895 19.9829L15.6495 29.4229L14.1582 27.9317L22.107 19.9829Z"
+        d="M14.167 30.0984V9.77795L30.1282 19.938L14.167 30.0984Z"
         fill="currentColor"
       />
     </svg>

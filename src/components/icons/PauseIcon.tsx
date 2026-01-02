@@ -1,11 +1,11 @@
 import React from 'react';
 
-interface ChevronRightIconProps {
+interface PauseIconProps {
   size?: number;
   className?: string;
 }
 
-export default function ChevronRightIcon({ size = 16, className = '' }: ChevronRightIconProps) {
+export default function PauseIcon({ size = 16, className = '' }: PauseIconProps) {
   return (
     <svg
       width={size}
@@ -16,7 +16,7 @@ export default function ChevronRightIcon({ size = 16, className = '' }: ChevronR
       className={className}
     >
       <path
-        d="M22.107 19.9829L14.1582 12.0234L15.6495 10.5321L25.0895 19.9829L15.6495 29.4229L14.1582 27.9317L22.107 19.9829Z"
+        d="M23.2372 30.8333V9.16663H29.7864V30.8333H23.2372ZM10.2139 30.8333V9.16663H16.7735V30.8333H10.2139Z"
         fill="currentColor"
       />
     </svg>

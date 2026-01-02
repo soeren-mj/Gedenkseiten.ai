@@ -1,18 +1,44 @@
 'use client';
 
 import { useState } from 'react';
-import { MoreVertical, Trash2, Pencil } from 'lucide-react';
 import InitialsAvatar from '@/components/ui/InitialsAvatar';
+import PenIcon from '@/components/icons/PenIcon';
+import VisibilityOffIcon from '@/components/icons/VisibilityOffIcon';
+import VisibilityIcon from '@/components/icons/VisibilityIcon';
+import ReportIcon from '@/components/icons/ReportIcon';
+import MoreVerticalIcon from '@/components/icons/MoreVerticalIcon';
 import { Badge } from '@/components/ui/Badge';
+import { ImageGallery, GalleryImage } from '@/components/ui/ImageGallery';
+import { Lightbox } from '@/components/ui/Lightbox';
 import { CondolenceEntryWithDetails } from '@/lib/supabase';
 
+export interface UploadedImage {
+  id?: string;
+  url: string;
+  file?: File;
+  isNew?: boolean;
+}
+
 interface EntryCardProps {
-  entry: CondolenceEntryWithDetails;
-  isOwn: boolean;
-  isAdmin: boolean;
-  isNew: boolean;
+  // View mode props
+  entry?: CondolenceEntryWithDetails;
+  isOwn?: boolean;
+  isAdmin?: boolean;
+  isNew?: boolean;
   onEdit?: () => void;
-  onDelete?: () => void;
+  onHide?: () => void;
+  onReport?: () => void;
+  // Edit mode props
+  editMode?: boolean;
+  userName?: string;
+  userAvatar?: string | null;
+  content?: string;
+  onContentChange?: (content: string) => void;
+  images?: UploadedImage[];
+  onDeleteImage?: (index: number) => void;
+  onMoveImage?: (fromIndex: number, direction: 'left' | 'right') => void;
+  onChangeImage?: (index: number) => void;
+  maxChars?: number;
 }
 
 /**
@@ -20,153 +46,266 @@ interface EntryCardProps {
  *
  * Displays a single condolence entry in the list.
  * Shows user info, content, optional image thumbnails, and action menu.
+ *
+ * Supports two modes:
+ * - View mode (editMode=false): Shows entry content with action menu + Lightbox
+ * - Edit mode (editMode=true): Shows editable textarea and ImageGallery with sorting
+ *
+ * Permissions (view mode only):
+ * - Own entry: Edit + Hide/Show
+ * - Admin on other's entry: Hide/Show + Report
  */
 export function EntryCard({
+  // View mode props
   entry,
-  isOwn,
-  isAdmin,
-  isNew,
+  isOwn = false,
+  isAdmin = false,
+  isNew = false,
   onEdit,
-  onDelete,
+  onHide,
+  onReport,
+  // Edit mode props
+  editMode = false,
+  userName: userNameProp,
+  userAvatar: userAvatarProp,
+  content: contentProp,
+  onContentChange,
+  images: imagesProp,
+  onDeleteImage,
+  onMoveImage,
+  onChangeImage,
+  maxChars = 2000,
 }: EntryCardProps) {
   const [showMenu, setShowMenu] = useState(false);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
-  // Get user display info
-  const userName =
-    typeof entry.user === 'object' && entry.user !== null
+  // Determine values based on mode
+  const isHidden = entry?.is_hidden ?? false;
+
+  // Get user display info - from props in edit mode, from entry in view mode
+  const userName = editMode
+    ? userNameProp || 'Unbekannt'
+    : typeof entry?.user === 'object' && entry?.user !== null
       ? entry.user.name || 'Unbekannt'
       : 'Unbekannt';
-  const userAvatar =
-    typeof entry.user === 'object' && entry.user !== null
+  const userAvatar = editMode
+    ? userAvatarProp
+    : typeof entry?.user === 'object' && entry?.user !== null
       ? entry.user.avatar_url
       : null;
 
-  // Get images array
-  const images = Array.isArray(entry.images) ? entry.images : [];
-  const displayImages = images.slice(0, 4);
-  const remainingImages = images.length - 4;
+  // Get content - from props in edit mode, from entry in view mode
+  const content = editMode ? contentProp || '' : entry?.content || '';
 
-  // Format date
-  const formattedDate = new Date(entry.created_at).toLocaleDateString('de-DE', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-  });
+  // Get images array - from props in edit mode, from entry in view mode
+  const images: GalleryImage[] = editMode
+    ? (imagesProp || []).map((img) => ({ id: img.id, url: img.url }))
+    : Array.isArray(entry?.images)
+      ? entry.images.map((img) => ({ id: img.id, url: img.image_url }))
+      : [];
 
-  const canShowMenu = (isOwn && onEdit) || ((isOwn || isAdmin) && onDelete);
+  // Menu visibility logic (view mode only)
+  const canEdit = !editMode && isOwn && onEdit;
+  const canHide = !editMode && (isOwn || isAdmin) && onHide;
+  const canReport = !editMode && isAdmin && !isOwn && onReport;
+  const canShowMenu = canEdit || canHide || canReport;
 
-  return (
-    <div className="bg-bw-opacity-40 rounded-md shadow-card p-1">
-      <div className="bg-light-dark-mode rounded-sm p-4 flex flex-col gap-3">
-        {/* Header: Avatar, Name, Date, Menu */}
-        <div className="flex items-center justify-between">
+  // Edit mode handlers
+  const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const value = e.target.value;
+    if (value.length <= maxChars && onContentChange) {
+      onContentChange(value);
+    }
+  };
+
+  // Lightbox handlers (view mode)
+  const handleImageClick = (index: number) => {
+    setLightboxIndex(index);
+    setLightboxOpen(true);
+  };
+
+  // Edit mode: Same card styling as view mode, but with editable content
+  if (editMode) {
+    return (
+      <div className="relative aspect-[2/3] h-full w-[280px] sm:w-[300px] md:w-[350px] lg:max-w-[400px] rounded-md overflow-hidden dark:border dark:border-main">
+        <div className="absolute bg-bw inset-0 h-full p-2 flex flex-col gap-4 min-h-0 overflow-hidden">
+          {/* Header */}
           <div className="flex items-center gap-3">
-            <InitialsAvatar
-              name={userName}
-              imageUrl={userAvatar}
-              size="sm"
-            />
-            <div className="flex flex-col">
-              <div className="flex items-center gap-2">
+            <InitialsAvatar name={userName} imageUrl={userAvatar} size="sm" />
+            <span className="text-body-m text-primary font-medium">
+              {userName}
+            </span>
+          </div>
+
+          {/* Content (Bilder + Textarea) */}
+          <div className="flex-1 flex flex-col gap-3 px-1 min-h-0 overflow-hidden">
+            {/* ImageGallery im Edit-Mode */}
+            {images.length > 0 && (
+              <ImageGallery
+                images={images}
+                editMode
+                onDeleteImage={onDeleteImage}
+                onMoveImage={onMoveImage}
+                onChangeImage={onChangeImage}
+                onPreviewChange={setIsPreviewOpen}
+              />
+            )}
+
+            {/* Text Area - nur anzeigen wenn Preview geschlossen */}
+            {!isPreviewOpen && (
+              <textarea
+                value={content}
+                onChange={handleContentChange}
+                placeholder="Schreibe etwas..."
+                className="w-full flex-1 min-h-[100px] bg-transparent text-body-m text-primary placeholder:text-tertiary resize-none focus:outline-none"
+              />
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // View mode: Original card design with Lightbox
+  return (
+    <>
+      <div
+        className={`relative aspect-[2/3] w-[280px] sm:w-[300px] md:w-[350px] lg:max-w-[400px] rounded-md overflow-hidden ${
+          isHidden ? 'border border-accent-orange' : 'dark:border dark:border-main'
+        }`}
+      >
+        <div className="absolute inset-0 bg-bw h-full p-2 flex flex-col gap-4 min-h-0 overflow-hidden">
+          {/* Wrapper 1: Header */}
+          <div className="flex items-center justify-between">
+            {/* Links: Avatar + Name/Datum */}
+            <div className="flex items-center gap-3">
+              <InitialsAvatar name={userName} imageUrl={userAvatar} size="sm" />
+              <div className="flex flex-col">
                 <span className="text-body-m text-primary font-medium">
                   {userName}
                 </span>
-                {isNew && (
-                  <Badge variant="warning" size="small">
-                    Neu
-                  </Badge>
-                )}
               </div>
-              <span className="text-body-xs text-tertiary">{formattedDate}</span>
             </div>
-          </div>
 
-          {/* Action Menu */}
-          {canShowMenu && (
-            <div className="relative">
-              <button
-                type="button"
-                onClick={() => setShowMenu(!showMenu)}
-                className="p-1 hover:bg-secondary rounded-xs transition-colors"
-                aria-label="Aktionen"
-              >
-                <MoreVertical className="w-5 h-5 text-secondary" />
-              </button>
+            {/* Rechts: Badge + Menu */}
+            <div className="flex items-center gap-2">
+              {isHidden ? (
+                <Badge variant="orange">Verborgen</Badge>
+              ) : (
+                isNew && <Badge variant="blue">Neu</Badge>
+              )}
+              {canShowMenu && (
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setShowMenu(!showMenu)}
+                    className="p-1 hover:bg-secondary rounded-xs transition-colors"
+                    aria-label="Aktionen"
+                  >
+                    <MoreVerticalIcon size={20} className="text-secondary" bold />
+                  </button>
 
-              {showMenu && (
-                <>
-                  {/* Backdrop */}
-                  <div
-                    className="fixed inset-0 z-10"
-                    onClick={() => setShowMenu(false)}
-                  />
-                  {/* Menu */}
-                  <div className="absolute right-0 top-full mt-1 z-20 bg-primary border border-card rounded-sm shadow-lg min-w-[150px]">
-                    {isOwn && onEdit && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setShowMenu(false);
-                          onEdit();
-                        }}
-                        className="w-full flex items-center gap-2 px-3 py-2 text-body-s text-primary hover:bg-secondary transition-colors"
-                      >
-                        <Pencil className="w-4 h-4" />
-                        Bearbeiten
-                      </button>
-                    )}
-                    {(isOwn || isAdmin) && onDelete && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setShowMenu(false);
-                          onDelete();
-                        }}
-                        className="w-full flex items-center gap-2 px-3 py-2 text-body-s text-negative hover:bg-secondary transition-colors"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                        Löschen
-                      </button>
-                    )}
-                  </div>
-                </>
+                  {showMenu && (
+                    <>
+                      {/* Backdrop */}
+                      <div
+                        className="fixed inset-0 z-10"
+                        onClick={() => setShowMenu(false)}
+                      />
+                      {/* Menu */}
+                      <div className="absolute right-0 top-full mt-1 z-20 bg-primary border border-card rounded-sm shadow-lg min-w-[150px] overflow-hidden">
+                        {/* Edit - only own entries */}
+                        {canEdit && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setShowMenu(false);
+                              onEdit?.();
+                            }}
+                            className="w-full flex items-center gap-2 px-3 py-2 text-body-s text-primary hover:bg-secondary transition-colors"
+                          >
+                            <PenIcon size={16} />
+                            Bearbeiten
+                          </button>
+                        )}
+                        {/* Hide/Show - own entries + admin on any */}
+                        {canHide && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setShowMenu(false);
+                              onHide?.();
+                            }}
+                            className="w-full flex items-center gap-2 px-3 py-2 text-body-s text-primary hover:bg-secondary transition-colors"
+                          >
+                            {isHidden ? (
+                              <>
+                                <VisibilityIcon size={16} />
+                                Einblenden
+                              </>
+                            ) : (
+                              <>
+                                <VisibilityOffIcon size={16} />
+                                Verbergen
+                              </>
+                            )}
+                          </button>
+                        )}
+                        {/* Report - admin on other's entries only */}
+                        {canReport && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setShowMenu(false);
+                              onReport?.();
+                            }}
+                            className="w-full flex items-center gap-2 px-3 py-2 text-body-s text-primary hover:bg-secondary transition-colors"
+                          >
+                            <ReportIcon size={16} />
+                            Melden
+                          </button>
+                        )}
+                      </div>
+                    </>
+                  )}
+                </div>
               )}
             </div>
-          )}
-        </div>
-
-        {/* Image Thumbnails (if any) */}
-        {displayImages.length > 0 && (
-          <div className="flex gap-2">
-            {displayImages.map((image, index) => (
-              <div
-                key={image.id}
-                className="relative w-16 h-16 rounded-xs overflow-hidden bg-secondary"
-              >
-                <img
-                  src={image.image_url}
-                  alt={`Bild ${index + 1}`}
-                  className="w-full h-full object-cover"
-                />
-                {index === 3 && remainingImages > 0 && (
-                  <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                    <span className="text-white text-body-s font-medium">
-                      +{remainingImages}
-                    </span>
-                  </div>
-                )}
-              </div>
-            ))}
           </div>
-        )}
 
-        {/* Content */}
-        <div className="max-h-[120px] overflow-y-auto">
-          <p className="text-body-m text-secondary whitespace-pre-wrap">
-            {entry.content}
-          </p>
+          {/* Wrapper 2: Content (Bilder + Text) */}
+          <div
+            className={`flex-1 flex flex-col gap-3 px-1 min-h-0 overflow-hidden ${
+              isHidden ? 'opacity-50' : ''
+            }`}
+          >
+            {/* ImageGallery im View-Mode - öffnet Lightbox */}
+            {images.length > 0 && (
+              <ImageGallery
+                images={images}
+                onImageClick={handleImageClick}
+              />
+            )}
+
+            {/* Text Content */}
+            <p className="w-full flex-1 overflow-y-auto text-body-m text-secondary whitespace-pre-wrap">
+              {content}
+            </p>
+          </div>
         </div>
       </div>
-    </div>
+
+      {/* Lightbox für View-Mode */}
+      <Lightbox
+        images={images.map((img) => ({ url: img.url }))}
+        initialIndex={lightboxIndex}
+        isOpen={lightboxOpen}
+        onClose={() => setLightboxOpen(false)}
+        userName={userName}
+        userAvatar={userAvatar}
+      />
+    </>
   );
 }

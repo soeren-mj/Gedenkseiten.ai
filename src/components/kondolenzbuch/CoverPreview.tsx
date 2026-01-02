@@ -72,7 +72,7 @@ export function CoverPreview({
 
   return (
     <div
-      className={`relative aspect-[2/3] h-full max-w-[400px] rounded-md overflow-hidden ${className}`}
+      className={`relative aspect-[2/3] w-[280px] sm:w-[300px] md:w-[350px] lg:max-w-[400px] rounded-md overflow-hidden ${className}`}
       style={backgroundStyle}
     >
       {/* Empty State - Dashed Border with editable title */}

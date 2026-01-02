@@ -1,7 +1,7 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
 
-export type BadgeVariant = 'empfehlung' | 'premium' | 'soon' | 'public' | 'private' | 'yellow';
+export type BadgeVariant = 'empfehlung' | 'blue' | 'soon' | 'public' | 'private' | 'yellow' | 'orange';
 
 interface BadgeProps {
   variant: BadgeVariant;
@@ -17,19 +17,22 @@ interface BadgeProps {
  *
  * Variants:
  * - empfehlung: Purple (recommendation)
- * - premium: Blue (premium feature)
+ * - blue: Blue (premium feature)
  * - soon: Neutral gray (coming soon)
  * - public: Green (public memorial)
  * - private: Neutral gray (private memorial)
+ * - yellow: Yellow (warning)
+ * - orange: Orange (hidden/verborgen)
  */
 export const Badge: React.FC<BadgeProps> = ({ variant, children, className }) => {
   const variantClasses: Record<BadgeVariant, string> = {
     empfehlung: 'chip-empfehlung',
-    premium: 'chip-premium',
+    blue: 'chip-blue',
     soon: 'chip-soon',
     public: 'chip-green',
     private: 'chip-private',
     yellow: 'chip-yellow',
+    orange: 'chip-orange',
   };
 
   return (

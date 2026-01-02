@@ -32,6 +32,7 @@ module.exports = {
           700: '#0928F5',
           800: '#0822CC',
           900: '#031AA8',
+          950: '#06115A',
           990: '#050509',
         },
         neutral: {
@@ -119,6 +120,7 @@ module.exports = {
         'secondary': 'var(--bg-secondary)',
         'tertiary': 'var(--bg-tertiary)',
         'inverted': 'var(--bg-inverted)',
+        'inverted-opacity-80': 'var(--bg-inverted-opacity-80)',
         'accent': 'var(--bg-accent)',
         
         
@@ -156,11 +158,12 @@ module.exports = {
 
         // Chip backgrounds
         'chip-empfehlung': 'var(--bg-chip-empfehlung)',
-        'chip-premium': 'var(--bg-chip-premium)',
+        'chip-blue': 'var(--bg-chip-blue)',
         'chip-soon': 'var(--bg-chip-soon)',
         'chip-green': 'var(--bg-chip-green)',
         'chip-private': 'var(--bg-chip-private)',
         'chip-yellow': 'var(--bg-chip-yellow)',
+        'chip-orange': 'var(--bg-chip-orange)',
       }),
       backgroundImage: {
         // Your 4 core gradients
@@ -209,11 +212,12 @@ module.exports = {
 
         // Chip text colors
         'chip-empfehlung': 'var(--text-chip-empfehlung)',
-        'chip-premium': 'var(--text-chip-premium)',
+        'chip-blue': 'var(--text-chip-blue)',
         'chip-soon': 'var(--text-chip-soon)',
         'chip-green': 'var(--text-chip-green)',
         'chip-private': 'var(--text-chip-private)',
         'chip-yellow': 'var(--text-chip-yellow)',
+        'chip-orange': 'var(--text-chip-orange)',
       }),
       borderColor: theme => ({
         // Border colors - using CSS variables with shorter names
@@ -230,6 +234,7 @@ module.exports = {
         'interactive-info-hover': 'var(--border-interactive-info-hover)',
         'message-success': 'var(--border-message-success)',
         'message-error': 'var(--border-message-error)',
+        'accent-orange': 'var(--accent-orange)',
       }),
       placeholderColor: theme => ({
         // Placeholder colors - using CSS variables with shorter names

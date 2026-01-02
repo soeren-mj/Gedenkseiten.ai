@@ -92,7 +92,7 @@ export default function UserProfileCard({
       {/* Account Badge */}
       <div className="">
         {isPremium ? (
-          <Badge variant="premium">Premium</Badge>
+          <Badge variant="blue">Premium</Badge>
         ) : (
           <Badge variant="soon">Kostenfreier Account</Badge>
         )}

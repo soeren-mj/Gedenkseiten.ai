@@ -143,6 +143,7 @@ export type CondolenceEntry = {
   user_id: string;
   content: string; // max 2000 chars
   is_read_by_admin: boolean;
+  is_hidden: boolean;
   created_at: string;
   updated_at: string;
 };

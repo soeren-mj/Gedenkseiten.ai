@@ -34,7 +34,7 @@ export function ContentOption({
               className={`px-2 py-1 text-chip rounded-full ${
                 badge === 'EMPFEHLUNG'
                   ? 'bg-chip-empfehlung text-chip-empfehlung'
-                  : 'bg-chip-premium text-chip-premium'
+                  : 'bg-chip-blue text-chip-blue'
               }`}
             >
               {badge}

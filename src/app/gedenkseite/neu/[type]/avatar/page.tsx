@@ -6,7 +6,7 @@ import WizardStepLayout from '@/components/memorial/WizardStepLayout';
 import ProfilePreviewCard from '@/components/cards/ProfilePreviewCard';
 import { Button } from '@/components/ui/Button';
 import PhotoChooseIcon from '@/components/icons/PhotoChooseIcon';
-import PhotoDeleteIcon from '@/components/icons/PhotoDeleteIcon';
+import DeleteForeverIcon from '@/components/icons/DeleteForeverIcon';
 import { useMemorialWizard } from '@/hooks/useMemorialWizard';
 import { useToast } from '@/contexts/ToastContext';
 
@@ -107,7 +107,7 @@ export default function AvatarPage() {
       <Button
         variant={avatarUrl ? 'negative' : 'secondary'}
         size="sm"
-        leftIcon={avatarUrl ? <PhotoDeleteIcon size={16} /> : <PhotoChooseIcon size={16} />}
+        leftIcon={avatarUrl ? <DeleteForeverIcon size={16} /> : <PhotoChooseIcon size={16} />}
         onClick={handlePhotoButtonClick}
         disabled={isUploading}
         loading={isUploading}
