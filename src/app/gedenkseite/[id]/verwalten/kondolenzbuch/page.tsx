@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ChevronLeft, Pencil } from 'lucide-react';
+import { ChevronLeft } from 'lucide-react';
+import PenIcon from '@/components/icons/PenIcon';
 import { useMemorial } from '@/contexts/MemorialContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
@@ -28,9 +29,6 @@ export default function KondolenzbuchPage() {
   const [condolenceBook, setCondolenceBook] = useState<CondolenceBook | null>(null);
   const [entries, setEntries] = useState<CondolenceEntryWithDetails[]>([]);
   const [newEntriesCount, setNewEntriesCount] = useState(0);
-
-  // Check if current user has an entry
-  const userEntry = entries.find((entry) => entry.user_id === user?.id);
 
   // Fetch condolence book and entries
   useEffect(() => {
@@ -89,6 +87,38 @@ export default function KondolenzbuchPage() {
           // Count unread entries
           const unread = entriesData.filter((e: { is_read_by_admin: boolean }) => !e.is_read_by_admin).length;
           setNewEntriesCount(unread);
+
+          // Auto-mark entries as read when admin/creator views the page
+          if (unread > 0 && user) {
+            const isAdminOrCreator =
+              memorial.creator_id === user.id ||
+              memorial.user_role === 'administrator';
+
+            if (isAdminOrCreator) {
+              try {
+                const { data: sessionData } = await supabase.auth.getSession();
+                const token = sessionData?.session?.access_token;
+
+                if (token) {
+                  await fetch(`/api/memorials/${memorial.id}/condolence-book/entries/mark-read`, {
+                    method: 'POST',
+                    headers: {
+                      'Authorization': `Bearer ${token}`,
+                      'Content-Type': 'application/json',
+                    },
+                  });
+
+                  // Update local state to reflect read status
+                  setEntries((prev) =>
+                    prev.map((e) => ({ ...e, is_read_by_admin: true }))
+                  );
+                  setNewEntriesCount(0);
+                }
+              } catch (error) {
+                console.error('Error marking entries as read:', error);
+              }
+            }
+          }
         }
       }
 
@@ -96,7 +126,7 @@ export default function KondolenzbuchPage() {
     }
 
     fetchCondolenceBook();
-  }, [memorial.id]);
+  }, [memorial.id, memorial.creator_id, memorial.user_role, user]);
 
   const handleCreateCover = () => {
     router.push(`/gedenkseite/${memorial.id}/kondolenzbuch/erstellen/deckblatt`);
@@ -115,7 +145,7 @@ export default function KondolenzbuchPage() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto flex flex-col gap-3 pt-4 mb-10">
+    <div className="max-w-3xl mx-auto flex flex-col gap-3 pt-4 mb-20">
       {/* Back Link */}
       <Link
         href={`/gedenkseite/${memorial.id}/verwalten`}
@@ -141,7 +171,7 @@ export default function KondolenzbuchPage() {
       {!condolenceBook ? (
         // Empty State
         <div className="px-4">
-          <div className="aspect-[2/3] max-w-[300px] mx-auto flex flex-col items-center justify-center gap-4 p-8 border-2 border-dashed border-interactive-default rounded-md bg-primary">
+          <div className="aspect-[2/3] max-w-[360px] mx-auto flex flex-col items-center justify-center gap-4 p-8 border-2 border-dashed border-interactive-default rounded-md bg-primary">
             <div className="flex flex-col items-center gap-2 text-center max-w-sm">
               <p className="text-body-l text-primary font-medium">
                 Das Kondolenzbuch ist noch leer.
@@ -159,33 +189,19 @@ export default function KondolenzbuchPage() {
         // Management View
         <div className="px-4 flex flex-col gap-6">
           {/* Action Buttons */}
-          <div className="flex gap-3 pb-2">
-            <Button
-              variant={userEntry ? 'tertiary' : 'primary'}
-              size="sm"
-              rightIcon={<Pencil className="w-4 h-4" />}
-              onClick={() =>
-                router.push(
-                  userEntry
-                    ? `/gedenkseite/${memorial.id}/kondolenzbuch/erstellen/eintrag?edit=${userEntry.id}`
-                    : `/gedenkseite/${memorial.id}/kondolenzbuch/erstellen/eintrag`
-                )
-              }
-            >
-              {userEntry ? 'Eintrag bearbeiten' : 'Eintrag schreiben'}
-            </Button>
+          <div className="flex gap-3">
             <Button variant="secondary" size="sm" disabled>
               Personen einladen
             </Button>
           </div>
 
           {/* Entries Counter */}
-          <div className="flex items-center gap-2">
+          <div className="flex flex-col gap-1">
             <span className="text-body-m text-primary font-medium">
               {entries.length} {entries.length === 1 ? 'Eintrag' : 'Einträge'}
             </span>
             {newEntriesCount > 0 && (
-              <span className="flex items-center gap-1 text-body-s text-interactive-primary-default">
+              <span className="flex items-center gap-1 text-body-s text-primary">
                 <span className="w-2 h-2 rounded-full bg-interactive-primary-default"></span>
                 {newEntriesCount}{' '}
                 {newEntriesCount === 1 ? 'neuer Eintrag' : 'neue Einträge'}
@@ -193,10 +209,10 @@ export default function KondolenzbuchPage() {
             )}
           </div>
 
-          {/* Cover Preview + Entries Grid */}
-          <div className="flex flex-col lg:flex-row gap-6">
-            {/* Cover Preview (Left) */}
-            <div className="w-full max-w-[300px] flex-shrink-0">
+          {/* Horizontaler Scroll-Container für alle Buchseiten */}
+          <div className="flex gap-4 overflow-x-auto overflow-y-hidden snap-x snap-mandatory min-h-[420px] sm:min-h-[450px] md:h-[525px] w-full">
+            {/* Cover als erste Seite */}
+            <div className="flex-shrink-0 snap-start">
               <button
                 type="button"
                 onClick={() =>
@@ -218,10 +234,10 @@ export default function KondolenzbuchPage() {
                     avatarUrl: memorial.avatar_url,
                     avatarType: memorial.avatar_type,
                   }}
-                  className="transition-transform group-hover:scale-[1.02]"
+                  className=""
                 />
                 {/* Edit Overlay */}
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors rounded-sm flex items-center justify-center opacity-0 group-hover:opacity-100">
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors rounded-md flex items-center justify-center opacity-0 group-hover:opacity-100">
                   <span className="bg-white text-black px-3 py-1.5 rounded-sm text-body-s font-medium shadow-lg">
                     Bearbeiten
                   </span>
@@ -229,69 +245,96 @@ export default function KondolenzbuchPage() {
               </button>
             </div>
 
-            {/* Entries Grid (Right) */}
-            <div className="lg:w-2/3 flex flex-col gap-4">
-              {entries.length === 0 ? (
-                <div className="flex flex-col items-center justify-center p-8 border-2 border-dashed border-interactive-default rounded-xs bg-primary min-h-[200px]">
-                  <p className="text-body-m text-secondary text-center">
-                    Noch keine Einträge vorhanden.
-                  </p>
-                  <p className="text-body-s text-tertiary text-center mt-1">
-                    Verfasse den ersten Eintrag oder lade andere ein.
-                  </p>
+            {/* Entry Cards als weitere Seiten */}
+            {entries.length === 0 ? (
+              <div className="flex-shrink-0 snap-start">
+                <div className="h-full min-h-[450px] max-h-[600px] aspect-[2/3] max-w-[400px] border-2 border-dashed border-interactive-default rounded-md flex flex-col items-center justify-center bg-primary p-6 gap-4">
+                  <div className="text-center">
+                    <p className="text-body-m text-secondary">
+                      Noch keine Einträge vorhanden.
+                    </p>
+                    <p className="text-body-s text-tertiary mt-1">
+                      Verfasse den ersten Eintrag oder lade andere ein.
+                    </p>
+                  </div>
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    rightIcon={<PenIcon size={16} />}
+                    onClick={() => router.push(`/gedenkseite/${memorial.id}/kondolenzbuch/erstellen/eintrag`)}
+                  >
+                    Eintrag schreiben
+                  </Button>
                 </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {entries.map((entry) => (
-                    <EntryCard
-                      key={entry.id}
-                      entry={entry}
-                      isOwn={entry.user_id === user?.id}
-                      isAdmin={
-                        memorial.creator_id === user?.id ||
-                        memorial.user_role === 'administrator'
-                      }
-                      isNew={!entry.is_read_by_admin}
-                      onEdit={
-                        entry.user_id === user?.id
-                          ? () =>
-                              router.push(
-                                `/gedenkseite/${memorial.id}/kondolenzbuch/erstellen/eintrag?edit=${entry.id}`
-                              )
-                          : undefined
-                      }
-                      onDelete={async () => {
-                        if (
-                          !confirm(
-                            'Möchtest du diesen Eintrag wirklich löschen?'
+              </div>
+            ) : (
+              entries.map((entry) => (
+                <div key={entry.id} className="flex-shrink-0 snap-start">
+                  <EntryCard
+                    entry={entry}
+                    isOwn={entry.user_id === user?.id}
+                    isAdmin={
+                      memorial.creator_id === user?.id ||
+                      memorial.user_role === 'administrator'
+                    }
+                    isNew={!entry.is_read_by_admin}
+                    onEdit={
+                      entry.user_id === user?.id
+                        ? () =>
+                            router.push(
+                              `/gedenkseite/${memorial.id}/kondolenzbuch/erstellen/eintrag?edit=${entry.id}`
+                            )
+                        : undefined
+                    }
+                    onHide={async () => {
+                      try {
+                        const supabase = createClient();
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                        const { error } = await (supabase as any)
+                          .from('condolence_entries')
+                          .update({ is_hidden: !entry.is_hidden })
+                          .eq('id', entry.id);
+
+                        if (error) throw error;
+
+                        // Update local state
+                        setEntries((prev) =>
+                          prev.map((e) =>
+                            e.id === entry.id
+                              ? { ...e, is_hidden: !e.is_hidden }
+                              : e
                           )
-                        )
-                          return;
-
-                        try {
-                          const supabase = createClient();
-                          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                          const { error } = await (supabase as any)
-                            .from('condolence_entries')
-                            .delete()
-                            .eq('id', entry.id);
-
-                          if (error) throw error;
-
-                          setEntries((prev) =>
-                            prev.filter((e) => e.id !== entry.id)
-                          );
-                          showToast('success', 'Gelöscht', 'Eintrag gelöscht');
-                        } catch (error) {
-                          console.error('Error deleting entry:', error);
-                          showToast('error', 'Fehler', 'Fehler beim Löschen');
-                        }
-                      }}
-                    />
-                  ))}
+                        );
+                        showToast(
+                          'success',
+                          entry.is_hidden ? 'Eingeblendet' : 'Verborgen',
+                          entry.is_hidden
+                            ? 'Eintrag ist wieder sichtbar'
+                            : 'Eintrag ist nun verborgen'
+                        );
+                      } catch (error) {
+                        console.error('Error toggling entry visibility:', error);
+                        showToast('error', 'Fehler', 'Fehler beim Ändern der Sichtbarkeit');
+                      }
+                    }}
+                    onReport={
+                      (memorial.creator_id === user?.id || memorial.user_role === 'administrator') &&
+                      entry.user_id !== user?.id
+                        ? () => {
+                            const subject = encodeURIComponent(
+                              `Meldung Kondolenzbuch-Eintrag - ${memorial.first_name} ${memorial.last_name}`
+                            );
+                            const body = encodeURIComponent(
+                              `Ich möchte folgenden Eintrag melden:\n\nGedenkseite: ${memorial.first_name} ${memorial.last_name}\nEintrag-ID: ${entry.id}\nVerfasser: ${entry.user?.name || 'Unbekannt'}\n\nGrund der Meldung:\n`
+                            );
+                            window.location.href = `mailto:hello@gedenkseiten.ai?subject=${subject}&body=${body}`;
+                          }
+                        : undefined
+                    }
+                  />
                 </div>
-              )}
-            </div>
+              ))
+            )}
           </div>
         </div>
       )}

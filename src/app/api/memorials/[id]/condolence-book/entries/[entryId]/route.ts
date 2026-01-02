@@ -249,7 +249,7 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string; entryId: string }> }
 ) {
   try {
-    const { entryId } = await params;
+    const { id: memorialId, entryId } = await params;
 
     // 1. Get auth token
     const authHeader = request.headers.get('authorization');
