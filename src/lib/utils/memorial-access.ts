@@ -45,7 +45,7 @@ export async function checkMemorialAccess(
     found: !!memorial,
     error: memorialError?.message,
     privacyLevel: memorial?.privacy_level,
-    createdBy: memorial?.created_by,
+    createdBy: memorial?.creator_id,
   });
 
   if (memorialError || !memorial) {
@@ -78,7 +78,7 @@ export async function checkMemorialAccess(
   }
 
   // Check if user is the owner (creator)
-  if (memorial.created_by === userId) {
+  if (memorial.creator_id === userId) {
     return {
       hasAccess: true,
       memorial,

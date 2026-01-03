@@ -116,11 +116,11 @@ export default async function MemorialPage({ params }: PageProps) {
   }
 
   return (
-    <div className="min-h-screen bg-bw">
+    <div className="min-h-screen bg-light-dark-mode">
       {/* Main Content Container */}
-      <div className="container mx-auto px-4 py-8 lg:py-12">
-        {/* Two-column layout */}
-        <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
+      <div className="container mx-auto py-8 lg:py-15">
+        {/* Header Two-column layout */}
+        <div className="flex flex-col lg:flex-row gap-4 p-2 rounded-lg border border-red-500">
           {/* Left Column - Profile Sidebar (Sticky on desktop) */}
           <aside className="lg:sticky lg:top-8 lg:self-start">
             <MemorialProfileSidebar memorial={memorial} />

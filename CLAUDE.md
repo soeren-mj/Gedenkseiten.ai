@@ -15,8 +15,8 @@ You are working on Gedenkseiten.ai, a digital memorial platform for creating com
 - **Dark Mode**: Fully supported with next-themes
 
 ## Key Documentation Files
-- `docs/technical-documentation.md` - Complete user flows and features
-- `docs/IMPLEMENTATION-STATUS.md` - Phase 3 details, pending features, session summaries
+- `docs/Gedenkseiten ai Technical Documentation-v2.md` - Complete user flows and features
+- `docs/IMPLEMENTATION-STATUS.md` - Complete feature status (Phases 3-5), pending features
 - `docs/design-system/colors.md` - Color system and semantic tokens
 - `docs/design-system/typography.md` - Typography scales and usage
 - `docs/design-system/button.md` - Button component specifications
@@ -27,21 +27,26 @@ You are working on Gedenkseiten.ai, a digital memorial platform for creating com
 - ~~Account Deletion~~ SOLVED - See `docs/account-deletion-issue.md`
 
 ## Current Implementation Status
+
+### Completed
 - Landing page with waitlist
-- Project structure setup
-- Design system implementation (colors, typography, buttons)
-- Tailwind configuration with custom tokens
-- CSS Variables System (Light/Dark Mode in globals.css)
-- UI Components Library (Button, TextInput, TextArea, DateInput, Select, Autocomplete, Badge, Reactions)
-- Authentication system (Phase 2 - Completed)
-- Memorial creation flow (Phase 3 - Complete: Wizard + Management + Content)
-- Memorial management pages (Stammdaten, Darstellung, Wissenswertes, Spruch/Nachruf, Privatsphare)
-- Production deployment ready
-- Tier Basic Info page (Complete - all wizard steps working)
-- Reaktionen System (Next priority - UI component exists)
+- Design system (colors, typography, buttons, CSS variables)
+- UI Components Library (Button, TextInput, TextArea, Select, Badge, Toast, Reactions, Lightbox)
+- Authentication system (Phase 2 - Magic Link + OAuth)
+- Memorial creation wizard (Phase 3 - Person + Tier)
+- Memorial management pages (Stammdaten, Darstellung, Wissenswertes, Spruch/Nachruf, Privatsphäre)
+- Reaktionen System (Phase 4 - 5 reaction types with API)
+- Kondolenzbuch (Phase 5 - ~80% complete, admin + entry creation)
+
+### In Progress
+- Einladungen (~50% - Types + Access Control exist, Accept/Decline UI missing)
+- Suchseite (~20% - Backend function exists, no API/UI)
+
+### Pending
+- Public Memorial Page (`/gedenkseite/[id]` - public view)
+- Beiträge (Feed) - separate from Kondolenzbuch, see Tech-Doku 2.4.3
 - Termine (Events)
-- Public memorial pages
-- Additional content features (Kondolenzbuch, Erinnerungen)
+- Erinnerungen (Photo/Video Gallery - Premium)
 
 See `docs/IMPLEMENTATION-STATUS.md` for detailed feature status.
 

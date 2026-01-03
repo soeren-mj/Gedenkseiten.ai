@@ -358,8 +358,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const isOnMemorialPage = currentPath.startsWith('/gedenkseite')
 
         if (!isOnDashboard && !isOnAuthCallback && !isOnMemorialPage) {
-          console.log('[AuthContext] SIGNED_IN event, redirecting to /dashboard from:', currentPath)
-          router.push('/dashboard')
+          // Check for redirect parameter in URL (e.g., from login page with ?redirect=...)
+          const urlParams = new URLSearchParams(window.location.search)
+          const redirectUrl = urlParams.get('redirect')
+
+          if (redirectUrl && redirectUrl.startsWith('/')) {
+            console.log('[AuthContext] SIGNED_IN event, redirecting to:', redirectUrl)
+            router.push(redirectUrl)
+          } else {
+            console.log('[AuthContext] SIGNED_IN event, redirecting to /dashboard from:', currentPath)
+            router.push('/dashboard')
+          }
         } else {
           console.log('[AuthContext] SIGNED_IN event, already on dashboard/callback/memorial, skipping redirect')
         }

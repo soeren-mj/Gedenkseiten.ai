@@ -374,6 +374,16 @@
   animation-delay: 0.4s;
 }
 
+/* Lightbox progress animation for autoplay indicator */
+@keyframes lightbox-progress {
+  from {
+    width: 0%;
+  }
+  to {
+    width: 100%;
+  }
+}
+
 @layer utilities {
   /* ===================================
      TYPOGRAPHY UTILITY CLASSES
