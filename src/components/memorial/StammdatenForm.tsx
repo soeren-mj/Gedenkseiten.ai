@@ -153,6 +153,9 @@ export function StammdatenForm({
   const [loadingBreedGroups, setLoadingBreedGroups] = useState(false);
   const [loadingBreeds, setLoadingBreeds] = useState(false);
 
+  // Track initial mount to prevent resetting cascade fields on page reload
+  const isInitialMountRef = useRef(true);
+
   // Form setup with Zod validation - use correct schema based on memorial type
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const {
@@ -313,9 +316,11 @@ export function StammdatenForm({
         setLoadingBreeds(false);
       });
 
-    // Reset dependent fields
-    setValue('breed_group_id' as keyof FormData, undefined as never);
-    setValue('breed_id' as keyof FormData, undefined as never);
+    // Reset dependent fields only when user changes animal type (not on initial mount)
+    if (!isInitialMountRef.current) {
+      setValue('breed_group_id' as keyof FormData, undefined as never);
+      setValue('breed_id' as keyof FormData, undefined as never);
+    }
   }, [selectedAnimalTypeId, setValue, isPet]);
 
   // ============================================================================
@@ -337,8 +342,10 @@ export function StammdatenForm({
           setLoadingBreeds(false);
         });
 
-      // Reset breed selection when breed group changes
-      setValue('breed_id' as keyof FormData, undefined as never);
+      // Reset breed selection only when user changes breed group (not on initial mount)
+      if (!isInitialMountRef.current) {
+        setValue('breed_id' as keyof FormData, undefined as never);
+      }
     } else if (!selectedBreedGroupId && selectedAnimalTypeId) {
       // Breed group was cleared - reload ALL breeds for animal type
       setLoadingBreeds(true);
@@ -368,6 +375,20 @@ export function StammdatenForm({
       }
     }
   }, [selectedBreedId, selectedBreedGroupId, breeds, setValue, isPet]);
+
+  // ============================================================================
+  // PET-SPECIFIC: Mark initial mount as complete after first render cycle
+  // This ensures cascade resets only happen on user interaction, not page reload
+  // ============================================================================
+  useEffect(() => {
+    if (isPet && isInitialMountRef.current) {
+      // Wait for next tick to ensure all initial effects have run
+      const timer = setTimeout(() => {
+        isInitialMountRef.current = false;
+      }, 0);
+      return () => clearTimeout(timer);
+    }
+  }, [isPet]);
 
   // Handle form submission
   const handleFormSubmit = async (data: FormData) => {
