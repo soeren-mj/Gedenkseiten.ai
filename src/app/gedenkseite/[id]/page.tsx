@@ -109,13 +109,11 @@ export default async function MemorialPage({ params }: PageProps) {
 
   const { memorial, userRole } = accessResult;
 
-  // Increment view count for public memorials
-  if (memorial.privacy_level === 'public') {
-    // Fire and forget - don't await to avoid slowing page load
-    incrementMemorialViewCount(id).catch(() => {
-      // Silent fail - view count is not critical
-    });
-  }
+  // Increment view count for all memorials (public and private)
+  // Fire and forget - don't await to avoid slowing page load
+  incrementMemorialViewCount(id).catch(() => {
+    // Silent fail - view count is not critical
+  });
 
   return (
     <div className="min-h-screen bg-light-dark-mode">
