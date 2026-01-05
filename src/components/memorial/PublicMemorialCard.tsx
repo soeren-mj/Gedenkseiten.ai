@@ -3,10 +3,8 @@
 import React from 'react';
 import Image from 'next/image';
 import { InitialsPreview } from './InitialsPreview';
-import { Database } from '@/lib/supabase';
+import { Memorial } from '@/lib/supabase';
 import { formatFullName } from '@/lib/utils/nameFormatter';
-
-type Memorial = Database['public']['Tables']['memorials']['Row'];
 
 export interface PublicMemorialCardProps {
   memorial: Memorial;
@@ -19,10 +17,10 @@ export interface PublicMemorialCardProps {
  * Profile card for public memorial pages
  * Displays memorial profile information: photo, name, dates, and callout
  */
-export const PublicMemorialCard: React.FC<PublicMemorialCardProps> = ({
+export const PublicMemorialCard = ({
   memorial,
   className = '',
-}) => {
+}: PublicMemorialCardProps) => {
   const isAnimal = memorial.type === 'pet';
 
   // Format dates (DD.MM.YYYY)
@@ -86,19 +84,14 @@ export const PublicMemorialCard: React.FC<PublicMemorialCardProps> = ({
 
               {/* Animal breed info */}
               {isAnimal && (memorial.Tierarten || memorial.Rassengruppe || memorial.Rassen) && (
-                <div className="flex flex-col gap-1 text-body-m text-secondary">
+                <div className="flex gap-4 text-body-m text-secondary">
                   {memorial.Tierarten?.Tierart_Name && (
                     <div className="flex gap-2 items-center">
                       <span>𝌂</span>
                       <span>{memorial.Tierarten.Tierart_Name}</span>
                     </div>
                   )}
-                  {memorial.Rassengruppe?.Rassengruppe_Name && (
-                    <div className="flex gap-2 items-center">
-                      <span>𝌄</span>
-                      <span>{memorial.Rassengruppe.Rassengruppe_Name}</span>
-                    </div>
-                  )}
+             
                   {memorial.Rassen?.Rasse_Name && (
                     <div className="flex gap-2 items-center">
                       <span>𝌀</span>

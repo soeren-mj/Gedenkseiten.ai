@@ -4,9 +4,7 @@
  */
 
 import { createClient } from '@/lib/supabase/server';
-import { Database } from '@/lib/supabase';
-
-type Memorial = Database['public']['Tables']['memorials']['Row'];
+import { Memorial, MemorialInvitation, supabase as legacySupabase } from '@/lib/supabase';
 
 export interface MemorialAccessResult {
   hasAccess: boolean;
@@ -32,34 +30,63 @@ export async function checkMemorialAccess(
 ): Promise<MemorialAccessResult> {
   const supabase = await createClient();
 
-  // Fetch the memorial with joined animal info
-  const { data: memorial, error: memorialError } = await supabase
+  // Fetch the memorial
+  const { data, error: memorialError } = await supabase
     .from('memorials')
-    .select(`
-      *,
-      Tierarten(Tierart_Name),
-      Rassengruppe(Rassengruppe_Name),
-      Rassen(Rasse_Name)
-    `)
+    .select('*')
     .eq('id', memorialId)
     .single();
 
-  // DEBUG: Log memorial fetch result
-  console.log('[checkMemorialAccess] Memorial fetch result:', {
-    memorialId,
-    found: !!memorial,
-    error: memorialError?.message,
-    privacyLevel: memorial?.privacy_level,
-    createdBy: memorial?.creator_id,
-  });
-
-  if (memorialError || !memorial) {
+  if (memorialError || !data) {
     console.error('[checkMemorialAccess] Memorial not found or error:', memorialError);
     return {
       hasAccess: false,
       memorial: null,
       accessReason: 'denied',
     };
+  }
+
+  // Cast to Memorial type
+  const memorial = data as Memorial;
+
+  // For pet memorials, fetch animal names separately using legacy client
+  // (Server client has issues with these tables)
+  if (memorial.type === 'pet') {
+    // Fetch Tierart
+    if (memorial.animal_type_id) {
+      const { data: tierartData } = await legacySupabase
+        .from('Tierarten')
+        .select('Tierart_Name')
+        .eq('Tierart_ID', memorial.animal_type_id)
+        .single();
+      if (tierartData) {
+        memorial.Tierarten = tierartData as { Tierart_Name: string };
+      }
+    }
+
+    // Fetch Rassengruppe
+    if (memorial.breed_group_id) {
+      const { data: rassengruppeData } = await legacySupabase
+        .from('Rassengruppe')
+        .select('Rassengruppe_Name')
+        .eq('Rassengruppe_ID', memorial.breed_group_id)
+        .single();
+      if (rassengruppeData) {
+        memorial.Rassengruppe = rassengruppeData as { Rassengruppe_Name: string };
+      }
+    }
+
+    // Fetch Rasse
+    if (memorial.breed_id) {
+      const { data: rasseData } = await legacySupabase
+        .from('Rassen')
+        .select('Rasse_Name')
+        .eq('Rassen_ID', memorial.breed_id)
+        .single();
+      if (rasseData) {
+        memorial.Rassen = rasseData as { Rasse_Name: string };
+      }
+    }
   }
 
   // Public memorials: everyone has access
@@ -99,13 +126,15 @@ export async function checkMemorialAccess(
   }
 
   // Check if user has an accepted invitation
-  const { data: invitation, error: invitationError } = await supabase
+  const { data: invitationData, error: invitationError } = await supabase
     .from('memorial_invitations')
     .select('*')
     .eq('memorial_id', memorialId)
     .eq('invited_user_id', userId)
     .eq('status', 'accepted')
     .single();
+
+  const invitation = invitationData as MemorialInvitation | null;
 
   if (invitationError || !invitation) {
     return {
@@ -136,7 +165,8 @@ export async function incrementMemorialViewCount(
 ): Promise<boolean> {
   const supabase = await createClient();
 
-  const { error } = await supabase.rpc('increment_memorial_view_count', {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error } = await (supabase.rpc as any)('increment_memorial_view_count', {
     memorial_id: memorialId,
   });
 
