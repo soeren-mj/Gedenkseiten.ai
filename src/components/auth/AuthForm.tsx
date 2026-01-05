@@ -222,7 +222,7 @@ export default function AuthForm({
               />
             </svg>
           </div>
-          <h3 className="text-subsection-h3 text-primary">Magic Link verschickt!</h3>
+          <h4 className="text-primary">Magic Link verschickt!</h4>
         </div>
         <p className="text-body-m text-secondary text-center">
           Wir haben dir eine E-Mail an <strong>{email}</strong> geschickt. Bitte überprüfe dein

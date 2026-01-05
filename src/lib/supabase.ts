@@ -91,6 +91,11 @@ export type Memorial = {
   breed_group_id: number | null; // numeric FK to Rassengruppe
   breed_id: number | null; // numeric FK to Rassen
 
+  // Joined animal info (from Supabase select with JOINs)
+  Tierarten?: { Tierart_Name: string } | null;
+  Rassengruppe?: { Rassengruppe_Name: string } | null;
+  Rassen?: { Rasse_Name: string } | null;
+
   // Display
   avatar_type: 'initials' | 'image';
   avatar_url: string | null;
