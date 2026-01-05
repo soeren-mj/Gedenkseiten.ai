@@ -10,10 +10,11 @@ import { createClient } from '@/lib/supabase/server';
  */
 export async function GET(
   request: Request,
-  { params }: { params: { typeId: string } }
+  { params }: { params: Promise<{ typeId: string }> }
 ) {
   try {
-    const typeId = parseInt(params.typeId);
+    const { typeId: typeIdStr } = await params;
+    const typeId = parseInt(typeIdStr);
 
     if (isNaN(typeId)) {
       return NextResponse.json(
@@ -47,7 +48,14 @@ export async function GET(
     console.log(`[breeds-by-type/${typeId}] Fetched ${data?.length || 0} breeds`);
     console.log('[breeds-by-type] First 10 breeds:', data?.slice(0, 10).map(b => b.Rasse_Name));
 
-    return NextResponse.json({ data: data || [] });
+    return NextResponse.json(
+      { data: data || [] },
+      {
+        headers: {
+          'Cache-Control': 'no-store, no-cache, must-revalidate',
+        },
+      }
+    );
 
   } catch (error) {
     console.error('Unexpected error:', error);

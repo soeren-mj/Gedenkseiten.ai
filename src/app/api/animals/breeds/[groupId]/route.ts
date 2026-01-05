@@ -9,10 +9,11 @@ import { createClient } from '@/lib/supabase/server';
  */
 export async function GET(
   request: Request,
-  { params }: { params: { groupId: string } }
+  { params }: { params: Promise<{ groupId: string }> }
 ) {
   try {
-    const groupId = parseInt(params.groupId);
+    const { groupId: groupIdStr } = await params;
+    const groupId = parseInt(groupIdStr);
 
     if (isNaN(groupId)) {
       return NextResponse.json(
@@ -37,7 +38,14 @@ export async function GET(
       );
     }
 
-    return NextResponse.json({ data: data || [] });
+    return NextResponse.json(
+      { data: data || [] },
+      {
+        headers: {
+          'Cache-Control': 'no-store, no-cache, must-revalidate',
+        },
+      }
+    );
 
   } catch (error) {
     console.error('Unexpected error:', error);

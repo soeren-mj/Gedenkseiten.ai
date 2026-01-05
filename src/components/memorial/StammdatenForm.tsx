@@ -2,12 +2,33 @@
 
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Select } from '@/components/forms/Select';
 import { Button } from '@/components/ui/Button';
 import { InlineDatePicker } from '@/components/forms/InlineDatePicker';
-import { personBasicInfoSchema, type PersonBasicInfo } from '@/lib/validation/memorial-schema';
+import { InlineAutocomplete, InlineAutocompleteList } from '@/components/forms/InlineAutocomplete';
+import { personBasicInfoSchema, petBasicInfoSchema, type PersonBasicInfo, type PetBasicInfo } from '@/lib/validation/memorial-schema';
 import { format } from 'date-fns';
+
+/**
+ * Animal Type / Breed Interfaces (from Wizard)
+ */
+interface AnimalType {
+  Tierart_ID: number;
+  Tierart_Name: string;
+}
+
+interface BreedGroup {
+  Rassengruppe_ID: number;
+  Rassengruppe_Name: string;
+  FK_Tierart_ID: number;
+}
+
+interface Breed {
+  Rassen_ID: number;
+  Rasse_Name: string;
+  FK_Rassengruppe_ID: number;
+}
 
 /**
  * Optional field configuration
@@ -16,29 +37,40 @@ type OptionalField = {
   id: string;
   label: string;
   required?: boolean;
+  forType: 'person' | 'pet' | 'both';
 };
 
 const OPTIONAL_FIELDS: OptionalField[] = [
-  { id: 'gender', label: 'Geschlecht' },
-  { id: 'salutation', label: 'Ansprache' },
-  { id: 'title', label: 'Titel' },
-  { id: 'first_name', label: 'Vorname', required: true },
-  { id: 'second_name', label: 'Zweiter Vorname' },
-  { id: 'third_name', label: 'Dritter Vorname' },
-  { id: 'nickname', label: 'Spitzname' },
-  { id: 'name_suffix', label: 'Namenszusatz' },
-  { id: 'last_name', label: 'Nachname', required: true },
-  { id: 'birth_name', label: 'Geburtsname' },
+  { id: 'gender', label: 'Geschlecht', forType: 'both' },
+  { id: 'salutation', label: 'Ansprache', forType: 'person' },
+  { id: 'title', label: 'Titel', forType: 'person' },
+  { id: 'first_name', label: 'Vorname', required: true, forType: 'person' },
+  { id: 'first_name', label: 'Name deines Tieres', required: true, forType: 'pet' },
+  { id: 'second_name', label: 'Zweiter Vorname', forType: 'person' },
+  { id: 'third_name', label: 'Dritter Vorname', forType: 'person' },
+  { id: 'nickname', label: 'Spitzname', forType: 'both' },
+  { id: 'name_suffix', label: 'Namenszusatz', forType: 'person' },
+  { id: 'last_name', label: 'Nachname', required: true, forType: 'person' },
+  { id: 'birth_name', label: 'Geburtsname', forType: 'person' },
 ];
+
+// Helper to filter fields by memorial type
+const getFieldsForType = (memorialType: 'person' | 'pet') => {
+  return OPTIONAL_FIELDS.filter(f => f.forType === memorialType || f.forType === 'both');
+};
+
+// Combined form data type
+type FormData = PersonBasicInfo | PetBasicInfo;
 
 /**
  * StammdatenForm Props
  */
 type StammdatenFormProps = {
   mode: 'wizard' | 'edit';
-  initialData?: Partial<PersonBasicInfo>;
-  onSubmit: (data: PersonBasicInfo) => void | Promise<void>;
-  onChange?: (data: Partial<PersonBasicInfo>) => void;
+  memorialType?: 'person' | 'pet'; // defaults to 'person' for backward compatibility
+  initialData?: Partial<FormData>;
+  onSubmit: (data: FormData) => void | Promise<void>;
+  onChange?: (data: Partial<FormData>) => void;
   onValidityChange?: (isValid: boolean) => void;
   formId?: string;
   error?: string | null; // Error message to display near save button
@@ -47,12 +79,13 @@ type StammdatenFormProps = {
 /**
  * StammdatenForm Component
  *
- * Reusable form for person basic info that works in two modes:
+ * Reusable form for person/pet basic info that works in two modes:
  * - wizard: Auto-save on change, no submit button
  * - edit: Read-only with Edit button, then Save/Cancel buttons
  */
 export function StammdatenForm({
   mode,
+  memorialType = 'person',
   initialData = {},
   onSubmit,
   onChange,
@@ -60,6 +93,9 @@ export function StammdatenForm({
   formId = 'stammdaten-form',
   error = null,
 }: StammdatenFormProps) {
+  const isPet = memorialType === 'pet';
+  const fieldsForType = getFieldsForType(memorialType);
+
   // Edit mode state
   const [isEditing, setIsEditing] = useState(mode === 'wizard');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -68,14 +104,15 @@ export function StammdatenForm({
   // Field picker state
   const [isPickerOpen, setIsPickerOpen] = useState(false);
 
-  // Initialize selectedFields based on initialData
+  // Initialize selectedFields based on initialData and memorialType
   const [selectedFields, setSelectedFields] = useState<string[]>(() => {
-    const initialFields = ['first_name', 'last_name']; // Required fields
-    const optionalFieldIds = OPTIONAL_FIELDS.map(f => f.id);
+    // Required fields depend on memorial type
+    const initialFields = isPet ? ['first_name'] : ['first_name', 'last_name'];
+    const optionalFieldIds = fieldsForType.map(f => f.id);
 
     // Add fields that have values in initialData
     optionalFieldIds.forEach(fieldId => {
-      const value = initialData[fieldId as keyof PersonBasicInfo];
+      const value = initialData[fieldId as keyof FormData];
       if (value && value !== '' && !initialFields.includes(fieldId)) {
         initialFields.push(fieldId);
       }
@@ -88,12 +125,36 @@ export function StammdatenForm({
   const [showBirthPicker, setShowBirthPicker] = useState(false);
   const [showDeathPicker, setShowDeathPicker] = useState(false);
 
-  // Relationship custom field visibility
+  // Relationship custom field visibility (only for persons)
   const [showCustomRelationship, setShowCustomRelationship] = useState(
-    initialData?.relationship_degree === 'Sonstiges'
+    !isPet && (initialData as Partial<PersonBasicInfo>)?.relationship_degree === 'Sonstiges'
   );
 
-  // Form setup with Zod validation
+  // ============================================================================
+  // PET-SPECIFIC: Animal cascade states (from Wizard)
+  // ============================================================================
+  const [showAnimalTypeList, setShowAnimalTypeList] = useState(false);
+  const [showBreedGroupList, setShowBreedGroupList] = useState(false);
+  const [showBreedList, setShowBreedList] = useState(false);
+  const [animalTypeSearch, setAnimalTypeSearch] = useState('');
+  const [breedGroupSearch, setBreedGroupSearch] = useState('');
+  const [breedSearch, setBreedSearch] = useState('');
+
+  // Refs for click-outside detection
+  const animalTypeRef = useRef<HTMLDivElement>(null);
+  const breedGroupRef = useRef<HTMLDivElement>(null);
+  const breedRef = useRef<HTMLDivElement>(null);
+
+  // Animal cascade data
+  const [animalTypes, setAnimalTypes] = useState<AnimalType[]>([]);
+  const [breedGroups, setBreedGroups] = useState<BreedGroup[]>([]);
+  const [breeds, setBreeds] = useState<Breed[]>([]);
+  const [loadingTypes, setLoadingTypes] = useState(false);
+  const [loadingBreedGroups, setLoadingBreedGroups] = useState(false);
+  const [loadingBreeds, setLoadingBreeds] = useState(false);
+
+  // Form setup with Zod validation - use correct schema based on memorial type
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const {
     register,
     handleSubmit,
@@ -102,8 +163,9 @@ export function StammdatenForm({
     control,
     reset,
     formState: { errors, isValid, dirtyFields },
-  } = useForm<PersonBasicInfo>({
-    resolver: zodResolver(personBasicInfoSchema),
+  } = useForm<FormData>({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    resolver: zodResolver(isPet ? petBasicInfoSchema : personBasicInfoSchema) as any,
     mode: 'onChange',
     defaultValues: initialData,
   });
@@ -112,7 +174,7 @@ export function StammdatenForm({
   useEffect(() => {
     if (mode === 'wizard') {
       const subscription = watch((value) => {
-        onChange?.(value as Partial<PersonBasicInfo>);
+        onChange?.(value as Partial<FormData>);
       });
       return () => subscription.unsubscribe();
     }
@@ -123,8 +185,8 @@ export function StammdatenForm({
     const subscription = watch((value) => {
       const fieldsToAdd: string[] = [];
 
-      OPTIONAL_FIELDS.forEach(field => {
-        const fieldValue = value[field.id as keyof PersonBasicInfo];
+      fieldsForType.forEach(field => {
+        const fieldValue = value[field.id as keyof FormData];
         if (fieldValue && fieldValue !== '' && !selectedFields.includes(field.id)) {
           fieldsToAdd.push(field.id);
         }
@@ -136,30 +198,179 @@ export function StammdatenForm({
     });
 
     return () => subscription.unsubscribe();
-  }, [watch, selectedFields]);
+  }, [watch, selectedFields, fieldsForType]);
 
-  // Watch relationship_degree to toggle custom field
+  // Watch relationship_degree to toggle custom field (only for persons)
   useEffect(() => {
+    if (isPet) return; // Skip for pets
+
     const subscription = watch((value) => {
-      const relationshipDegree = value.relationship_degree;
+      const personValue = value as Partial<PersonBasicInfo>;
+      const relationshipDegree = personValue.relationship_degree;
       setShowCustomRelationship(relationshipDegree === 'Sonstiges');
 
       // Clear custom text if not "Sonstiges" (only if it has a value to prevent infinite loop)
-      if (relationshipDegree !== 'Sonstiges' && value.relationship_custom) {
-        setValue('relationship_custom', '', { shouldDirty: false });
+      if (relationshipDegree !== 'Sonstiges' && personValue.relationship_custom) {
+        setValue('relationship_custom' as keyof FormData, '' as never, { shouldDirty: false });
       }
     });
 
     return () => subscription.unsubscribe();
-  }, [watch, setValue]);
+  }, [watch, setValue, isPet]);
 
   // Report validity changes to parent (for wizard mode button state)
   useEffect(() => {
     onValidityChange?.(isValid);
   }, [isValid, onValidityChange]);
 
+  // ============================================================================
+  // PET-SPECIFIC: Click-outside detection for inline autocompletes (from Wizard)
+  // ============================================================================
+  useEffect(() => {
+    if (!isPet) return;
+
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+
+      // Don't close if clicking a trigger button (let onOpenChange handle it)
+      if (target.closest('[data-inline-autocomplete-trigger]')) return;
+
+      // Normal click-outside logic
+      if (animalTypeRef.current && !animalTypeRef.current.contains(event.target as Node)) {
+        setShowAnimalTypeList(false);
+      }
+      if (breedGroupRef.current && !breedGroupRef.current.contains(event.target as Node)) {
+        setShowBreedGroupList(false);
+      }
+      if (breedRef.current && !breedRef.current.contains(event.target as Node)) {
+        setShowBreedList(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isPet]);
+
+  // ============================================================================
+  // PET-SPECIFIC: Load animal types on mount (from Wizard)
+  // ============================================================================
+  useEffect(() => {
+    if (!isPet) return;
+
+    setLoadingTypes(true);
+    fetch('/api/animals/types')
+      .then((res) => res.json())
+      .then((data) => {
+        if (!data.error) {
+          setAnimalTypes(data.data || []);
+        } else {
+          console.error('[StammdatenForm] API error:', data.error);
+        }
+        setLoadingTypes(false);
+      })
+      .catch((err) => {
+        console.error('[StammdatenForm] Fetch error:', err);
+        setLoadingTypes(false);
+      });
+  }, [isPet]);
+
+  // PET-SPECIFIC: Watch animal_type_id for cascade
+  const selectedAnimalTypeId = watch('animal_type_id' as keyof FormData) as number | undefined;
+  const selectedBreedGroupId = watch('breed_group_id' as keyof FormData) as number | undefined;
+  const selectedBreedId = watch('breed_id' as keyof FormData) as number | undefined;
+
+  // ============================================================================
+  // PET-SPECIFIC: Load breed groups AND all breeds when animal type changes (from Wizard)
+  // ============================================================================
+  useEffect(() => {
+    if (!isPet || !selectedAnimalTypeId) {
+      setBreedGroups([]);
+      setBreeds([]);
+      return;
+    }
+
+    // Load breed groups
+    setLoadingBreedGroups(true);
+    fetch(`/api/animals/breed-groups/${selectedAnimalTypeId}`)
+      .then((res) => res.json())
+      .then((data) => {
+        setBreedGroups(data.data || []);
+        setLoadingBreedGroups(false);
+      })
+      .catch(() => {
+        setLoadingBreedGroups(false);
+      });
+
+    // Load ALL breeds for this animal type (for parallel selection)
+    setLoadingBreeds(true);
+    fetch(`/api/animals/breeds-by-type/${selectedAnimalTypeId}`)
+      .then((res) => res.json())
+      .then((data) => {
+        setBreeds(data.data || []);
+        setLoadingBreeds(false);
+      })
+      .catch(() => {
+        setLoadingBreeds(false);
+      });
+
+    // Reset dependent fields
+    setValue('breed_group_id' as keyof FormData, undefined as never);
+    setValue('breed_id' as keyof FormData, undefined as never);
+  }, [selectedAnimalTypeId, setValue, isPet]);
+
+  // ============================================================================
+  // PET-SPECIFIC: Filter breeds when breed group changes (from Wizard)
+  // ============================================================================
+  useEffect(() => {
+    if (!isPet) return;
+
+    if (selectedBreedGroupId && selectedAnimalTypeId) {
+      // Re-fetch breeds filtered by breed group
+      setLoadingBreeds(true);
+      fetch(`/api/animals/breeds/${selectedBreedGroupId}`)
+        .then((res) => res.json())
+        .then((data) => {
+          setBreeds(data.data || []);
+          setLoadingBreeds(false);
+        })
+        .catch(() => {
+          setLoadingBreeds(false);
+        });
+
+      // Reset breed selection when breed group changes
+      setValue('breed_id' as keyof FormData, undefined as never);
+    } else if (!selectedBreedGroupId && selectedAnimalTypeId) {
+      // Breed group was cleared - reload ALL breeds for animal type
+      setLoadingBreeds(true);
+      fetch(`/api/animals/breeds-by-type/${selectedAnimalTypeId}`)
+        .then((res) => res.json())
+        .then((data) => {
+          setBreeds(data.data || []);
+          setLoadingBreeds(false);
+        })
+        .catch(() => {
+          setLoadingBreeds(false);
+        });
+    }
+  }, [selectedBreedGroupId, selectedAnimalTypeId, setValue, isPet]);
+
+  // ============================================================================
+  // PET-SPECIFIC: Auto-fill breed group when breed is selected directly (from Wizard)
+  // ============================================================================
+  useEffect(() => {
+    if (!isPet) return;
+
+    if (selectedBreedId && !selectedBreedGroupId) {
+      // Find the breed in the breeds array and auto-set breed_group_id
+      const selectedBreed = breeds.find(b => b.Rassen_ID === selectedBreedId);
+      if (selectedBreed?.FK_Rassengruppe_ID) {
+        setValue('breed_group_id' as keyof FormData, selectedBreed.FK_Rassengruppe_ID as never);
+      }
+    }
+  }, [selectedBreedId, selectedBreedGroupId, breeds, setValue, isPet]);
+
   // Handle form submission
-  const handleFormSubmit = async (data: PersonBasicInfo) => {
+  const handleFormSubmit = async (data: FormData) => {
     if (mode === 'edit') {
       setIsSubmitting(true);
       try {
@@ -188,37 +399,58 @@ export function StammdatenForm({
   const toggleField = (fieldId: string) => {
     if (selectedFields.includes(fieldId)) {
       setSelectedFields(selectedFields.filter(id => id !== fieldId));
-      setValue(fieldId as keyof PersonBasicInfo, '');
+      setValue(fieldId as keyof FormData, '' as never);
     } else {
       setSelectedFields([...selectedFields, fieldId]);
     }
   };
 
   // Determine if field has changed (for accent color)
-  const isFieldDirty = (fieldName: keyof PersonBasicInfo) => {
-    return mode === 'edit' && isEditing && dirtyFields[fieldName];
+  const isFieldDirty = (fieldName: keyof FormData) => {
+    return mode === 'edit' && isEditing && dirtyFields[fieldName as keyof typeof dirtyFields];
+  };
+
+  // ============================================================================
+  // PET-SPECIFIC: Helper functions for exclusive opening (from Wizard)
+  // ============================================================================
+  const openAnimalTypeList = () => {
+    setShowAnimalTypeList(true);
+    setShowBreedGroupList(false);
+    setShowBreedList(false);
+  };
+
+  const openBreedGroupList = () => {
+    setShowAnimalTypeList(false);
+    setShowBreedGroupList(true);
+    setShowBreedList(false);
+  };
+
+  const openBreedList = () => {
+    setShowAnimalTypeList(false);
+    setShowBreedGroupList(false);
+    setShowBreedList(true);
   };
 
   // Render field input
   const renderField = (field: OptionalField) => {
     if (!selectedFields.includes(field.id)) return null;
 
-    const isDirty = isFieldDirty(field.id as keyof PersonBasicInfo);
+    const isDirty = isFieldDirty(field.id as keyof FormData);
     const textColorClass = isDirty ? 'text-accent' : 'text-primary';
     const isDisabled = mode === 'edit' && !isEditing;
 
     switch (field.id) {
       case 'first_name':
         return (
-          <div key={field.id}>
+          <div key={`${field.id}-${field.forType}`}>
             <div className="flex items-center px-3 py-2 border-b border-main">
               <label htmlFor="first_name" className="text-body-s text-primary w-40">
-                Vorname <span className="text-accent-red">*</span>
+                {field.label} <span className="text-accent-red">*</span>
               </label>
               <input
                 id="first_name"
                 type="text"
-                placeholder="Max"
+                placeholder={isPet ? 'z.B. Bella, Max, Luna' : 'Max'}
                 disabled={isDisabled}
                 {...register('first_name')}
                 className={`flex-1 text-body-s bg-transparent border-0 focus:outline-none focus:ring-0 text-right placeholder:text-inverted-secondary pr-3 ${textColorClass} disabled:opacity-60`}
@@ -242,22 +474,27 @@ export function StammdatenForm({
                 type="text"
                 placeholder="Schmidt"
                 disabled={isDisabled}
-                {...register('last_name')}
+                {...register('last_name' as keyof FormData)}
                 className={`flex-1 text-body-s bg-transparent border-0 focus:outline-none focus:ring-0 text-right placeholder:text-inverted-secondary pr-3 ${textColorClass} disabled:opacity-60`}
               />
             </div>
-            {errors.last_name && (
-              <p className="px-4 pb-2 text-body-s text-accent-red">{errors.last_name.message}</p>
+            {(errors as { last_name?: { message?: string } }).last_name && (
+              <p className="px-4 pb-2 text-body-s text-accent-red">{(errors as { last_name?: { message?: string } }).last_name?.message}</p>
             )}
           </div>
         );
 
       case 'gender':
+        // Pet has only männlich/weiblich, Person has more options
         return (
           <div key={field.id} className="flex items-center px-3 py-2 border-b border-main">
             <label className="text-body-s text-primary w-40">Geschlecht</label>
             <Select
-              options={[
+              options={isPet ? [
+                { value: '', label: 'Bitte auswählen' },
+                { value: 'männlich', label: 'Männlich' },
+                { value: 'weiblich', label: 'Weiblich' },
+              ] : [
                 { value: '', label: 'Bitte auswählen' },
                 { value: 'männlich', label: 'Männlich' },
                 { value: 'weiblich', label: 'Weiblich' },
@@ -282,7 +519,7 @@ export function StammdatenForm({
                 { value: 'keine Angabe', label: 'Keine Angabe' },
               ]}
               disabled={isDisabled}
-              {...register('salutation')}
+              {...register('salutation' as keyof FormData)}
             />
           </div>
         );
@@ -303,7 +540,7 @@ export function StammdatenForm({
               type="text"
               placeholder={field.label}
               disabled={isDisabled}
-              {...register(field.id as keyof PersonBasicInfo)}
+              {...register(field.id as keyof FormData)}
               className={`flex-1 text-body-s bg-transparent border-0 focus:outline-none focus:ring-0 text-right placeholder:text-inverted-secondary pr-3 ${textColorClass} disabled:opacity-60`}
             />
           </div>
@@ -326,15 +563,16 @@ export function StammdatenForm({
       )}
 
       {/* Form */}
-      <form id={formId} onSubmit={handleSubmit(handleFormSubmit)} className="gap-3 flex flex-col">
+      {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+      <form id={formId} onSubmit={handleSubmit(handleFormSubmit as any)} className="gap-3 flex flex-col">
         {/* Name Section */}
         <div>
           <h3 className="text-webapp-group text-primary px-2 mb-2">Name</h3>
           <div className={`${mode === 'edit' && !isEditing ? 'bg-bw-opacity-40' : 'bg-bw'} rounded-xs overflow-hidden`}>
             {!isPickerOpen ? (
               <>
-                {/* Show selected fields */}
-                {OPTIONAL_FIELDS.map((field) => renderField(field))}
+                {/* Show selected fields - use fieldsForType for type-specific fields */}
+                {fieldsForType.map((field) => renderField(field))}
 
                 {/* Weitere Felder Button (only when editing) */}
                 {(mode === 'wizard' || isEditing) && (
@@ -350,9 +588,9 @@ export function StammdatenForm({
             ) : (
               <>
                 {/* Field Picker - Checkbox List */}
-                {OPTIONAL_FIELDS.map((field) => (
+                {fieldsForType.map((field) => (
                   <label
-                    key={field.id}
+                    key={`${field.id}-${field.forType}`}
                     className="flex items-center px-3 py-2 border-b border-main last:border-b-0 cursor-pointer hover:bg-tertiary/30 transition-colors"
                   >
                     <input
@@ -381,6 +619,178 @@ export function StammdatenForm({
             )}
           </div>
         </div>
+
+        {/* ============================================================================ */}
+        {/* PET-SPECIFIC: Animal Classification Section (from Wizard) */}
+        {/* ============================================================================ */}
+        {isPet && (
+          <div>
+            <h3 className="text-webapp-group text-primary px-2 mb-2">Klassifikation (optional)</h3>
+            <div className={`${mode === 'edit' && !isEditing ? 'bg-bw-opacity-40' : 'bg-bw'} rounded-xs overflow-hidden`}>
+              {/* Animal Type */}
+              <div ref={animalTypeRef}>
+                {/* Row 1: Label + Trigger */}
+                <div className="flex items-center px-3 py-2 border-b border-main">
+                  <label className="text-body-s text-primary w-40 flex-shrink-0">
+                    Tierart
+                  </label>
+                  <div className="flex-1">
+                    <InlineAutocomplete
+                      placeholder={loadingTypes ? 'Lädt...' : 'z.B. Hund, Katze'}
+                      options={animalTypes.map((t) => ({ value: t.Tierart_ID.toString(), label: t.Tierart_Name }))}
+                      value={selectedAnimalTypeId?.toString()}
+                      onChange={(value) => {
+                        if (value) {
+                          setValue('animal_type_id' as keyof FormData, Number(value) as never);
+                        }
+                      }}
+                      onOpenChange={(open) => {
+                        if (mode === 'edit' && !isEditing) return;
+                        if (open) openAnimalTypeList();
+                        else setShowAnimalTypeList(false);
+                      }}
+                      onClear={() => setValue('animal_type_id' as keyof FormData, undefined as never)}
+                      isOpen={showAnimalTypeList}
+                      searchValue={animalTypeSearch}
+                      onSearchChange={setAnimalTypeSearch}
+                      loading={loadingTypes}
+                      disabled={mode === 'edit' && !isEditing}
+                    />
+                  </div>
+                </div>
+
+                {/* Row 2: Inline List */}
+                {showAnimalTypeList && (mode === 'wizard' || isEditing) && (
+                  <div className="px-3 py-3 border-b border-main">
+                    <InlineAutocompleteList
+                      options={animalTypes.map((t) => ({ value: t.Tierart_ID.toString(), label: t.Tierart_Name }))}
+                      value={selectedAnimalTypeId?.toString()}
+                      onChange={(value) => {
+                        setValue('animal_type_id' as keyof FormData, Number(value) as never);
+                        setShowAnimalTypeList(false);
+                      }}
+                      searchValue={animalTypeSearch}
+                      onSearchChange={setAnimalTypeSearch}
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* Breed Group */}
+              <div ref={breedGroupRef}>
+                {/* Row 1: Label + Trigger */}
+                <div className="flex items-center px-3 py-2 border-b border-main">
+                  <label className="text-body-s text-primary w-40 flex-shrink-0">
+                    Rassengruppe
+                  </label>
+                  <div className="flex-1">
+                    <InlineAutocomplete
+                      placeholder={
+                        !selectedAnimalTypeId
+                          ? 'Wähle zuerst Tierart'
+                          : loadingBreedGroups
+                          ? 'Lädt...'
+                          : 'Rassengruppe wählen'
+                      }
+                      options={breedGroups.map((g) => ({ value: g.Rassengruppe_ID.toString(), label: g.Rassengruppe_Name }))}
+                      value={selectedBreedGroupId?.toString()}
+                      onChange={(value) => {
+                        if (value) {
+                          setValue('breed_group_id' as keyof FormData, Number(value) as never);
+                        }
+                      }}
+                      onOpenChange={(open) => {
+                        if (mode === 'edit' && !isEditing) return;
+                        if (open) openBreedGroupList();
+                        else setShowBreedGroupList(false);
+                      }}
+                      onClear={() => {
+                        setValue('breed_group_id' as keyof FormData, undefined as never);
+                        setValue('breed_id' as keyof FormData, undefined as never);
+                      }}
+                      isOpen={showBreedGroupList}
+                      searchValue={breedGroupSearch}
+                      onSearchChange={setBreedGroupSearch}
+                      disabled={!selectedAnimalTypeId || (mode === 'edit' && !isEditing)}
+                      loading={loadingBreedGroups}
+                    />
+                  </div>
+                </div>
+
+                {/* Row 2: Inline List */}
+                {showBreedGroupList && (mode === 'wizard' || isEditing) && (
+                  <div className="px-3 py-3 border-b border-main">
+                    <InlineAutocompleteList
+                      options={breedGroups.map((g) => ({ value: g.Rassengruppe_ID.toString(), label: g.Rassengruppe_Name }))}
+                      value={selectedBreedGroupId?.toString()}
+                      onChange={(value) => {
+                        setValue('breed_group_id' as keyof FormData, Number(value) as never);
+                        setShowBreedGroupList(false);
+                      }}
+                      searchValue={breedGroupSearch}
+                      onSearchChange={setBreedGroupSearch}
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* Breed */}
+              <div ref={breedRef}>
+                {/* Row 1: Label + Trigger */}
+                <div className="flex items-center px-3 py-2">
+                  <label className="text-body-s text-primary w-40 flex-shrink-0">
+                    Rasse
+                  </label>
+                  <div className="flex-1">
+                    <InlineAutocomplete
+                      placeholder={
+                        !selectedAnimalTypeId
+                          ? 'Wähle zuerst Tierart'
+                          : loadingBreeds
+                          ? 'Lädt...'
+                          : 'Rasse wählen'
+                      }
+                      options={breeds.map((b) => ({ value: b.Rassen_ID.toString(), label: b.Rasse_Name }))}
+                      value={selectedBreedId?.toString()}
+                      onChange={(value) => {
+                        if (value) {
+                          setValue('breed_id' as keyof FormData, Number(value) as never);
+                        }
+                      }}
+                      onOpenChange={(open) => {
+                        if (mode === 'edit' && !isEditing) return;
+                        if (open) openBreedList();
+                        else setShowBreedList(false);
+                      }}
+                      onClear={() => setValue('breed_id' as keyof FormData, undefined as never)}
+                      isOpen={showBreedList}
+                      searchValue={breedSearch}
+                      onSearchChange={setBreedSearch}
+                      disabled={!selectedAnimalTypeId || (mode === 'edit' && !isEditing)}
+                      loading={loadingBreeds}
+                    />
+                  </div>
+                </div>
+
+                {/* Row 2: Inline List */}
+                {showBreedList && (mode === 'wizard' || isEditing) && (
+                  <div className="px-3 py-3">
+                    <InlineAutocompleteList
+                      options={breeds.map((b) => ({ value: b.Rassen_ID.toString(), label: b.Rasse_Name }))}
+                      value={selectedBreedId?.toString()}
+                      onChange={(value) => {
+                        setValue('breed_id' as keyof FormData, Number(value) as never);
+                        setShowBreedList(false);
+                      }}
+                      searchValue={breedSearch}
+                      onSearchChange={setBreedSearch}
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Birth Information Section */}
         <div>
@@ -520,7 +930,8 @@ export function StammdatenForm({
           </div>
         </div>
 
-        {/* Relationship Degree Section */}
+        {/* Relationship Degree Section - ONLY for persons */}
+        {!isPet && (
         <div>
           <h3 className="text-webapp-group text-primary px-2">Verwandschaftsgrad</h3>
           <p className="text-body-s text-secondary px-2 mb-2">
@@ -574,7 +985,7 @@ export function StammdatenForm({
                   { value: 'Sonstiges', label: 'Sonstiges', group: 'Andere' },
                 ]}
                 disabled={mode === 'edit' && !isEditing}
-                {...register('relationship_degree')}
+                {...register('relationship_degree' as keyof FormData)}
               />
             </div>
 
@@ -589,13 +1000,14 @@ export function StammdatenForm({
                   type="text"
                   placeholder="z.B. Patenkind, Pflegevater, ..."
                   disabled={mode === 'edit' && !isEditing}
-                  {...register('relationship_custom')}
-                  className={`flex-1 text-body-s bg-transparent border-0 focus:outline-none focus:ring-0 text-right placeholder:text-inverted-secondary pr-3 ${isFieldDirty('relationship_custom') ? 'text-accent' : 'text-primary'} disabled:opacity-60`}
+                  {...register('relationship_custom' as keyof FormData)}
+                  className={`flex-1 text-body-s bg-transparent border-0 focus:outline-none focus:ring-0 text-right placeholder:text-inverted-secondary pr-3 ${isFieldDirty('relationship_custom' as keyof FormData) ? 'text-accent' : 'text-primary'} disabled:opacity-60`}
                 />
               </div>
             )}
           </div>
         </div>
+        )}
       </form>
 
       {/* Save/Cancel Buttons (only in edit mode, when editing) */}

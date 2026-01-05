@@ -8,10 +8,12 @@ import { createClient } from '@/lib/supabase/client'
  * Auth Callback Page - Handles Magic Links and Email Change
  *
  * This page handles:
- * 1. Magic Link tokens (#access_token=...&refresh_token=...)
- * 2. Email change confirmations (?flow=email_change)
+ * 1. Token Hash (?token_hash=...&type=email) - Magic Link with verifyOtp (recommended)
+ * 2. PKCE code (?code=...) - Redirects to API handler for server-side exchange
+ * 3. Magic Link tokens (#access_token=...&refresh_token=...) - Legacy implicit flow
+ * 4. Email change confirmations (?flow=email_change)
  *
- * OAuth PKCE (?code=...) is handled by the Route Handler at /api/auth/callback/route.ts
+ * Note: Token Hash flow is preferred as it doesn't require cookies/code_verifier.
  */
 export default function AuthCallbackPage() {
   const router = useRouter()
@@ -43,7 +45,46 @@ export default function AuthCallbackPage() {
         }
 
         // ============================================
-        // MAGIC LINK FLOW (tokens in hash)
+        // TOKEN HASH FLOW (Magic Link with verifyOtp)
+        // ============================================
+        // This is the recommended flow - doesn't require cookies/code_verifier
+        const tokenHash = urlParams.get('token_hash')
+        const tokenType = urlParams.get('type')
+
+        if (tokenHash && tokenType === 'email') {
+          console.log('[Auth Callback Page] Token hash detected, using verifyOtp...')
+
+          const supabase = createClient()
+          const { data, error: verifyError } = await supabase.auth.verifyOtp({
+            token_hash: tokenHash,
+            type: 'email',
+          })
+
+          if (verifyError) {
+            console.error('[Auth Callback Page] ❌ Token verification failed:', verifyError)
+            setError(verifyError.message)
+            router.push(`/auth/login?error=${encodeURIComponent(verifyError.message)}`)
+            return
+          }
+
+          if (data.session) {
+            console.log('[Auth Callback Page] ✅ Session established via token hash:', data.user?.email)
+
+            // Check for redirect parameter
+            const redirectUrl = urlParams.get('redirect')
+            if (redirectUrl && redirectUrl.startsWith('/')) {
+              console.log('[Auth Callback Page] Redirecting to:', redirectUrl)
+              router.push(redirectUrl)
+            } else {
+              console.log('[Auth Callback Page] Redirecting to dashboard')
+              router.push('/dashboard')
+            }
+            return
+          }
+        }
+
+        // ============================================
+        // MAGIC LINK FLOW (tokens in hash - legacy implicit flow)
         // ============================================
         const accessToken = hashParams.get('access_token')
         const refreshToken = hashParams.get('refresh_token')
@@ -80,6 +121,26 @@ export default function AuthCallbackPage() {
             console.log('[Auth Callback Page] Redirecting to dashboard')
             router.push('/dashboard')
           }
+          return
+        }
+
+        // ============================================
+        // PKCE CODE EXCHANGE FLOW (query parameter)
+        // ============================================
+        // PKCE must be handled server-side because code_verifier is in cookies
+        // that the browser client cannot access. Redirect to API route handler.
+        const code = urlParams.get('code')
+
+        if (code) {
+          console.log('[Auth Callback Page] PKCE code detected, redirecting to API handler...')
+
+          const redirectUrl = urlParams.get('redirect')
+          const apiUrl = redirectUrl
+            ? `/api/auth/callback?code=${encodeURIComponent(code)}&redirect=${encodeURIComponent(redirectUrl)}`
+            : `/api/auth/callback?code=${encodeURIComponent(code)}`
+
+          // Redirect to API route handler (server-side code exchange)
+          window.location.href = apiUrl
           return
         }
 

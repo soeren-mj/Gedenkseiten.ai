@@ -32,10 +32,15 @@ export async function checkMemorialAccess(
 ): Promise<MemorialAccessResult> {
   const supabase = await createClient();
 
-  // Fetch the memorial
+  // Fetch the memorial with joined animal info
   const { data: memorial, error: memorialError } = await supabase
     .from('memorials')
-    .select('*')
+    .select(`
+      *,
+      Tierarten(Tierart_Name),
+      Rassengruppe(Rassengruppe_Name),
+      Rassen(Rasse_Name)
+    `)
     .eq('id', memorialId)
     .single();
 
@@ -58,13 +63,19 @@ export async function checkMemorialAccess(
   }
 
   // Public memorials: everyone has access
+  // But still check if authenticated user is the creator (for admin controls)
   if (memorial.privacy_level === 'public') {
-    console.log('[checkMemorialAccess] Public memorial - granting access');
+    const isCreator = userId && memorial.creator_id === userId;
+    console.log('[checkMemorialAccess] Public memorial - granting access', {
+      isCreator,
+      userId,
+      creatorId: memorial.creator_id,
+    });
     return {
       hasAccess: true,
       memorial,
       accessReason: 'public',
-      userRole: null,
+      userRole: isCreator ? 'administrator' : null,
     };
   }
 

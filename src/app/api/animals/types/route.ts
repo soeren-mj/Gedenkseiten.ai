@@ -24,7 +24,14 @@ export async function GET() {
       );
     }
 
-    return NextResponse.json({ data: data || [] });
+    return NextResponse.json(
+      { data: data || [] },
+      {
+        headers: {
+          'Cache-Control': 'no-store, no-cache, must-revalidate',
+        },
+      }
+    );
 
   } catch (error) {
     console.error('Unexpected error:', error);

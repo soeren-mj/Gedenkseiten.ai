@@ -4,16 +4,19 @@ import Link from 'next/link';
 import { ChevronLeft } from 'lucide-react';
 import { useMemorial } from '@/contexts/MemorialContext';
 import { StammdatenForm } from '@/components/memorial/StammdatenForm';
-import { type PersonBasicInfo } from '@/lib/validation/memorial-schema';
+import { type PersonBasicInfo, type PetBasicInfo } from '@/lib/validation/memorial-schema';
 import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useToast } from '@/contexts/ToastContext';
 import type { Memorial } from '@/lib/supabase';
 
+// Combined form data type
+type FormData = PersonBasicInfo | PetBasicInfo;
+
 /**
  * Memorial Stammdaten Management Page
  *
- * Allows editing of basic memorial information.
+ * Allows editing of basic memorial information for persons and pets.
  * Memorial data is provided by MemorialContext (fetched in layout).
  */
 export default function StammdatenPage() {
@@ -21,10 +24,25 @@ export default function StammdatenPage() {
   const { showSuccess, showError } = useToast();
   const [error, setError] = useState<string | null>(null);
 
-  // Convert memorial data to form format
-  const initialData: Partial<PersonBasicInfo> = {
-    gender: memorial.gender || undefined,
-    salutation: memorial.salutation || undefined,
+  const isPet = memorial.type === 'pet';
+
+  // Convert memorial data to form format - different fields for person vs pet
+  const petInitialData: Partial<PetBasicInfo> = {
+    first_name: memorial.first_name,
+    nickname: memorial.nickname || undefined,
+    gender: (memorial.gender as 'männlich' | 'weiblich') || undefined,
+    birth_date: memorial.birth_date,
+    birth_place: memorial.birth_place || undefined,
+    death_date: memorial.death_date,
+    death_place: memorial.death_place || undefined,
+    animal_type_id: memorial.animal_type_id || undefined,
+    breed_group_id: memorial.breed_group_id || undefined,
+    breed_id: memorial.breed_id || undefined,
+  };
+
+  const personInitialData: Partial<PersonBasicInfo> = {
+    gender: (memorial.gender as PersonBasicInfo['gender']) || undefined,
+    salutation: (memorial.salutation as PersonBasicInfo['salutation']) || undefined,
     title: memorial.title || undefined,
     first_name: memorial.first_name,
     second_name: memorial.second_name || undefined,
@@ -41,8 +59,10 @@ export default function StammdatenPage() {
     relationship_custom: memorial.relationship_custom || undefined,
   };
 
+  const initialData = isPet ? petInitialData : personInitialData;
+
   // Submit handler - save to API
-  const handleSubmit = async (data: PersonBasicInfo) => {
+  const handleSubmit = async (data: FormData) => {
     setError(null);
 
     try {
@@ -105,7 +125,9 @@ export default function StammdatenPage() {
           Stammdaten
         </h1>
         <p className="text-body-m text-secondary">
-          Hier kannst du die personenbezogenen Informationen des Verstorbenen bearbeiten.
+          {isPet
+            ? 'Hier kannst du die Informationen deines verstorbenen Tieres bearbeiten.'
+            : 'Hier kannst du die personenbezogenen Informationen des Verstorbenen bearbeiten.'}
         </p>
       </div>
 
@@ -114,6 +136,7 @@ export default function StammdatenPage() {
         <div className="flex flex-col gap-8 p-4 border border-card rounded-xs bg-primary">
           <StammdatenForm
             mode="edit"
+            memorialType={memorial.type as 'person' | 'pet'}
             initialData={initialData}
             onSubmit={handleSubmit}
             error={error}

@@ -5,6 +5,7 @@ This document contains known authentication issues, their root causes, solutions
 ## Table of Contents
 - [Known Issues](#known-issues)
   - [getSession Timeout Error](#getsession-timeout-error)
+  - [getSession Timeout with @supabase/ssr (Missing Cookie Handlers)](#getsession-timeout-with-supabasessr-missing-cookie-handlers)
   - [Magic Link Not Working (Implicit vs PKCE Flow)](#magic-link-not-working-implicit-vs-pkce-flow)
   - [Race Conditions in Callback Handler](#race-conditions-in-callback-handler)
   - [Storage Key Mismatch](#storage-key-mismatch)
@@ -50,6 +51,123 @@ Error: getSession timeout after 10 seconds
 - `src/lib/supabase/client-legacy.ts`
 - `src/app/auth/callback/page.tsx` (client-side with URL detection)
 - `src/contexts/AuthContext.tsx`
+
+---
+
+### getSession Timeout with @supabase/ssr (Missing Cookie Handlers)
+
+**Symptom:**
+```
+[AuthContext] Initializing auth, getting session...
+[AuthContext] Error in initAuth: Error: getSession timeout after 10 seconds
+```
+- After successful login via API callback, user is redirected back to `/auth/login`
+- Server logs show successful code exchange, but client can't read session
+- Cookies exist in browser DevTools and are NOT httpOnly
+
+**Root Cause:**
+
+`createBrowserClient` from `@supabase/ssr` without explicit cookie handlers does NOT work reliably, even though the documentation claims it uses `document.cookie` automatically.
+
+**Diagnosis Steps:**
+
+1. Check Browser DevTools → Application → Cookies
+2. Verify Supabase cookies exist (e.g., `sb-xxx-auth-token`)
+3. Check if HttpOnly column is empty (= NOT httpOnly)
+4. If cookies exist and are readable, the problem is missing cookie handlers
+
+**The Problem Chain:**
+
+1. Server-side callback exchanges PKCE code successfully ✅
+2. Server sets session cookies (not httpOnly) ✅
+3. Browser redirects to `/dashboard` ✅
+4. `createBrowserClient` without cookie handlers tries to read cookies
+5. Internal cookie handling fails silently
+6. `getSession()` hangs → timeout after 10 seconds
+7. AuthContext thinks user is not logged in → redirect to `/auth/login`
+
+**Solution:**
+✅ **Fixed by adding explicit cookie handlers WITH SSR guards**
+
+```typescript
+// src/lib/supabase/client.ts
+browserClient = createBrowserClient<Database>(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+  {
+    cookies: {
+      getAll() {
+        // SSR Guard - return empty array if not in browser
+        if (typeof document === 'undefined') {
+          return []
+        }
+        return document.cookie.split('; ').map(cookie => {
+          const [name, ...rest] = cookie.split('=')
+          return {
+            name: decodeURIComponent(name),
+            value: decodeURIComponent(rest.join('='))
+          }
+        }).filter(c => c.name) // Filter empty entries
+      },
+      setAll(cookiesToSet) {
+        // SSR Guard - skip if not in browser
+        if (typeof document === 'undefined') {
+          return
+        }
+        cookiesToSet.forEach(({ name, value, options }) => {
+          let cookieString = `${encodeURIComponent(name)}=${encodeURIComponent(value)}`
+          if (options?.path) {
+            cookieString += `; path=${options.path}`
+          } else {
+            cookieString += `; path=/`
+          }
+          if (options?.maxAge) {
+            cookieString += `; max-age=${options.maxAge}`
+          }
+          if (options?.sameSite) {
+            cookieString += `; samesite=${options.sameSite}`
+          }
+          if (options?.secure) {
+            cookieString += `; secure`
+          }
+          document.cookie = cookieString
+        })
+      },
+    },
+    auth: {
+      detectSessionInUrl: false,
+    },
+  }
+)
+```
+
+**Why SSR Guards are Required:**
+
+- `typeof document === 'undefined'` checks if code runs in browser
+- During SSR/hydration, `document` is not available
+- Without guards, the code crashes or behaves unexpectedly
+- Guards return empty arrays during SSR, allowing proper hydration
+
+**Why This Works:**
+
+- Explicit cookie handlers ensure reliable cookie reading/writing
+- SSR guards prevent crashes during server-side rendering
+- Cookies set by server are properly read by browser client
+- `getSession()` can now find the session cookies
+
+**Files Changed:**
+- `src/lib/supabase/client.ts` - Added explicit cookie handlers with SSR guards
+
+**Related Issue:**
+If PKCE code exchange also hangs, the callback page should redirect to the API route:
+```typescript
+// src/app/auth/callback/page.tsx
+if (code) {
+  // Redirect to API handler for server-side code exchange
+  window.location.href = `/api/auth/callback?code=${code}`
+  return
+}
+```
 
 ---
 
@@ -574,5 +692,5 @@ If you encounter an auth issue not covered here:
 
 ---
 
-**Last Updated:** 2025-10-29
+**Last Updated:** 2026-01-03
 **Maintainer:** Development Team

@@ -2,9 +2,11 @@ import { Metadata } from 'next';
 import { notFound, redirect } from 'next/navigation';
 import { checkMemorialAccess, incrementMemorialViewCount } from '@/lib/utils/memorial-access';
 import { createClient } from '@/lib/supabase/server';
-import MemorialProfileSidebar from '@/components/memorial/MemorialProfileSidebar';
+import PublicMemorialCard from '@/components/memorial/PublicMemorialCard';
+import ReactionsBar from '@/components/memorial/ReactionsBar';
 import ObituarySection from '@/components/memorial/ObituarySection';
 import { WissenswertesSection } from '@/components/memorial/WissenswertesSection';
+import { KondolenzbuchSection } from '@/components/memorial/KondolenzbuchSection';
 import { formatFullName } from '@/lib/utils/nameFormatter';
 
 interface PageProps {
@@ -54,17 +56,17 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   return {
     title: `${fullName} ${years} - Gedenkseite`,
-    description: memorial.callout_text || memorial.obituary?.substring(0, 160) || `In liebevoller Erinnerung an ${fullName}`,
+    description: memorial.memorial_quote || memorial.obituary?.substring(0, 160) || `In liebevoller Erinnerung an ${fullName}`,
     openGraph: {
       title: `${fullName} ${years}`,
-      description: memorial.callout_text || `In liebevoller Erinnerung an ${fullName}`,
+      description: memorial.memorial_quote || `In liebevoller Erinnerung an ${fullName}`,
       type: 'profile',
       images: memorial.avatar_url ? [{ url: memorial.avatar_url }] : [],
     },
     twitter: {
       card: 'summary_large_image',
       title: `${fullName} ${years}`,
-      description: memorial.callout_text || `In liebevoller Erinnerung an ${fullName}`,
+      description: memorial.memorial_quote || `In liebevoller Erinnerung an ${fullName}`,
       images: memorial.avatar_url ? [memorial.avatar_url] : [],
     },
   };
@@ -118,12 +120,12 @@ export default async function MemorialPage({ params }: PageProps) {
   return (
     <div className="min-h-screen bg-light-dark-mode">
       {/* Main Content Container */}
-      <div className="container mx-auto py-8 lg:py-15">
+      <div className="max-w-full lg:max-w-screen-2xl mx-auto p-3 lg:p-10">
         {/* Header Two-column layout */}
-        <div className="flex flex-col lg:flex-row gap-4 p-2 rounded-lg border border-red-500">
+        <div className="flex flex-col lg:flex-row gap-4 p-2 rounded-xl border border-red-500">
           {/* Left Column - Profile Sidebar (Sticky on desktop) */}
           <aside className="lg:sticky lg:top-8 lg:self-start">
-            <MemorialProfileSidebar memorial={memorial} />
+            <PublicMemorialCard memorial={memorial} />
           </aside>
 
           {/* Right Column - Content Area */}
@@ -185,10 +187,10 @@ export default async function MemorialPage({ params }: PageProps) {
               )}
 
               {/* Placeholder for future sections */}
-              <div className="bg-white rounded-[20px] p-6 shadow border border-main">
+              <div className="bg-light-dark-mode rounded-[20px] p-6 shadow border border-main">
                 <div className="text-center py-8">
                   <p className="text-secondary text-sm">
-                    Weitere Bereiche wie Erinnerungen, Termine und Kondolenzbuch folgen in Kürze.
+                    Weitere Bereiche wie Erinnerungen und Termine folgen in Kürze.
                   </p>
                 </div>
               </div>
@@ -204,6 +206,24 @@ export default async function MemorialPage({ params }: PageProps) {
             </div>
           </main>
         </div>
+
+        {/* Reaktionen - temporär mit border-red-500, außerhalb des Haupt-Containers */}
+        <div className="w-full lg:w-[427px] mt-4 border border-red-500 pt-4 px-2">
+          <ReactionsBar memorialId={id} />
+        </div>
+
+        {/* Kondolenzbuch Section */}
+        <KondolenzbuchSection
+          memorialId={id}
+          memorialData={{
+            firstName: memorial.first_name,
+            lastName: memorial.last_name,
+            avatarUrl: memorial.avatar_url,
+            avatarType: memorial.avatar_type as 'initials' | 'image',
+          }}
+          isAuthenticated={!!user}
+          currentUserId={user?.id}
+        />
       </div>
     </div>
   );
