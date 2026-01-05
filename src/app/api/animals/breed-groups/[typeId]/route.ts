@@ -1,11 +1,12 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { supabase } from '@/lib/supabase';
 
 /**
  * GET /api/animals/breed-groups/[typeId]
  *
  * Fetches breed groups (Rassengruppe) for a specific animal type.
  * Public endpoint - no authentication required.
+ * Uses legacy client (not @supabase/ssr) since this is a public API without session needs.
  */
 export async function GET(
   request: Request,
@@ -21,8 +22,6 @@ export async function GET(
         { status: 400 }
       );
     }
-
-    const supabase = await createClient();
 
     const { data, error } = await supabase
       .from('Rassengruppe')

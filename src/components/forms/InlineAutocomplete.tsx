@@ -237,8 +237,11 @@ export const InlineAutocompleteList: React.FC<InlineAutocompleteListProps> = ({
   const debouncedSearchTerm = useDebounce(searchValue, 300);
 
   // Filter options based on search term
+  // Use searchValue directly if empty (no debounce needed for showing all options)
+  // Use debouncedSearchTerm for actual search queries (reduces filtering while typing)
+  const searchTerm = searchValue === '' ? '' : debouncedSearchTerm;
   const filteredOptions = options.filter((option) =>
-    option.label.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
+    option.label.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   // Auto-scroll to selected item on mount

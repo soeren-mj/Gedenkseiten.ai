@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { supabase } from '@/lib/supabase';
 
 /**
  * GET /api/animals/breeds-by-type/[typeId]
@@ -7,6 +7,7 @@ import { createClient } from '@/lib/supabase/server';
  * Fetches all breeds for a specific animal type (across all breed groups).
  * Used for parallel selection: user can choose breed directly without selecting breed group first.
  * Public endpoint - no authentication required.
+ * Uses legacy client (not @supabase/ssr) since this is a public API without session needs.
  */
 export async function GET(
   request: Request,
@@ -22,8 +23,6 @@ export async function GET(
         { status: 400 }
       );
     }
-
-    const supabase = await createClient();
 
     // Join Rassen with Rassengruppe to filter by animal type
     const { data, error } = await supabase
