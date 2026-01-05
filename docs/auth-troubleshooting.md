@@ -7,6 +7,7 @@ This document contains known authentication issues, their root causes, solutions
   - [getSession Timeout Error](#getsession-timeout-error)
   - [getSession Timeout with @supabase/ssr (Missing Cookie Handlers)](#getsession-timeout-with-supabasessr-missing-cookie-handlers)
   - [Magic Link Not Working (Implicit vs PKCE Flow)](#magic-link-not-working-implicit-vs-pkce-flow)
+  - [PKCE Code Verifier Missing After Cookie Clear](#pkce-code-verifier-missing-after-cookie-clear)
   - [Race Conditions in Callback Handler](#race-conditions-in-callback-handler)
   - [Storage Key Mismatch](#storage-key-mismatch)
 - [Architecture Overview](#architecture-overview)
@@ -271,6 +272,135 @@ const { data: { session } } = await supabase.auth.getSession()
 1. **PKCE for Magic Links:** Supabase `signInWithOtp()` fundamentally uses implicit flow, cannot be switched to PKCE
 2. **Server-side only:** Cannot work because URL fragments aren't sent to server
 3. **detectSessionInUrl everywhere:** Causes race conditions between AuthContext and Callback
+
+---
+
+### PKCE Code Verifier Missing After Cookie Clear
+
+**Symptom:**
+```
+invalid request: both auth code and code verifier should be non-empty
+```
+- User requests Magic Link via email
+- User clears browser cookies/cache before clicking the link
+- User clicks Magic Link
+- Authentication fails with code_verifier error
+
+**Root Cause:**
+
+`@supabase/ssr` uses **PKCE (Proof Key for Code Exchange)** by default for Magic Links:
+
+1. `signInWithOtp()` generates a `code_verifier` and stores it in cookies
+2. Supabase sends Magic Link with `?code=XXX` (PKCE code)
+3. When user clicks link, callback tries to exchange code using `code_verifier` from cookies
+4. **Problem:** If cookies were cleared, `code_verifier` is missing → code exchange fails
+
+**Flow Diagram:**
+```
+AuthForm → signInWithOtp() → code_verifier stored in Cookie
+                           → Email sent with ?code=XXX
+
+[User clears cookies]
+
+User clicks link → /auth/callback?code=XXX
+                → API: exchangeCodeForSession(code)
+                → code_verifier missing in cookies
+                → ERROR: "both auth code and code verifier should be non-empty"
+```
+
+**Important:** `flowType: 'implicit'` is NOT a valid option in `createBrowserClient` from `@supabase/ssr`. The PKCE flow cannot be disabled via code configuration.
+
+**Solution: Token Hash Flow with verifyOtp()**
+
+Instead of relying on PKCE code exchange, use the **Token Hash flow** which doesn't require cookies:
+
+**Step 1: Update Supabase Email Template**
+
+In Supabase Dashboard → Authentication → Email Templates → Magic Link:
+
+```html
+<!-- Before (PKCE flow - requires code_verifier in cookies) -->
+<a href="{{ .ConfirmationURL }}">Anmelden</a>
+
+<!-- After (Token Hash flow - no cookies required) -->
+<a href="{{ .SiteURL }}?token_hash={{ .TokenHash }}&type=email">Anmelden</a>
+```
+
+**Important:** If your Site URL already includes `/auth/callback` (e.g., `https://example.com/auth/callback`), don't add `/auth/callback` again in the template!
+
+**Step 2: Handle Token Hash in Callback**
+
+```typescript
+// src/app/auth/callback/page.tsx
+useEffect(() => {
+  const handleCallback = async () => {
+    const urlParams = new URLSearchParams(window.location.search)
+
+    // ============================================
+    // TOKEN HASH FLOW (Magic Link with verifyOtp)
+    // ============================================
+    // This is the recommended flow - doesn't require cookies/code_verifier
+    const tokenHash = urlParams.get('token_hash')
+    const tokenType = urlParams.get('type')
+
+    if (tokenHash && tokenType === 'email') {
+      console.log('[Auth Callback Page] Token hash detected, using verifyOtp...')
+
+      const supabase = createClient()
+      const { data, error: verifyError } = await supabase.auth.verifyOtp({
+        token_hash: tokenHash,
+        type: 'email',
+      })
+
+      if (verifyError) {
+        console.error('[Auth Callback Page] ❌ Token verification failed:', verifyError)
+        router.push(`/auth/login?error=${encodeURIComponent(verifyError.message)}`)
+        return
+      }
+
+      if (data.session) {
+        console.log('[Auth Callback Page] ✅ Session established via token hash')
+
+        const redirectUrl = urlParams.get('redirect')
+        if (redirectUrl && redirectUrl.startsWith('/')) {
+          router.push(redirectUrl)
+        } else {
+          router.push('/dashboard')
+        }
+        return
+      }
+    }
+
+    // ... handle other flows (PKCE code, hash tokens, etc.)
+  }
+
+  handleCallback()
+}, [router])
+```
+
+**Why Token Hash Works:**
+
+| Aspect | PKCE Flow | Token Hash Flow |
+|--------|-----------|-----------------|
+| Cookie dependency | Requires `code_verifier` in cookies | No cookies required |
+| Cross-device | ❌ Must use same browser | ✅ Works on any device |
+| After cookie clear | ❌ Fails | ✅ Works |
+| Security | High (code + verifier) | High (one-time token hash) |
+
+**Files Changed:**
+- Supabase Dashboard: Email Template for Magic Link
+- `src/app/auth/callback/page.tsx` - Added Token Hash handling before PKCE flow
+
+**Quick Fix (Temporary):**
+
+If users encounter this error before implementing Token Hash:
+1. Do NOT clear cookies between requesting and clicking Magic Link
+2. Request a new Magic Link after clearing cookies
+3. Click link in the SAME browser where it was requested
+
+**Documentation Reference:**
+- [Supabase Passwordless Login](https://supabase.com/docs/guides/auth/auth-email-passwordless)
+- [PKCE Flow Docs](https://supabase.com/docs/guides/auth/sessions/pkce-flow)
 
 ---
 
@@ -692,5 +822,5 @@ If you encounter an auth issue not covered here:
 
 ---
 
-**Last Updated:** 2026-01-03
+**Last Updated:** 2026-01-05
 **Maintainer:** Development Team
