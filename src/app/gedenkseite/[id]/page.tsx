@@ -8,6 +8,7 @@ import ObituarySection from '@/components/memorial/ObituarySection';
 import { WissenswertesSection } from '@/components/memorial/WissenswertesSection';
 import { KondolenzbuchSection } from '@/components/memorial/KondolenzbuchSection';
 import { formatFullName } from '@/lib/utils/nameFormatter';
+import Link from 'next/link';
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -79,6 +80,17 @@ export default async function MemorialPage({ params }: PageProps) {
   // Get current user
   const { data: { user } } = await supabase.auth.getUser();
 
+  // Fetch user profile data if authenticated
+  let userProfile: { name: string | null; avatar_url: string | null } | null = null;
+  if (user) {
+    const { data: profile } = await supabase
+      .from('users')
+      .select('name, avatar_url')
+      .eq('id', user.id)
+      .single();
+    userProfile = profile;
+  }
+
   // Check memorial access
   const accessResult = await checkMemorialAccess(id, user?.id);
 
@@ -109,6 +121,33 @@ export default async function MemorialPage({ params }: PageProps) {
 
   const { memorial, userRole } = accessResult;
 
+  // Fetch Wissenswertes server-side
+  const { data: wissenswertes } = await supabase
+    .from('wissenswertes')
+    .select('*')
+    .eq('memorial_id', id)
+    .order('order_index', { ascending: true });
+
+  // Check if Kondolenzbuch exists
+  const { data: condolenceBook } = await supabase
+    .from('condolence_books')
+    .select('id')
+    .eq('memorial_id', id)
+    .single();
+
+  // Layout logic
+  const hasObituary = !!memorial.obituary;
+  const hasWissenswertes = (wissenswertes?.length ?? 0) > 0;
+  const hasCondolenceBook = !!condolenceBook;
+  const hasBothMainContent = hasObituary && hasWissenswertes;
+
+  // Kondolenzbuch position: in Right Column unless both Nachruf AND Wissenswertes exist
+  const showKondolenzbuchInRightColumn = hasCondolenceBook && !hasBothMainContent;
+  const showKondolenzbuchBelow = hasCondolenceBook && hasBothMainContent;
+
+  // Empty state only when nothing exists
+  const showEmptyState = !hasObituary && !hasWissenswertes && !hasCondolenceBook;
+
   // Increment view count for all memorials (public and private)
   // Fire and forget - don't await to avoid slowing page load
   incrementMemorialViewCount(id).catch(() => {
@@ -119,109 +158,113 @@ export default async function MemorialPage({ params }: PageProps) {
     <div className="min-h-screen bg-light-dark-mode">
       {/* Main Content Container */}
       <div className="max-w-full lg:max-w-screen-2xl mx-auto p-3 lg:p-10">
+        {/* Admin Controls (only for administrators) */}
+        {userRole === 'administrator' && (
+          <div className="flex items-center justify-center gap-2 mb-4">
+            <span className="w-2 h-2 rounded-full bg-interactive-primary-default shrink-0" />
+            <p className="text-sm text-secondary">
+              Du bist Administrator dieser Gedenkseite.{' '}
+              <a
+                href={`/gedenkseite/${id}/verwalten`}
+                className="underline hover:text-primary transition-colors"
+              >
+                Seite verwalten
+              </a>
+            </p>
+          </div>
+        )}
+
         {/* Header Two-column layout */}
-        <div className="flex flex-col lg:flex-row gap-4 p-2 rounded-xl border border-red-500">
+        <div className="flex flex-col lg:flex-row gap-4 p-2 rounded-xl bg-bw border border-red-500">
           {/* Left Column - Profile Sidebar (Sticky on desktop) */}
           <aside className="lg:sticky lg:top-8 lg:self-start">
             <PublicMemorialCard memorial={memorial} />
           </aside>
 
           {/* Right Column - Content Area */}
-          <main className="flex-1 max-w-3xl">
-            <div className="flex flex-col gap-6">
-              {/* Admin Controls (only for administrators) */}
-              {userRole === 'administrator' && (
-                <div className="bg-accent-light border border-accent rounded-xl p-4 flex items-center justify-between">
-                  <div>
-                    <h3 className="font-inter font-semibold text-[#1F2024] mb-1">
-                      Verwaltungsmodus
-                    </h3>
-                    <p className="text-sm text-secondary">
-                      Sie sind Administrator dieser Gedenkseite
-                    </p>
-                  </div>
-                  <a
-                    href={`/gedenkseite/${id}/verwalten`}
-                    className="px-4 py-2 bg-interactive-primary-default hover:bg-interactive-primary-hover text-white rounded-lg font-inter font-semibold text-sm transition-colors"
-                  >
-                    Seite verwalten
-                  </a>
-                </div>
-              )}
-
+          <main className="flex-1">
+            <div className="flex flex-col gap-6 h-full items-center justify-center">
               {/* Obituary Section */}
-              {memorial.obituary && <ObituarySection obituary={memorial.obituary} />}
+              {hasObituary && <ObituarySection obituary={memorial.obituary!} />}
 
               {/* Wissenswertes Section */}
-              <WissenswertesSection memorialId={id} />
+              {hasWissenswertes && <WissenswertesSection items={wissenswertes!} />}
 
-              {/* Empty State - No content yet */}
-              {!memorial.obituary && (
-                <div className="bg-white rounded-[20px] p-12 shadow border border-main text-center">
+              {/* Kondolenzbuch in Right Column (when not both Nachruf AND Wissenswertes) */}
+              {showKondolenzbuchInRightColumn && (
+                <KondolenzbuchSection
+                  memorialId={id}
+                  memorialData={{
+                    firstName: memorial.first_name,
+                    lastName: memorial.last_name,
+                    avatarUrl: memorial.avatar_url,
+                    avatarType: memorial.avatar_type as 'initials' | 'image',
+                  }}
+                  isAuthenticated={!!user}
+                  currentUserId={user?.id}
+                  userName={userProfile?.name || undefined}
+                  userAvatar={userProfile?.avatar_url}
+                />
+              )}
+
+              {/* Empty State - only when no content at all */}
+              {showEmptyState && (
+                <div className="h-full w-full flex items-center justify-center bg-primary rounded-lg p-10">
                   <div className="max-w-md mx-auto">
-                    <svg
-                      className="w-20 h-20 mx-auto mb-6 text-secondary opacity-40"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={1.5}
-                        d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"
-                      />
-                    </svg>
-                    <h2 className="text-xl font-satoshi font-semibold text-primary mb-2">
-                      Noch keine Inhalte
-                    </h2>
-                    <p className="text-secondary">
+                    <h3 className="text-primary">
+                      Noch keine Inhalte.
+                    </h3>
+                    <p className="text-subsection-h3 text-secondary mb-1">
                       {userRole === 'administrator'
-                        ? 'Sie können Inhalte wie Nachruf, Erinnerungen und Termine hinzufügen.'
-                        : 'Der Verwalter hat noch keine weiteren Inhalte hinzugefügt.'}
+                        ? 'Füge Inhalte wie einen Spruch und Nachruf, Wissenswertes ein digitales Kondolenzbuch und Termine hinzu.'
+                        : 'Der Verwaltende hat noch keine weiteren Inhalte zu dieser Gedenkseite hinzugefügt.'}
                     </p>
+                    {userRole === 'administrator' && (
+                      <Link
+                        href={`/gedenkseite/${id}/verwalten`}
+                        className="mt-4 text-button-m text-interactive-default inline-flex items-center justify-center py-3 px-4 rounded-xs bg-interactive-primary-default hover:bg-interactive-primary-hover transition-all duration-200"
+                      >
+                        Inhalte hinzufügen
+                      </Link>
+                    )}
                   </div>
                 </div>
               )}
 
-              {/* Placeholder for future sections */}
-              <div className="bg-light-dark-mode rounded-[20px] p-6 shadow border border-main">
-                <div className="text-center py-8">
-                  <p className="text-secondary text-sm">
-                    Weitere Bereiche wie Erinnerungen und Termine folgen in Kürze.
-                  </p>
-                </div>
-              </div>
-
-              {/* View Count Display */}
-              {memorial.view_count !== undefined && memorial.view_count > 0 && (
-                <div className="text-center py-4">
-                  <p className="text-xs text-tertiary">
-                    Diese Gedenkseite wurde {memorial.view_count.toLocaleString('de-DE')} Mal besucht
-                  </p>
-                </div>
-              )}
             </div>
           </main>
         </div>
 
         {/* Reaktionen - temporär mit border-red-500, außerhalb des Haupt-Containers */}
-        <div className="w-full lg:w-[427px] mt-4 border border-red-500 pt-4 px-2">
+        <div className="w-full lg:px-6 mt-5 border border-red-500">
           <ReactionsBar memorialId={id} />
         </div>
 
-        {/* Kondolenzbuch Section */}
-        <KondolenzbuchSection
-          memorialId={id}
-          memorialData={{
-            firstName: memorial.first_name,
-            lastName: memorial.last_name,
-            avatarUrl: memorial.avatar_url,
-            avatarType: memorial.avatar_type as 'initials' | 'image',
-          }}
-          isAuthenticated={!!user}
-          currentUserId={user?.id}
-        />
+        {/* Kondolenzbuch Section (below layout - only when both Nachruf AND Wissenswertes exist) */}
+        {showKondolenzbuchBelow && (
+          <KondolenzbuchSection
+            memorialId={id}
+            memorialData={{
+              firstName: memorial.first_name,
+              lastName: memorial.last_name,
+              avatarUrl: memorial.avatar_url,
+              avatarType: memorial.avatar_type as 'initials' | 'image',
+            }}
+            isAuthenticated={!!user}
+            currentUserId={user?.id}
+            userName={userProfile?.name || undefined}
+            userAvatar={userProfile?.avatar_url}
+          />
+        )}
+
+        {/* View Count Display */}
+        {memorial.view_count !== undefined && memorial.view_count > 0 && (
+          <div className="text-center py-6">
+            <p className="text-xs text-tertiary">
+              Diese Gedenkseite wurde {memorial.view_count.toLocaleString('de-DE')} Mal besucht
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );
