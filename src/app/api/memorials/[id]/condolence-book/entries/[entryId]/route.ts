@@ -38,7 +38,7 @@ export async function GET(
       .select(
         `
         *,
-        user:users!condolence_entries_user_id_fkey(id, name, avatar_url),
+        user:users(id, name, avatar_url),
         images:condolence_entry_images(*)
       `
       )
@@ -218,7 +218,7 @@ export async function PATCH(
       .select(
         `
         *,
-        user:users!condolence_entries_user_id_fkey(id, name, avatar_url),
+        user:users(id, name, avatar_url),
         images:condolence_entry_images(*)
       `
       )

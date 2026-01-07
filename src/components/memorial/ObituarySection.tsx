@@ -27,35 +27,36 @@ export const ObituarySection: React.FC<ObituarySectionProps> = ({
   }
 
   // Show expand button if obituary is longer than 500 characters
-  const shouldShowExpand = obituary.length > 500;
+  const shouldShowExpand = obituary.length > 300;
   const displayText = shouldShowExpand && !isExpanded
-    ? obituary.substring(0, 500) + '...'
+    ? obituary.substring(0, 300) + '...'
     : obituary;
 
   return (
     <section
       id="obituary-section"
-      className={`bg-white rounded-[20px] p-6 lg:p-8 shadow border border-main ${className}`}
+      className={`max-w-2xl p-1 ${className}`}
     >
       {/* Section Header */}
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-[1.5rem] lg:text-[1.75rem] font-satoshi font-semibold text-[#1F2024]">
+      <div className="">
+        <h3 className=" ">
           Nachruf
-        </h2>
+        </h3>
       </div>
 
       {/* Obituary Content */}
-      <div className="prose prose-lg max-w-none">
-        <p className="text-[1rem] lg:text-[1.125rem] text-[#4D4E59] leading-[1.7] whitespace-pre-wrap">
+      <div className="">
+        <p className="whitespace-pre-wrap">
           {displayText}
         </p>
       </div>
 
       {/* Expand/Collapse Button */}
+      <div className="flex items-center justify-center mt-4">
       {shouldShowExpand && (
         <button
           onClick={() => setIsExpanded(!isExpanded)}
-          className="mt-4 text-[0.875rem] text-interactive-primary-default hover:text-interactive-primary-hover flex items-center gap-2 font-inter font-semibold transition-colors"
+          className="mt-4 text-button-s text-interactive-primary-default hover:text-interactive-primary-hover flex items-center gap-2 transition-colors"
         >
           {isExpanded ? 'Weniger anzeigen' : 'Mehr lesen'}
           <svg
@@ -64,7 +65,7 @@ export const ObituarySection: React.FC<ObituarySectionProps> = ({
             viewBox="0 0 17 17"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
-            className={`transition-transform ${isExpanded ? 'rotate-180' : ''}`}
+            className={`transition-transform duration-300 ease-in-out ${isExpanded ? 'rotate-180' : ''}`}
           >
             <path
               d="M2.07494 5.86947L2.90411 5.04297L8.51094 10.6498L14.1134 5.04297L14.9468 5.86947L8.51094 12.3053L2.07494 5.86947Z"
@@ -73,6 +74,7 @@ export const ObituarySection: React.FC<ObituarySectionProps> = ({
           </svg>
         </button>
       )}
+      </div>
     </section>
   );
 };

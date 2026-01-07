@@ -1,13 +1,13 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { CoverPreview } from '@/components/kondolenzbuch/CoverPreview';
 import { EntryCard } from '@/components/kondolenzbuch/EntryCard';
-import { TextArea } from '@/components/ui/TextArea';
+import { CondolenceEntryModal } from '@/components/kondolenzbuch/CondolenceEntryModal';
 import Button from '@/components/ui/Button';
 import { useToast } from '@/contexts/ToastContext';
+import { Skeleton } from '@/components/ui/Skeleton';
 import type { CondolenceBook, CondolenceEntryWithDetails, CoverType, TextColor } from '@/lib/supabase';
 
 interface KondolenzbuchSectionProps {
@@ -20,6 +20,8 @@ interface KondolenzbuchSectionProps {
   };
   isAuthenticated: boolean;
   currentUserId?: string;
+  userName?: string;
+  userAvatar?: string | null;
 }
 
 interface BookResponse {
@@ -42,15 +44,16 @@ interface EntriesResponse {
  * Displays:
  * - Cover preview (if book exists)
  * - List of condolence entries (visible ones only for non-authors)
- * - Entry creation form (if authenticated and no entry yet)
+ * - Modal for creating/editing entries
  */
 export function KondolenzbuchSection({
   memorialId,
   memorialData,
   isAuthenticated,
   currentUserId,
+  userName,
+  userAvatar,
 }: KondolenzbuchSectionProps) {
-  const router = useRouter();
   const { showToast } = useToast();
   const supabase = createClient();
 
@@ -60,13 +63,11 @@ export function KondolenzbuchSection({
   const [entries, setEntries] = useState<CondolenceEntryWithDetails[]>([]);
   const [hasUserEntry, setHasUserEntry] = useState(false);
 
-  // Entry creation state
-  const [showEntryForm, setShowEntryForm] = useState(false);
-  const [entryContent, setEntryContent] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  // Modal state
+  const [showModal, setShowModal] = useState(false);
+  const [editingEntry, setEditingEntry] = useState<CondolenceEntryWithDetails | null>(null);
 
   // Fetch book and entries
-  // Note: GET endpoints are public for public memorials - no auth needed
   const fetchData = useCallback(async () => {
     try {
       setIsLoading(true);
@@ -76,7 +77,6 @@ export function KondolenzbuchSection({
       const bookData: BookResponse = await bookRes.json();
 
       if (!bookData.success || !bookData.data) {
-        // No book exists
         setBook(null);
         setEntries([]);
         setIsLoading(false);
@@ -113,71 +113,73 @@ export function KondolenzbuchSection({
     fetchData();
   }, [fetchData]);
 
-  // Handle entry submission
-  const handleSubmitEntry = async () => {
-    if (!entryContent.trim()) {
-      showToast('error', 'Fehler', 'Bitte gib einen Text ein.');
-      return;
-    }
+  // Handle opening modal for new entry
+  const handleOpenCreateModal = () => {
+    setEditingEntry(null);
+    setShowModal(true);
+  };
 
+  // Handle opening modal for editing
+  const handleOpenEditModal = (entry: CondolenceEntryWithDetails) => {
+    setEditingEntry(entry);
+    setShowModal(true);
+  };
+
+  // Handle closing modal
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setEditingEntry(null);
+  };
+
+  // Handle modal success (refresh data)
+  const handleModalSuccess = () => {
+    fetchData();
+  };
+
+  // Handle toggle hide for own entry
+  const handleToggleHide = async (entry: CondolenceEntryWithDetails) => {
     try {
-      setIsSubmitting(true);
-
       const { data: { session } } = await supabase.auth.getSession();
       if (!session?.access_token) {
         showToast('error', 'Fehler', 'Du musst angemeldet sein.');
         return;
       }
 
-      const res = await fetch(`/api/memorials/${memorialId}/condolence-book/entries`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${session.access_token}`,
-        },
-        body: JSON.stringify({
-          content: entryContent.trim(),
-          images: [],
-        }),
-      });
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { error } = await (supabase as any)
+        .from('condolence_entries')
+        .update({ is_hidden: !entry.is_hidden })
+        .eq('id', entry.id);
 
-      const data = await res.json();
+      if (error) throw error;
 
-      if (!data.success) {
-        showToast('error', 'Fehler', data.error || 'Fehler beim Speichern.');
-        return;
-      }
+      // Update local state
+      setEntries((prev) =>
+        prev.map((e) =>
+          e.id === entry.id ? { ...e, is_hidden: !e.is_hidden } : e
+        )
+      );
 
-      showToast('success', 'Gespeichert', 'Deine Kondolenz wurde gespeichert.');
-      setEntryContent('');
-      setShowEntryForm(false);
-      setHasUserEntry(true);
-
-      // Refresh entries
-      await fetchData();
+      showToast(
+        'success',
+        entry.is_hidden ? 'Eingeblendet' : 'Verborgen',
+        entry.is_hidden
+          ? 'Dein Eintrag ist wieder sichtbar'
+          : 'Dein Eintrag ist nun verborgen'
+      );
     } catch (error) {
-      console.error('Error submitting entry:', error);
-      showToast('error', 'Fehler', 'Ein Fehler ist aufgetreten.');
-    } finally {
-      setIsSubmitting(false);
+      console.error('Error toggling entry visibility:', error);
+      showToast('error', 'Fehler', 'Fehler beim Ändern der Sichtbarkeit');
     }
-  };
-
-  // Handle login redirect
-  const handleLoginClick = () => {
-    router.push(`/auth/login?redirect=/gedenkseite/${memorialId}`);
   };
 
   // Loading state
   if (isLoading) {
     return (
-      <section className="bg-light-dark-mode rounded-[20px] p-6 shadow border border-main">
-        <h2 className="text-webapp-subsection font-satoshi font-semibold text-primary mb-4">
-          Kondolenzbuch
-        </h2>
-        <div className="animate-pulse flex flex-col gap-4">
-          <div className="h-40 bg-secondary rounded-md" />
-          <div className="h-24 bg-secondary rounded-md" />
+      <section className="bg-bw-opacity-40 p-5">
+        <h3 className="text-primary mb-6">Kondolenzbuch</h3>
+        <div className="flex justify-center">
+          <Skeleton className="w-[340px] h-[510px] rounded-md" />
         </div>
       </section>
     );
@@ -185,119 +187,93 @@ export function KondolenzbuchSection({
 
   // No book exists
   if (!book) {
-    return null; // Don't show section if admin hasn't created the book
+    return null;
   }
 
   return (
-    <section className="bg-light-dark-mode rounded-[20px] p-6 shadow border border-main">
-      <h2 className="text-webapp-subsection font-satoshi font-semibold text-primary mb-6">
-        Kondolenzbuch
-      </h2>
-
-      {/* Cover Preview */}
-      <div className="flex justify-center mb-8">
-        <CoverPreview
-          coverType={book.cover_type as CoverType}
-          coverValue={book.cover_value}
-          title={book.cover_title}
-          textColor={book.text_color as TextColor}
-          showProfile={book.show_profile}
-          memorialData={memorialData}
-          isEditing={false}
-        />
-      </div>
-
-      {/* Entries */}
-      {entries.length > 0 && (
-        <div className="mb-8">
-          <h3 className="text-body-l font-medium text-primary mb-4">
-            Einträge ({entries.length})
-          </h3>
-          <div className="flex flex-wrap gap-4 justify-center">
-            {entries.map((entry) => (
-              <EntryCard
-                key={entry.id}
-                entry={entry}
-                isOwn={entry.user_id === currentUserId}
-                isAdmin={false}
-              />
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Empty state for entries */}
-      {entries.length === 0 && (
-        <div className="text-center py-8 mb-8">
-          <p className="text-secondary">
-            Noch keine Einträge vorhanden. Sei der Erste, der eine Kondolenz hinterlässt.
+    <section className="bg-bw-opacity-40 p-5">
+      {/* Section Header + Counter + Button */}
+      <div className="flex justify-between items-end mb-6">
+        {/* Links: Titel + Counter */}
+        <div>
+          <h3 className="text-primary">Kondolenzbuch</h3>
+          <p className="text-secondary text-body-s">
+            {entries.length} {entries.length === 1 ? 'Eintrag' : 'Einträge'}
           </p>
         </div>
-      )}
 
-      {/* Entry creation section */}
-      <div className="border-t border-main pt-6">
-        {!isAuthenticated ? (
-          // Not logged in - show login prompt
-          <div className="text-center">
-            <p className="text-secondary mb-4">
-              Melde dich an, um eine Kondolenz zu hinterlassen.
-            </p>
-            <Button variant="secondary" onClick={handleLoginClick}>
-              Anmelden
-            </Button>
-          </div>
-        ) : hasUserEntry ? (
-          // User already has an entry
-          <div className="text-center">
-            <p className="text-secondary">
-              Du hast bereits einen Eintrag in diesem Kondolenzbuch.
-            </p>
-          </div>
-        ) : showEntryForm ? (
-          // Show entry form
-          <div className="max-w-xl mx-auto">
-            <h3 className="text-body-l font-medium text-primary mb-4">
-              Kondolenz hinterlassen
-            </h3>
-            <TextArea
-              value={entryContent}
-              onChange={(value) => setEntryContent(value)}
-              placeholder="Schreibe deine Kondolenz..."
-              maxLength={2000}
-              minRows={6}
-              showCharacterCount
-              className="mb-4"
-            />
-            <div className="flex gap-3 justify-end">
-              <Button
-                variant="tertiary"
-                onClick={() => {
-                  setShowEntryForm(false);
-                  setEntryContent('');
-                }}
-                disabled={isSubmitting}
-              >
-                Abbrechen
-              </Button>
-              <Button
-                variant="primary"
-                onClick={handleSubmitEntry}
-                disabled={isSubmitting || !entryContent.trim()}
-              >
-                {isSubmitting ? 'Speichern...' : 'Veröffentlichen'}
-              </Button>
+        {/* Rechts: Button (sichtbar wenn nicht eingeloggt ODER eingeloggt ohne Eintrag) */}
+        {(!isAuthenticated || !hasUserEntry) && (
+          <Button variant="primary" onClick={handleOpenCreateModal}>
+            Kondolenz hinterlassen
+          </Button>
+        )}
+      </div>
+
+      {/* Horizontaler Scroll-Container für Cover + Entries */}
+      <div className="flex gap-4 overflow-x-auto overflow-y-hidden snap-x snap-mandatory min-h-[420px] sm:min-h-[450px] md:h-[525px] w-full justify-center">
+        {/* Cover als erste Seite */}
+        <div className="flex-shrink-0 snap-start">
+          <CoverPreview
+            coverType={book.cover_type as CoverType}
+            coverValue={book.cover_value}
+            title={book.cover_title}
+            textColor={book.text_color as TextColor}
+            showProfile={book.show_profile}
+            memorialData={memorialData}
+            isEditing={false}
+          />
+        </div>
+
+        {/* Entry Cards als weitere Seiten */}
+        {entries.length === 0 ? (
+          <div className="flex-shrink-0 snap-start">
+            <div className="h-full min-h-[450px] max-h-[600px] aspect-[2/3] max-w-[400px] border-2 border-dashed border-interactive-default rounded-md flex flex-col items-center justify-center bg-primary p-6">
+              <p className="text-body-m text-secondary text-center">
+                Noch keine Einträge vorhanden.
+              </p>
+              <p className="text-body-s text-tertiary mt-1 text-center">
+                Sei der Erste, der eine Kondolenz hinterlässt.
+              </p>
             </div>
           </div>
         ) : (
-          // Show button to open form
-          <div className="text-center">
-            <Button variant="primary" onClick={() => setShowEntryForm(true)}>
-              Kondolenz hinterlassen
-            </Button>
-          </div>
+          entries.map((entry) => (
+            <div key={entry.id} className="flex-shrink-0 snap-start">
+              <EntryCard
+                entry={entry}
+                isOwn={entry.user_id === currentUserId}
+                isAdmin={false}
+                onEdit={
+                  entry.user_id === currentUserId
+                    ? () => handleOpenEditModal(entry)
+                    : undefined
+                }
+                onHide={
+                  entry.user_id === currentUserId
+                    ? () => handleToggleHide(entry)
+                    : undefined
+                }
+              />
+            </div>
+          ))
         )}
       </div>
+
+      {/* Condolence Entry Modal */}
+      <CondolenceEntryModal
+        isOpen={showModal}
+        onClose={handleCloseModal}
+        memorialId={memorialId}
+        bookId={book.id}
+        mode={editingEntry ? 'edit' : 'create'}
+        existingEntry={editingEntry || undefined}
+        onSuccess={handleModalSuccess}
+        isAuthenticated={isAuthenticated}
+        currentUserId={currentUserId}
+        userName={userName}
+        userAvatar={userAvatar}
+      />
     </section>
   );
 }

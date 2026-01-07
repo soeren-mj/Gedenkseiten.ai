@@ -100,7 +100,7 @@ export default function Navbar() {
         }`}
       >
         <div className="w-full max-w-[1820px] mx-auto px-5 md:px-8 lg:px-[60px]">
-          <div className="flex items-center justify-between h-20">
+          <div className="flex items-center justify-between h-10">
             {/* Logo and Brand */}
             <div className="flex items-center">
               <Link href="/" className="flex items-center space-x-1">

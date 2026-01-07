@@ -91,11 +91,11 @@ export function CookieBanner() {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div
-        className="max-w-[611px] p-3 rounded-lg backdrop-blur-xl"
+        className="max-w-2xl p-2 rounded-lg backdrop-blur-xl"
         style={{ boxShadow: '0 8px 16px 0 rgba(0, 0, 0, 0.1)' }}
       >
         <div
-        className="rounded-[1rem] overflow-hidden p-3 bg-primary inline-flex flex-col justify-start items-start gap-6"
+        className="rounded-md overflow-hidden p-4 bg-primary inline-flex flex-col justify-start items-start gap-6"
       >
         {/* Weiter ohne Zustimmung */}
         <button

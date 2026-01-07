@@ -133,8 +133,9 @@ export function ImageGallery({
 
   if (images.length === 0) return null;
 
-  // Thumbnails: Max 5 anzeigen, dann "+X"
-  const maxThumbnails = 5;
+  // Thumbnails: Show 4 + "+X" when overflow, otherwise show all (up to 5)
+  const hasOverflow = images.length > 5;
+  const maxThumbnails = hasOverflow ? 4 : 5;
   const displayThumbnails = images.slice(0, maxThumbnails);
   const remainingCount = images.length - maxThumbnails;
 

@@ -78,7 +78,7 @@ export const PublicMemorialCard = ({
           <div className="flex flex-col gap-6">
             <div className="flex flex-col gap-2">
               {/* Name */}
-              <h1 className="font-satoshi font-medium text-[2rem] leading-[1.2] tracking-[-0.09375rem] text-primary whitespace-pre-line">
+              <h1 className="text-primary whitespace-pre-line">
                 {fullName}
               </h1>
 
